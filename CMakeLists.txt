@@ -10,7 +10,7 @@ set(ARCH			    armv6-m)
 set(CORE			    cortex-m0plus)
 set(ARM_ASM             mthumb)
 set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/STM32G0B1KETXN_FLASH.ld)
-set(ELF_NAME            build.elf)
+set(BUILD_NAME            build.elf)
 set(HEX_NAME            build.hex)
 set(CMAKE_C_STANDARD    11)
 set(CMAKE_CXX_STANDARD  17)
@@ -44,41 +44,27 @@ enable_language(ASM)
 # The project name
 project(STEP_SEQUENCER VERSION 0.1 DESCRIPTION "STEP_SEQUENCER")
 
+find_package(Catch2 3 REQUIRED)
+
 # toolchain language settings
 set(CMAKE_C_COMPILER		arm-none-eabi-gcc)
 set(CMAKE_CXX_COMPILER		arm-none-eabi-g++)
 set(CMAKE_ASM_COMPILER		arm-none-eabi-gcc)
 
-# include dependencies
-include_directories(
-    "source/cube_gen_src/Inc"
-    "source/hal_drivers/STM32G0xx_HAL_Driver/Inc"
-    "source/hal_drivers/STM32G0xx_HAL_Driver/Inc/Legacy"
-    "source/hal_drivers/CMSIS/Device/ST/STM32G0xx/Include"
-    "source/hal_drivers/CMSIS/Include"
-    "source/main_app"
-    "source/cpp_tlc5955/"
-    "source/cpp_ssd1306/"
-    "source/segger_rtt"
-)
+# set the executable target
+add_executable(${BUILD_NAME} "")
 
-# source files
-file(GLOB_RECURSE 
-	 MAIN_SOURCE
-     "source/cube_gen_src/Src/*.c"
-     "source/hal_drivers/STM32G0xx_HAL_Driver/Src/*.c"
-     "source/main_app/*.cpp"
-     "source/cpp_ssd1306/*.cpp"
-     "source/cpp_tlc5955/*.cpp"
-     "source/cube_gen_src/Startup/startup_stm32g0b1ketxn.s"
-     "source/segger_rtt/*.c"
-)
+# add source files and include dependencies
+add_subdirectory(stm32cube_workspace)
+add_subdirectory(source/main_app)
+add_subdirectory(source/segger_rtt)
+add_subdirectory(source/cpp_tlc5955)
+add_subdirectory(source/cpp_ssd1306)
+add_subdirectory(source/test)
 
-# build the elf binary
-add_executable(${ELF_NAME} ${MAIN_SOURCE})
 
 # display size info
-add_custom_target(size ALL arm-none-eabi-size ${ELF_NAME} DEPENDS ${ELF_NAME})
+add_custom_target(size ALL arm-none-eabi-size ${BUILD_NAME} DEPENDS ${BUILD_NAME})
 
 # objcopy the elf file as a hex file
-add_custom_target(build.bin ALL DEPENDS ${ELF_NAME} COMMAND arm-none-eabi-objcopy -O ihex ${ELF_NAME} ${HEX_NAME})
+add_custom_target(build.bin ALL DEPENDS ${BUILD_NAME} COMMAND arm-none-eabi-objcopy -O ihex ${BUILD_NAME} ${HEX_NAME})
