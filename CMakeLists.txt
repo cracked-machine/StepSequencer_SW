@@ -7,7 +7,9 @@ set(TARGET          STM32G0B1KETxN)
 set(ARCH			armv6-m)
 set(CORE			cortex-m0plus)
 set(ARM_ASM            mthumb)
-
+set(LINKER_SCRIPT   ${CMAKE_SOURCE_DIR}/STM32G0B1KETXN_FLASH.ld)
+set(TARGET_ELF     build.elf)
+set(TARGET_HEX     build.hex)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -21,7 +23,8 @@ set(OPTIMIZATION "-O0")
 set(COMMON_FLAGS "-march=${ARCH} -mcpu=${CORE} -${ARM_ASM} ${OPTIMIZATION} ${DEBUG} ${ADDITIONAL_FLAGS} -mfloat-abi=soft -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wall -Wl,--gc-sections -fmessage-length=${MSG_LEN} -ffunction-sections -fdata-sections -ffreestanding -fno-builtin")
 set(CPP_FLAGS "-fno-rtti -fno-exceptions -fno-use-cxa-atexit -fno-threadsafe-statics -ftemplate-backtrace-limit=0")
 set(C_FLAGS "-ffunction-sections -fdata-sections -g3 -fstack-usage -Wno-unused-parameter -Wno-pedantic --specs=nano.specs")
-set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=cortex-m0 -specs=nosys.specs -static -Wl,-Map=build.map -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -T/home/chris/Projects/Embedded/StepSequencer/source/STM32G0B1KETXN_FLASH.ld " CACHE INTERNAL "exe link flags")
+set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=cortex-m0 -specs=nosys.specs -static -Wl,-Map=build.map -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -T${LINKER_SCRIPT}" CACHE INTERNAL "exe link flags")
+
 
 set(CMAKE_ASM_FLAGS	        "${COMMON_FLAGS} -MP -MD -x assembler-with-cpp" CACHE INTERNAL "asm compiler flags")
 set(CMAKE_ASM_FLAGS	        "${COMMON_FLAGS}" CACHE INTERNAL "asm compiler flags")
@@ -76,7 +79,11 @@ file(GLOB_RECURSE
      "source/segger_rtt/*.c"
 )
 
-add_executable(build.elf ${MAIN_SOURCE})
+# build the elf binary
+add_executable(${TARGET_ELF} ${MAIN_SOURCE})
 
-add_custom_target(size ALL arm-none-eabi-size build.elf DEPENDS build.elf)
-add_custom_target(build.bin ALL DEPENDS build.elf COMMAND arm-none-eabi-objcopy -O ihex build.elf build.hex)
+# display size info
+add_custom_target(size ALL arm-none-eabi-size ${TARGET_ELF} DEPENDS ${TARGET_ELF})
+
+# objcopy the elf file as a hex file
+add_custom_target(build.bin ALL DEPENDS ${TARGET_ELF} COMMAND arm-none-eabi-objcopy -O ihex ${TARGET_ELF} ${TARGET_HEX})
