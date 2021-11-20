@@ -1,0 +1,3 @@
+[submodule "source/cpp_ssd1306"]
+	path = source/cpp_ssd1306
+	url = https://github.com/cracked-machine/cpp_ssd1306
