@@ -29,6 +29,7 @@
 
 This project uses:
 
+- `VSCode`. This is the main IDE.
 - `gcc` compiler. Recommended to use `gcc-arm-none-eabi-9-2020-q2-update` with STM32G0B1 devices.
 - `cmake v3.22` to build the project. it is recommened to use VSCode with the `CMake tools` extension.
 - `SEGGER JLink` to debug the device. You will need to purchase [JLink probe from SEGGER](https://www.segger.com/products/debug-probes/j-link/).  You also need to install [JLink SW and doc pack](https://www.segger.com/downloads/jlink/)
