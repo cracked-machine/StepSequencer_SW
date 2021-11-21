@@ -1,14 +1,15 @@
 
+message("** Configuring ARM Environment **")
 
 set(CMAKE_SYSTEM_NAME		Linux)
 set(CMAKE_SYSTEM_VERSION	1)
 set(CMAKE_SYSTEM_PROCESSOR	arm-eabi)
 
-
-# # toolchain language settings
-set(CMAKE_C_COMPILER		arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER		arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER		arm-none-eabi-gcc)
+# binutils language settings
+# compilers are set by the select kit in vscode (CMAKE_C_COMPILER/CMAKE_CXX_COMPILER)
+set(CMAKE_OBJCOPY			arm-none-eabi-objcopy)
+set(CMAKE_OBJDUMP			arm-none-eabi-objdump)
+set(CMAKE_SIZE			    arm-none-eabi-size)
 
 set(TARGET              STM32G0B1KETxN)
 set(ARCH			    armv6-m)
@@ -17,6 +18,7 @@ set(ARM_ASM             mthumb)
 set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/STM32G0B1KETXN_FLASH.ld)
 set(BUILD_NAME            build.elf)
 set(HEX_NAME            build.hex)
+set(USE_HAL_DRIVER      USE_HAL_DRIVER)
 
 # common build settings
 set(COMMON_FLAGS "-march=${ARCH} -mcpu=${CORE} -${ARM_ASM} ${OPTIM_LVL} ${DEBUG_LVL} ${ADDITIONAL_FLAGS} -mfloat-abi=soft -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wall -Wl,--gc-sections -fmessage-length=0 -ffunction-sections -fdata-sections -ffreestanding -fno-builtin")
@@ -35,6 +37,7 @@ enable_language(CXX)
 ## Assembler compiler settings
 set(CMAKE_ASM_FLAGS	        "${COMMON_FLAGS} -MP -MD -x assembler-with-cpp" CACHE INTERNAL "asm compiler flags")
 enable_language(ASM)
+
 
 # common defines
 add_compile_definitions(${TARGET} USE_HAL_DRIVER)
