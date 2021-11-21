@@ -9,17 +9,20 @@ set(CMAKE_CXX_STANDARD  17)
 set(DEBUG_LVL           "-g3")
 set(OPTIM_LVL           "-O0")
 
+set(ARM_TRIPLET     "arm-none-eabi")
+set(X86_TRIPLET     "x86_64-linux-gnu")
+
 # determine which kit was selected by user in VSCode CMake Tools extension
 # and load the appropriate toolchain settings (stm32.cmake or linux.cmake)
-if(${CMAKE_C_COMPILER} MATCHES "(gcc-arm-none-eabi)+")
-    include(stm32.cmake)
-elseif(${CMAKE_C_COMPILER} MATCHES "(x86_64-linux-gnu)+")   
-    include(linux.cmake)
+if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+")
+    include(cmake/stm32.cmake)
+elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")   
+    include(cmake/linux.cmake)
 else()
     message(FATAL_ERROR "No suitable kit found. Aborting.")
 endif()
 
-message("Selected Kit: ${CMAKE_C_COMPILER}")
+
 
 # Declare the project 
 project(STEP_SEQUENCER VERSION 0.1 DESCRIPTION "STEP_SEQUENCER")
@@ -32,11 +35,11 @@ add_subdirectory(source/segger_rtt)
 add_subdirectory(source/cpp_tlc5955)
 add_subdirectory(source/cpp_ssd1306)
 
-if(${CMAKE_C_COMPILER} MATCHES "(gcc-arm-none-eabi)+") 
+if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+") 
     # add the stm32-specific sources
     add_subdirectory(stm32cube_workspace)
     add_subdirectory(source/main_app)
-elseif(${CMAKE_C_COMPILER} MATCHES "(x86_64-linux-gnu)+")   
+elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")   
     # setup CTest and add tests
     include(CTest)
     add_test(NAME tests COMMAND ${BUILD_NAME})
