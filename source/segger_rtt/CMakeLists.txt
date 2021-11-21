@@ -1,6 +1,6 @@
 target_sources(${BUILD_NAME} PRIVATE
-    SEGGER_RTT_printf.c
-    SEGGER_RTT.c
+    src/SEGGER_RTT_printf.c
+    src/SEGGER_RTT.c
 )
 
-target_include_directories(${BUILD_NAME} PRIVATE .)
+target_include_directories(${BUILD_NAME} PRIVATE inc)

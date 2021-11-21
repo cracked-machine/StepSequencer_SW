@@ -1,5 +1,5 @@
 target_sources(${BUILD_NAME} PRIVATE
-    main.cpp
+    test.cpp
 )
 
 target_include_directories(${BUILD_NAME} PRIVATE .)
