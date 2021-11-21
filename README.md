@@ -68,11 +68,13 @@ The CMake configurations do not set the toolchain. This is done via the command 
 
 - Configure the cmake environment with:
 
-    `cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/opt/gcc-arm-none-eabi-9-2020-q2-update/bin/arm-none-eabi-gcc-9.3.1 -H. -B./build -G Ninja`
+    `rm build/CMakeCache.txt`
+
+    `cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=arm-none-eabi-gcc-9.3.1 -H. -B./build -G Ninja`
 
 - Build the project with:
 
-    `cmake --build build --config Debug --clean-first --target build -j 10 --`
+    `cmake --build build --config Debug --clean-first --target all -j 10 --`
 
 ### Build the Linux Target (for CTest)
 
@@ -83,6 +85,8 @@ The CMake configurations do not set the toolchain. This is done via the command 
     OR
 
 - Configure the CMake environment with:
+
+    `rm build/CMakeCache.txt`
 
     `cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/bin/x86_64-linux-gnu-gcc-9 -DCMAKE_CXX_COMPILER:FILEPATH=/bin/x86_64-linux-gnu-g++-9 -H. -B./build -G Ninja`
 
