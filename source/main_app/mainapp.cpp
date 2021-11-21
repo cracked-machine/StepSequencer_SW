@@ -85,15 +85,17 @@
 		std::bitset<tlc5955::Driver::m_dc_data_resolution> led_dc {127};
 		std::bitset<tlc5955::Driver::m_gs_data_resolution> led_gs {32767};
 		tlc5955::Driver leds;
-		leds.set_control_bit(true);
-		leds.set_ctrl_cmd_bits();
-		leds.set_padding_bits();
-		leds.set_function_data(true, true, true, true, true);
+		uint16_t bit_test_results = leds.startup_tests();
+		UNUSED(bit_test_results);
+		// leds.set_control_bit(true);
+		// leds.set_ctrl_cmd_bits();
+		// leds.set_padding_bits();
+		// leds.set_function_data(true, true, true, true, true);
 
-		leds.set_bc_data(led_bc, led_bc, led_bc);
-		leds.set_mc_data(led_mc, led_mc, led_mc);
-		// leds.set_all_dc_data(led_dc, led_dc, led_dc);
-		leds.send_data();
+		// leds.set_bc_data(led_bc, led_bc, led_bc);
+		// leds.set_mc_data(led_mc, led_mc, led_mc);
+		// // leds.set_all_dc_data(led_dc, led_dc, led_dc);
+		// leds.send_data();
 		//leds.flush_common_register();
 		
 		//leds.send_control_data();
@@ -110,7 +112,7 @@
 
 			//leds.set_control_bit(false);
 			//leds.set_all_gs_data(led_gs, led_gs, led_gs);
-			leds.send_data();
+	//		leds.send_data();
 			//leds.flush_common_register();
 
 			//HAL_Delay(1);
