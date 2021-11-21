@@ -1,1 +1,0 @@
-stm32cube_workspace/G0B1KET6N/STM32G0B1KETXN_FLASH.ld

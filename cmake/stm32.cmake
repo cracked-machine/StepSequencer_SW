@@ -1,5 +1,7 @@
 
-message("** Configuring ARM Environment **")
+
+message("\n** Configuring STM32 Environment **")
+message("** Selected Kit: ${CMAKE_C_COMPILER} **\n")
 
 set(CMAKE_SYSTEM_NAME		Linux)
 set(CMAKE_SYSTEM_VERSION	1)
@@ -15,7 +17,7 @@ set(TARGET              STM32G0B1KETxN)
 set(ARCH			    armv6-m)
 set(CORE			    cortex-m0plus)
 set(ARM_ASM             mthumb)
-set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/STM32G0B1KETXN_FLASH.ld)
+set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/stm32cube_workspace/G0B1KET6N/STM32G0B1KETXN_FLASH.ld)
 set(BUILD_NAME            build.elf)
 set(HEX_NAME            build.hex)
 set(USE_HAL_DRIVER      USE_HAL_DRIVER)
