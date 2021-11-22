@@ -15,8 +15,8 @@ set(CMAKE_OBJDUMP			objdump)
 set(CMAKE_SIZE			    size)
 
 # common build settings
-set(COMMON_FLAGS "${OPTIM_LVL} ${DEBUG_LVL} -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -fmessage-length=0 -ffunction-sections -fdata-sections -ffreestanding -fno-builtin")
-set(CMAKE_EXE_LINKER_FLAGS  "" CACHE INTERNAL "exe link flags")
+set(COMMON_FLAGS "${OPTIM_LVL} ${DEBUG_LVL} --coverage -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -fmessage-length=0 -ffunction-sections -fdata-sections -ffreestanding -fno-builtin")
+set(CMAKE_EXE_LINKER_FLAGS  " --coverage " CACHE INTERNAL "exe link flags")
 
 # C compiler settings
 set(C_FLAGS "")

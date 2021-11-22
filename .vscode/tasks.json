@@ -1,0 +1,33 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+
+        {
+            "label": "execute build",
+            "type": "process",
+            "command": "${workspaceRoot}/build/build"
+        },
+        {
+            "label": "lcov",
+            "type": "shell",
+            "command": "lcov --capture --directory ${workspaceRoot}/build --output-file ${workspaceRoot}/build/coverage/coverage.info"
+        },
+        {
+            "label": "genhtml",
+            "type": "shell",
+            "command": "genhtml ${workspaceRoot}/build/coverage/coverage.info --output-directory ${workspaceRoot}/build/coverage"
+        },
+        {
+            "label": "open report",
+            "type": "shell",
+            "command": "firefox ${workspaceRoot}/build/coverage/index.html"
+        },
+        {
+            "label": "coverage report",
+            "dependsOrder": "sequence",
+            "dependsOn": ["execute build", "lcov", "genhtml", "open report"]
+        }
+    ]
+}
