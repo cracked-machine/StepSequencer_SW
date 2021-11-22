@@ -36,8 +36,16 @@ add_subdirectory(source/cpp_ssd1306)
 # add the stm32-specific sources for the embedded build
 if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+") 
 
-    add_subdirectory(stm32cube_workspace)
+    # compile the STM32CUbeIDE generated "Core" source as normal
     add_subdirectory(source/main_app)
+    
+    # build STM32 HAL as static lib
+    add_subdirectory(stm32cube_workspace)
+    target_link_libraries(${BUILD_NAME} PRIVATE STM32Cube)
+    target_include_directories(${BUILD_NAME} PRIVATE
+                           "${PROJECT_BINARY_DIR}"
+                           "${PROJECT_SOURCE_DIR}/stm32cube_workspace"
+                           )
 
     # add the x86-specific sources for host build
 elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")   
