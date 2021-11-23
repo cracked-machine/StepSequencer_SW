@@ -12,12 +12,12 @@
         {
             "label": "lcov",
             "type": "shell",
-            "command": "lcov --capture --directory ${workspaceRoot}/build --output-file ${workspaceRoot}/build/coverage/coverage.info"
+            "command": "lcov --no-checksum --rc lcov_branch_coverage=1 --capture --directory ${workspaceRoot}/build --output-file ${workspaceRoot}/build/coverage/coverage.info"
         },
         {
             "label": "genhtml",
             "type": "shell",
-            "command": "genhtml ${workspaceRoot}/build/coverage/coverage.info --output-directory ${workspaceRoot}/build/coverage"
+            "command": "genhtml --branch-coverage ${workspaceRoot}/build/coverage/coverage.info --output-directory ${workspaceRoot}/build/coverage"
         },
         {
             "label": "open report",
