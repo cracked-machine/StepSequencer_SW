@@ -8,9 +8,6 @@
 #ifndef MAINAPP_HPP_
 #define MAINAPP_HPP_
 
-
-
-
 #ifdef __cplusplus
 	extern "C"
 	{

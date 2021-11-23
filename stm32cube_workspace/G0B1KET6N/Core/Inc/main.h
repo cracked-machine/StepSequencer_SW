@@ -32,7 +32,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <SEGGER_RTT.h>
+#ifdef USE_RTT
+  #include <SEGGER_RTT.h>
+#endif
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

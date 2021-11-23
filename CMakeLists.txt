@@ -29,13 +29,15 @@ project(STEP_SEQUENCER VERSION 0.1 DESCRIPTION "STEP_SEQUENCER")
 add_executable(${BUILD_NAME} "")
 
 # add common sources
-add_subdirectory(source/segger_rtt)
+
 add_subdirectory(source/cpp_tlc5955)
 add_subdirectory(source/cpp_ssd1306)
 
 # add the stm32-specific sources for the embedded build
 if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+") 
 
+    add_subdirectory(source/segger_rtt)
+    add_compile_definitions(USE_RTT)
     # compile the STM32CUbeIDE generated "Core" source as normal
     add_subdirectory(source/main_app)
     

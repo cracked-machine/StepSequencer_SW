@@ -9,10 +9,7 @@
 #include <ssd1306.hpp>
 #include <tlc5955.hpp>
 
-
 #include <sstream>
-
-
 
 #ifdef __cplusplus
 	extern "C"
@@ -48,13 +45,9 @@
 	    HAL_Delay(1000);
 	}
 
-	
-
 	void mainapp()
 	{
-		SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-
-			
+		
 		ssd1306::FontData fd;
 		ssd1306::Font xs_font;
 		xs_font.set_font(fd.Font3x5);
