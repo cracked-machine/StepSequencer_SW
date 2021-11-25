@@ -16,35 +16,6 @@
 	{
 #endif
 
-	void test_border(ssd1306::Display &oled) {
-	    oled.fill(ssd1306::Colour::Black);
-
-	    uint32_t start = HAL_GetTick();
-	    uint32_t end = start;
-	    uint8_t x = 0;
-	    uint8_t y = 0;
-	    do {
-	        oled.draw_pixel(x, y, ssd1306::Colour::Black);
-
-	        if((y == 0) && (x < 127))
-	            x++;
-	        else if((x == 127) && (y < 63))
-	            y++;
-	        else if((y == 63) && (x > 0))
-	            x--;
-	        else
-	            y--;
-
-	        oled.draw_pixel(x, y, ssd1306::Colour::White);
-	        oled.update_screen();
-
-	        HAL_Delay(5);
-	        end = HAL_GetTick();
-	    } while((end - start) < 8000);
-
-	    HAL_Delay(1000);
-	}
-
 	void mainapp()
 	{
 		
@@ -78,8 +49,9 @@
 		std::bitset<tlc5955::Driver::m_dc_data_resolution> led_dc {127};
 		std::bitset<tlc5955::Driver::m_gs_data_resolution> led_gs {32767};
 		tlc5955::Driver leds;
-		uint16_t bit_test_results = leds.startup_tests();
-		UNUSED(bit_test_results);
+		
+		leds.startup_tests();
+		
 		// leds.set_control_bit(true);
 		// leds.set_ctrl_cmd_bits();
 		// leds.set_padding_bits();
