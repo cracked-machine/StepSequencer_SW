@@ -10,24 +10,19 @@
             "command": "${workspaceRoot}/build/build"
         },
         {
-            "label": "lcov",
+            "label": "create report",
             "type": "shell",
-            "command": "lcov --no-checksum --rc lcov_branch_coverage=1 --capture --directory ${workspaceRoot}/build --output-file ${workspaceRoot}/build/coverage/coverage.info"
-        },
-        {
-            "label": "genhtml",
-            "type": "shell",
-            "command": "genhtml --branch-coverage ${workspaceRoot}/build/coverage/coverage.info --output-directory ${workspaceRoot}/build/coverage"
+            "command": "rm coverage/*; gcovr  -r . -e build -e 'source/(.+)/tests/' --html --html-details -o coverage/index.html"
         },
         {
             "label": "open report",
             "type": "shell",
-            "command": "firefox ${workspaceRoot}/build/coverage/index.html"
+            "command": "firefox ${workspaceRoot}/coverage/index.html"
         },
         {
             "label": "coverage report",
             "dependsOrder": "sequence",
-            "dependsOn": ["execute build", "lcov", "genhtml", "open report"]
+            "dependsOn": ["execute build", "create report", "open report"]
         }
     ]
 }
