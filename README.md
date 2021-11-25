@@ -9,7 +9,7 @@
 
 4. [STM32CubeIDE](#STM32CubeIDE)
 
-
+5. [Code Coverage](coverage/index.html)
 
 ## Repository Contents
 
