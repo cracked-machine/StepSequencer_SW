@@ -1,8 +1,7 @@
 target_sources(${BUILD_NAME} PRIVATE
-    test.cpp
+    catch_main_app.cpp
 )
 
 target_include_directories(${BUILD_NAME} PRIVATE 
     .
-    "${CMAKE_BINARY_DIR}"   # needed for catch.hpp
 )
