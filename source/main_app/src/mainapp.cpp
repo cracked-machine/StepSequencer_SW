@@ -8,6 +8,8 @@
 #include "mainapp.hpp"
 #include <ssd1306.hpp>
 #include <tlc5955.hpp>
+#include <chrono>
+#include <thread>
 
 #include <sstream>
 
@@ -21,8 +23,8 @@
 	void mainapp()
 	{
 		
-		static ssd1306::Font5x7 xs_font;
-
+		static ssd1306::Font16x26 font;
+		
 		//ssd1306::Font3x5 xs_font;
 		// xs_font.set_font(fd.Font3x5);
 
@@ -74,7 +76,7 @@
 			std::array<char, 10> digit_ascii {'0','1','2','3','4','5','6','7','8','9'};
 			std::stringstream msg;
 			msg << digit_ascii[count];
-			oled.write(msg, xs_font, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+			oled.write(msg, font, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
 			if (count < digit_ascii.size() - 1) { count++; }
 			else { count = 0; }		
 
@@ -82,8 +84,11 @@
 			//leds.set_all_gs_data(led_gs, led_gs, led_gs);
 	//		leds.send_data();
 			//leds.flush_common_register();
-
-			//HAL_Delay(1);
+#ifdef USE_HAL_DRIVER
+			HAL_Delay(100);
+#else
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+#endif
 			// leds.flush_common_register();
 			//HAL_Delay(1);
 			//HAL_GPIO_WritePin(TLC5955_SPI2_LAT_GPIO_Port, TLC5955_SPI2_LAT_Pin, GPIO_PIN_RESET);
