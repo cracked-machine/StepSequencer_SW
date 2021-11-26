@@ -16,26 +16,29 @@
 	{
 #endif
 
+		
+
 	void mainapp()
 	{
 		
-		ssd1306::FontData fd;
-		ssd1306::Font xs_font;
-		xs_font.set_font(fd.Font3x5);
+		static ssd1306::Font5x7 xs_font;
 
-		// ssd1306::Font small_font;
+		//ssd1306::Font3x5 xs_font;
+		// xs_font.set_font(fd.Font3x5);
+
+		//ssd1306::Font small_font;
 		// small_font.init(fd.Font5x7);
 
-		// ssd1306::Font med_font;
+		//ssd1306::Font med_font;
 		// med_font.init(fd.Font7x10);
 
-		// ssd1306::Font large_font;
+		//ssd1306::Font large_font;
 		// large_font.init(fd.Font11x18);
 
-		// ssd1306::Font xl_font;
+		//ssd1306::Font xl_font;
 		// xl_font.init(fd.Font16x26);
 
-		ssd1306::Display oled;
+		static ssd1306::Display oled;
 		oled.init();
 
 		// oled.fill(ssd1306::Colour::Black);
@@ -44,13 +47,13 @@
 		// oled.write_string(text, small_font, ssd1306::Colour::White, 3);
 		// oled.update_screen();
 		
-		std::bitset<tlc5955::Driver::m_bc_data_resolution> led_bc {127};
-		std::bitset<tlc5955::Driver::m_mc_data_resolution> led_mc {4};
-		std::bitset<tlc5955::Driver::m_dc_data_resolution> led_dc {127};
-		std::bitset<tlc5955::Driver::m_gs_data_resolution> led_gs {32767};
-		tlc5955::Driver leds;
+		// std::bitset<tlc5955::Driver::m_bc_data_resolution> led_bc {127};
+		// std::bitset<tlc5955::Driver::m_mc_data_resolution> led_mc {4};
+		// std::bitset<tlc5955::Driver::m_dc_data_resolution> led_dc {127};
+		// std::bitset<tlc5955::Driver::m_gs_data_resolution> led_gs {32767};
+		// tlc5955::Driver leds;
 		
-		leds.startup_tests();
+		// leds.startup_tests();
 		
 		// leds.set_control_bit(true);
 		// leds.set_ctrl_cmd_bits();
