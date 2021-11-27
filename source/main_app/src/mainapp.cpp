@@ -24,22 +24,6 @@
 	{
 		
 		static ssd1306::Font16x26 font;
-		
-		//ssd1306::Font3x5 xs_font;
-		// xs_font.set_font(fd.Font3x5);
-
-		//ssd1306::Font small_font;
-		// small_font.init(fd.Font5x7);
-
-		//ssd1306::Font med_font;
-		// med_font.init(fd.Font7x10);
-
-		//ssd1306::Font large_font;
-		// large_font.init(fd.Font11x18);
-
-		//ssd1306::Font xl_font;
-		// xl_font.init(fd.Font16x26);
-
 		static ssd1306::Display oled;
 		oled.init();
 
