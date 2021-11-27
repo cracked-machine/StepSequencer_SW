@@ -15,14 +15,24 @@
             "command": "rm coverage/*; gcovr  -r . -e build -e 'source/(.+)/tests/' --html --html-details -o coverage/index.html"
         },
         {
+            "label": "convert html to pdf",
+            "type": "shell",
+            "command": "wkhtmltopdf ${workspaceRoot}/coverage/*.html ${workspaceRoot}/coverage/code.pdf"
+        },
+        {
+            "label": "delete html",
+            "type": "shell",
+            "command": "rm ${workspaceRoot}/coverage/*.html"
+        },
+        {
             "label": "open report",
             "type": "shell",
-            "command": "firefox ${workspaceRoot}/coverage/index.html"
+            "command": "firefox ${workspaceRoot}/coverage/code.pdf"
         },
         {
             "label": "coverage report",
             "dependsOrder": "sequence",
-            "dependsOn": ["execute build", "create report", "open report"]
+            "dependsOn": ["execute build", "create report", "convert html to pdf", "delete html", "open report"]
         }
     ]
 }
