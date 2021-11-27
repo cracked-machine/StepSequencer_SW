@@ -1,0 +1,6 @@
+[submodule "cpp_ssd1306"]
+	path = cpp_ssd1306
+	url = https://github.com/cracked-machine/cpp_ssd1306
+[submodule "cpp_tlc5955"]
+	path = cpp_tlc5955
+	url = https://github.com/cracked-machine/cpp_tlc5955
