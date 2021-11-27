@@ -3,14 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/Source/CubeGenSrc/Inc",
-                "${workspaceFolder}/Source/HALDrivers/STM32G0xx_HAL_Driver/Inc",
-                "${workspaceFolder}/Source/HALDrivers/STM32G0xx_HAL_Driver/Inc/Legacy",
-                "${workspaceFolder}/Source/HALDrivers/CMSIS/Device/ST/STM32G0xx/Include",
-                "${workspaceFolder}/Source/HALDrivers/CMSIS/Include",
-                "${workspaceFolder}/Source/MainApp",
-                "${workspaceFolder}/Source/CPP_SSD1306/"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/opt/gcc-arm-none-eabi-9-2020-q2-update/bin/arm-none-eabi-gcc",

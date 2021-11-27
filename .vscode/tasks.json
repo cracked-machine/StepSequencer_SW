@@ -12,12 +12,12 @@
         {
             "label": "create report",
             "type": "shell",
-            "command": "rm coverage/*; gcovr  -r . -e build -e 'source/(.+)/tests/' --html --html-details -o coverage/index.html"
+            "command": "rm coverage/*; gcovr  -r . -e build -e '(.+)/tests/' --html --html-details -o coverage/index.html"
         },
         {
             "label": "convert html to pdf",
             "type": "shell",
-            "command": "wkhtmltopdf ${workspaceRoot}/coverage/*.html ${workspaceRoot}/coverage/code.pdf"
+            "command": "wkhtmltopdf ${workspaceRoot}/coverage/index.html ${workspaceRoot}/coverage/*.html ${workspaceRoot}/coverage/code.pdf"
         },
         {
             "label": "delete html",

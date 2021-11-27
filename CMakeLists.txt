@@ -29,15 +29,15 @@ project(STEP_SEQUENCER VERSION 0.1 DESCRIPTION "STEP_SEQUENCER")
 add_executable(${BUILD_NAME} "")
 
 # add common sources
-add_subdirectory(source/main_app)
-add_subdirectory(source/cpp_tlc5955)
-add_subdirectory(source/cpp_ssd1306)
+add_subdirectory(main_app)
+add_subdirectory(cpp_tlc5955)
+add_subdirectory(cpp_ssd1306)
 
 # add the stm32-specific sources for the embedded build
 if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+") 
 
     # add SEGGER Real-Time-Transfer
-    add_subdirectory(source/segger_rtt)
+    add_subdirectory(segger_rtt)
     add_compile_definitions(USE_RTT)
        
     # build STM32 HAL as static lib
@@ -54,9 +54,9 @@ elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")
     # setup catch2 testing framework
     find_package(Catch2 3 REQUIRED)
     # add the test sources from these dirs
-    add_subdirectory(source/main_app/tests)
-    add_subdirectory(source/cpp_tlc5955/tests)
-    add_subdirectory(source/cpp_ssd1306/tests)
+    add_subdirectory(main_app/tests)
+    add_subdirectory(cpp_tlc5955/tests)
+    add_subdirectory(cpp_ssd1306/tests)
     # link catch2 into the x86 build
     target_link_libraries(${BUILD_NAME} PRIVATE Catch2::Catch2WithMain)
 
