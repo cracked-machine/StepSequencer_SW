@@ -1,6 +1,0 @@
-[submodule "source/cpp_ssd1306"]
-	path = source/cpp_ssd1306
-	url = https://github.com/cracked-machine/cpp_ssd1306
-[submodule "source/cpp_tlc5955"]
-	path = source/cpp_tlc5955
-	url = https://github.com/cracked-machine/cpp_tlc5955
