@@ -20,7 +20,6 @@ set(ARM_ASM             mthumb)
 set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/stm32cube_workspace/G0B1KET6N/STM32G0B1KETXN_FLASH.ld)
 set(BUILD_NAME            build.elf)
 set(HEX_NAME            build.hex)
-set(USE_HAL_DRIVER      USE_HAL_DRIVER)
 
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=1024")

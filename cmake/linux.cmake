@@ -6,13 +6,16 @@ message("** Selected Kit: ${CMAKE_CXX_COMPILER} **\n")
 set(CMAKE_SYSTEM_NAME		Linux)
 set(CMAKE_SYSTEM_VERSION	1)
 set(CMAKE_SYSTEM_PROCESSOR	Linux)
-set(BUILD_NAME            build)
+set(BUILD_NAME              build)
 
 # binutils language settings
 # compilers are set by the select kit in vscode (CMAKE_C_COMPILER/CMAKE_CXX_COMPILER)
 set(CMAKE_OBJCOPY			objcopy)
 set(CMAKE_OBJDUMP			objdump)
 set(CMAKE_SIZE			    size)
+
+# send pixel data to stdout before its written to the buffer
+add_compile_definitions(${TARGET} ENABLE_SSD1306_STDOUT)
 
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=1024")

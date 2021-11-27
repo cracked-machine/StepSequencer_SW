@@ -23,7 +23,7 @@
 	void mainapp()
 	{
 		
-		static ssd1306::Font16x26 font;
+		static ssd1306::Font5x7 font;
 		static ssd1306::Display oled;
 		oled.init();
 
@@ -57,11 +57,11 @@
 
 		while(true)
 		{
-			std::array<char, 10> digit_ascii {'0','1','2','3','4','5','6','7','8','9'};
+	
 			std::stringstream msg;
-			msg << digit_ascii[count];
+			msg << font.character_map[count];
 			oled.write(msg, font, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-			if (count < digit_ascii.size() - 1) { count++; }
+			if (count < font.character_map.size() - 1) { count++; }
 			else { count = 0; }		
 
 			//leds.set_control_bit(false);
@@ -69,9 +69,9 @@
 	//		leds.send_data();
 			//leds.flush_common_register();
 #ifdef USE_HAL_DRIVER
-			HAL_Delay(100);
+			HAL_Delay(1000);
 #else
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 #endif
 			// leds.flush_common_register();
 			//HAL_Delay(1);
