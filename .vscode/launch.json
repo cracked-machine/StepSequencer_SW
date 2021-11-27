@@ -12,7 +12,8 @@
         "args": [
           // add catch test tags here to debug specific tests
           // "\"[ssd1306_fonts]\""
-          // "\"[ssd1306_display]\""  
+          // "\"[ssd1306_display_protected]\""  
+          // "\"[ssd1306_display_public]\""
         ],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/build",
