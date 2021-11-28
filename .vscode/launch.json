@@ -10,11 +10,13 @@
         "request": "launch",
         "program": "${workspaceFolder}/build/build",
         "args": [
-          // add catch test tags here to debug specific tests
+          // leave all commented to run all unit tests
+          // uncomment to run isolated tests
           // "\"[ssd1306_fonts]\"",
           // "\"[ssd1306_display_protected]\"",  
           // "\"[ssd1306_display_public]\"",
-          // "\"[font_check]\"",
+          // "\"[dump_fonts]\"",                  // hidden test, should only use this to get sumcheck for [ssd1306_buffer_check]
+          // "\"[ssd1306_buffer_check]\""
         ],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/build",
