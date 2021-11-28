@@ -14,9 +14,6 @@ set(CMAKE_OBJCOPY			objcopy)
 set(CMAKE_OBJDUMP			objdump)
 set(CMAKE_SIZE			    size)
 
-# send pixel data to stdout before its written to the buffer
-add_compile_definitions(${TARGET} ENABLE_SSD1306_STDOUT)
-
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=1024")
 set(WARNING_FLAGS "-Wall -Werror -Wextra -Wdouble-promotion -Wformat=2 -Wformat-overflow -Wundef -Wformat-truncation -Wfloat-equal -Wshadow")
@@ -32,3 +29,6 @@ enable_language(C)
 set(CPP_FLAGS "")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} ${CPP_FLAGS}" CACHE INTERNAL "cpp compiler flags")
 enable_language(CXX)
+
+# send pixel data to stdout before its written to the buffer
+#add_compile_definitions(${TARGET} ENABLE_SSD1306_STDOUT)

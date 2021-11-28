@@ -41,7 +41,6 @@ enable_language(CXX)
 set(CMAKE_ASM_FLAGS	        "${COMMON_FLAGS} -MP -MD -x assembler-with-cpp" CACHE INTERNAL "asm compiler flags")
 enable_language(ASM)
 
-
 # common defines
 add_compile_definitions(${TARGET} USE_HAL_DRIVER)
 add_compile_definitions(${TARGET} STM32G0B1xx)
