@@ -8,6 +8,7 @@ set(CMAKE_SYSTEM_VERSION	1)
 set(CMAKE_SYSTEM_PROCESSOR	Linux)
 set(BUILD_NAME              build)
 
+
 # binutils language settings
 # compilers are set by the select kit in vscode (CMAKE_C_COMPILER/CMAKE_CXX_COMPILER)
 set(CMAKE_OBJCOPY			objcopy)
@@ -31,4 +32,4 @@ set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} ${CPP_FLAGS}" CACHE INTERNAL "cpp compiler 
 enable_language(CXX)
 
 # send pixel data to stdout before its written to the buffer
-#add_compile_definitions(${TARGET} ENABLE_SSD1306_STDOUT)
+add_compile_definitions(${TARGET} ENABLE_SSD1306_STDOUT)

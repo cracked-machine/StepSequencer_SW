@@ -18,8 +18,9 @@ set(ARCH			    armv6-m)
 set(CORE			    cortex-m0plus)
 set(ARM_ASM             mthumb)
 set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/stm32cube_workspace/G0B1KET6N/STM32G0B1KETXN_FLASH.ld)
-set(BUILD_NAME            build.elf)
+set(BUILD_NAME          build.elf)
 set(HEX_NAME            build.hex)
+
 
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=1024")
@@ -44,6 +45,6 @@ enable_language(ASM)
 # common defines
 add_compile_definitions(${TARGET} USE_HAL_DRIVER)
 add_compile_definitions(${TARGET} STM32G0B1xx)
-add_compile_definitions(${TARGET} SSD1306_USE_SPI)
-add_compile_definitions(${TARGET} DEBUG)
+# add_compile_definitions(${TARGET} SSD1306_USE_SPI)
+# add_compile_definitions(${TARGET} DEBUG)
 

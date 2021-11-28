@@ -13,13 +13,19 @@ set(ARM_TRIPLET     "arm-none-eabi")
 set(X86_TRIPLET     "x86_64-linux-gnu")
 
 # determine which kit was selected by user in VSCode CMake Tools extension
-# and load the appropriate toolchain settings (stm32.cmake or linux.cmake)
-if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+")
+if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+") 
+set(TARGET_TYPE ARM)
+elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+") 
+set(TARGET_TYPE GNU)
+else() 
+message(FATAL_ERROR "No suitable kit found. Aborting.")
+endif()
+
+# load the appropriate toolchain settings (stm32.cmake or linux.cmake)
+if(TARGET_TYPE STREQUAL ARM)
     include(cmake/stm32.cmake)
-elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")   
-    include(cmake/linux.cmake)
-else()
-    message(FATAL_ERROR "No suitable kit found. Aborting.")
+elseif(TARGET_TYPE STREQUAL GNU)
+    include(cmake/linux.cmake)    
 endif()
 
 # Declare the project 
@@ -34,8 +40,7 @@ add_subdirectory(cpp_tlc5955)
 add_subdirectory(cpp_ssd1306)
 
 # add the stm32-specific sources for the embedded build
-if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+") 
-
+if(TARGET_TYPE STREQUAL ARM)
     # add SEGGER Real-Time-Transfer
     add_subdirectory(segger_rtt)
     add_compile_definitions(USE_RTT)
@@ -45,12 +50,9 @@ if(${CMAKE_C_COMPILER} MATCHES "(${ARM_TRIPLET})+")
     target_link_libraries(${BUILD_NAME} PRIVATE STM32Cube)
     target_include_directories(${BUILD_NAME} PRIVATE
         "${PROJECT_BINARY_DIR}"
-        "${PROJECT_SOURCE_DIR}/stm32cube_workspace"
-    )
-
+        "${PROJECT_SOURCE_DIR}/stm32cube_workspace")
 # add the x86-specific sources for host build
-elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")   
-
+elseif(TARGET_TYPE STREQUAL GNU)
     # setup catch2 testing framework
     find_package(Catch2 3 REQUIRED)
     # add the test sources from these dirs
@@ -59,7 +61,6 @@ elseif(${CMAKE_C_COMPILER} MATCHES "(${X86_TRIPLET})+")
     add_subdirectory(cpp_ssd1306/tests)
     # link catch2 into the x86 build
     target_link_libraries(${BUILD_NAME} PRIVATE Catch2::Catch2WithMain)
-
 endif()
 
 # display size info
