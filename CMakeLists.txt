@@ -25,6 +25,8 @@ endif()
 if(TARGET_TYPE STREQUAL ARM)
     include(cmake/stm32.cmake)
 elseif(TARGET_TYPE STREQUAL GNU)
+    # send pixel data to stdout before its written to the buffer
+    #add_compile_definitions(${TARGET} ENABLE_SSD1306_TEST_STDOUT)
     include(cmake/linux.cmake)    
 endif()
 

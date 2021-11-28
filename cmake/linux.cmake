@@ -31,5 +31,3 @@ set(CPP_FLAGS "")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} ${CPP_FLAGS}" CACHE INTERNAL "cpp compiler flags")
 enable_language(CXX)
 
-# send pixel data to stdout before its written to the buffer
-add_compile_definitions(${TARGET} ENABLE_SSD1306_STDOUT)
