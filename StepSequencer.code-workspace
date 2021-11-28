@@ -59,7 +59,9 @@
 			"ratio": "cpp",
 			"iomanip": "cpp",
 			"iostream": "cpp",
-			"thread": "cpp"
+			"thread": "cpp",
+			"map": "cpp",
+			"set": "cpp"
 		}
 	}
 }
