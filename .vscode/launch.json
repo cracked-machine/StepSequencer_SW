@@ -19,8 +19,8 @@
           // "\"[dump_fonts]\"",                  // hidden test, should only use this to get sumcheck for [ssd1306_buffer_check]
           // "\"[ssd1306_buffer_check]\"",
           "--abort",                              // abort on first fail
-          "-s",                                   // show successful tests
-          "-r compact"                            // but with minimal output
+          // "-s",                                   // show successful tests
+          // "-r compact"                            // but with minimal output
         ],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/build",
@@ -33,7 +33,7 @@
                 "text": "-enable-pretty-printing",
                 "ignoreFailures": true
             }
-        ]
+        ],
       },
  
         {
