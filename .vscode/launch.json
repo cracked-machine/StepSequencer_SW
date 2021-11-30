@@ -12,7 +12,7 @@
         "args": [
           // leave all commented to run all unit tests
           // uncomment to run isolated tests
-          "\"[tlc5955]\"",
+          // "\"[tlc5955]\"",
           // "\"[ssd1306_fonts]\"",
           // "\"[ssd1306_display_protected]\"",  
           // "\"[ssd1306_display_public]\"",

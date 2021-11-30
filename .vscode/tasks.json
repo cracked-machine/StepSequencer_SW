@@ -3,9 +3,8 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
-
         {
-            "label": "execute build",
+            "label": "run binary",
             "type": "process",
             "command": "${workspaceRoot}/build/build"
         },
@@ -32,7 +31,7 @@
         {
             "label": "coverage report",
             "dependsOrder": "sequence",
-            "dependsOn": ["execute build", "create report", "convert html to pdf", "delete html", "open report"]
+            "dependsOn": ["run binary", "create report", "convert html to pdf", "delete html", "open report"]
         }
     ]
 }
