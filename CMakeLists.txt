@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.13)
 # https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
 
 # common variables
-set(CMAKE_C_STANDARD    11)
-set(CMAKE_CXX_STANDARD  17)
+set(CMAKE_C_STANDARD    17)
+set(CMAKE_CXX_STANDARD  20)
 set(DEBUG_LVL           "-g3")
 set(OPTIM_LVL           "-O0")
 
