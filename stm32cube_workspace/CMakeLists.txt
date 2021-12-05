@@ -8,7 +8,9 @@ G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_exti.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash_ex.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash.c
+G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_gpio.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr_ex.c
+G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc_ex.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi_ex.c
@@ -16,7 +18,6 @@ G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim_ex.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c
-G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_gpio.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
 G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c)
 target_include_directories(STM32Cube PUBLIC 
@@ -30,6 +31,7 @@ target_include_directories(STM32Cube PUBLIC
 # link Core files with ${BUILD_NAME} target executable
 target_sources(${BUILD_NAME} PRIVATE 
     G0B1KET6N/Core/Startup/startup_stm32g0b1ketxn.s
+    G0B1KET6N/Core/Src/dma.c
     G0B1KET6N/Core/Src/gpio.c
     G0B1KET6N/Core/Src/main.c
     G0B1KET6N/Core/Src/spi.c
