@@ -1,0 +1,80 @@
+Configuration	G0B1KET6N
+STM32CubeMX 	6.2.1
+Date	12/05/2021
+MCU	STM32G0B1KETxN
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+SPI1	Half-Duplex Master	SPI1_MOSI	PA2
+SPI1	Half-Duplex Master	SPI1_SCK	PA1
+SPI2	Transmit Only Master	SPI2_MOSI	PB7
+SPI2	Transmit Only Master	SPI2_SCK	PB8
+SYS	Serial Wire	SYS_SWCLK	PA14-BOOT0
+SYS	Serial Wire	SYS_SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+SYS	Dead Battery Signals disabled	SYS_VS_DBSignals	VP_SYS_VS_DBSignals
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+1	PB9	GPIO_Output	TLC5955_SPI2_LAT
+7	PA0	GPIO_Output	SPI1_DC
+8	PA1	SPI1_SCK	
+9	PA2	SPI1_MOSI	
+10	PA3	GPIO_Output	SPI1_RESET
+24	PA13	SYS_SWDIO	
+25	PA14-BOOT0	SYS_SWCLK	
+30	PB6	GPIO_Output	TLC5955_SPI2_GSCLK
+31	PB7	SPI2_MOSI	TLC5955_SPI2_MOSI
+32	PB8	SPI2_SCK	TLC5955_SPI2_SCK
+PERIPHERALS	MODES	FUNCTIONS	PINS
+SPI1	Half-Duplex Master	SPI1_MOSI	PA2
+SPI1	Half-Duplex Master	SPI1_SCK	PA1
+SPI2	Transmit Only Master	SPI2_MOSI	PB7
+SPI2	Transmit Only Master	SPI2_SCK	PB8
+SYS	Serial Wire	SYS_SWCLK	PA14-BOOT0
+SYS	Serial Wire	SYS_SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+SYS	Dead Battery Signals disabled	SYS_VS_DBSignals	VP_SYS_VS_DBSignals
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+1	PB9	GPIO_Output	TLC5955_SPI2_LAT
+7	PA0	GPIO_Output	SPI1_DC
+8	PA1	SPI1_SCK	
+9	PA2	SPI1_MOSI	
+10	PA3	GPIO_Output	SPI1_RESET
+24	PA13	SYS_SWDIO	
+25	PA14-BOOT0	SYS_SWCLK	
+30	PB6	GPIO_Output	TLC5955_SPI2_GSCLK
+31	PB7	SPI2_MOSI	TLC5955_SPI2_MOSI
+32	PB8	SPI2_SCK	TLC5955_SPI2_SCK
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : G0B1KET6N
+Project Folder : /home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N
+Toolchain / IDE : STM32CubeIDE
+Firmware Package Name and Version : STM32Cube FW_G0 V1.4.1
+
+
+Code Generation Settings : 
+STM32Cube MCU packages and embedded software packs : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+
