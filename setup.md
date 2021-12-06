@@ -4,8 +4,8 @@ This project uses:
 
 - `VSCode`. This is the main IDE.
 - `gcc` compiler. 
-    - For TM32G0B1 target: `gcc-arm-none-eabi-9-2020-q2-update` 
-    - For x86_64 Linux CTests: `x86_64-linux-gnu-9`
+    - For STM32G0B1 target: [`GNU Arm Embedded Toolchain 10.3-2021.10`](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
+    - For x86_64 Linux CTests: `GCC 10.3.0 x86_64-linux-gnu`
 - `cmake v3.22` to build the project. it is recommened to use VSCode with the `CMake tools` extension.
 - `SEGGER JLink` to debug the device. You will need to purchase [JLink probe from SEGGER](https://www.segger.com/products/debug-probes/j-link/).  You also need to install [JLink SW and doc pack](https://www.segger.com/downloads/jlink/)
 - `SEGGER RTT` to view printf output. JLinkRTTViewerExe is included in the JLink SW pack.
