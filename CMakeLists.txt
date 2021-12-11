@@ -43,9 +43,11 @@ add_subdirectory(cpp_ssd1306)
 
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
-    # add SEGGER Real-Time-Transfer
-    add_subdirectory(segger_rtt)
-    add_compile_definitions(USE_RTT)
+    if(CMAKE_BUILD_TYPE STREQUAL Debug)
+        # add SEGGER Real-Time-Transfer
+        add_subdirectory(segger_rtt)
+        add_compile_definitions(USE_RTT)
+    endif()
        
     # build STM32 HAL as static lib
     add_subdirectory(stm32cube_workspace)
