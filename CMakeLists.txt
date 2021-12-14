@@ -38,7 +38,6 @@ add_executable(${BUILD_NAME} "")
 
 # add common sources
 add_subdirectory(main_app)
-add_subdirectory(embedded_utils)
 add_subdirectory(cpp_tlc5955)
 add_subdirectory(cpp_ssd1306)
 
