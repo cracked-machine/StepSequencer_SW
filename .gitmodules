@@ -4,6 +4,3 @@
 [submodule "cpp_tlc5955"]
 	path = cpp_tlc5955
 	url = https://github.com/cracked-machine/cpp_tlc5955
-[submodule "embedded_utils"]
-	path = embedded_utils
-	url = https://github.com/cracked-machine/embedded_utils
