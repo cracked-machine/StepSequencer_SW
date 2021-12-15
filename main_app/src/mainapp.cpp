@@ -78,11 +78,21 @@ void mainapp()
 		if (count < font.character_map.size() - 1) { count++; }
 		else { count = 0; }		
 
-		// // set led driver gs data
+		// turn all LEDs off
+		leds.reset();
+		leds.set_latch_cmd(false);
+		leds.set_greyscale_cmd_all(0x0000);
+		leds.process_register();
+		
+		HAL_Delay(100);
+		
+		// turn all LEDs on
 		leds.reset();
 		leds.set_latch_cmd(false);
 		leds.set_greyscale_cmd_all(0x7FFF);
 		leds.process_register();
+
+		HAL_Delay(100);
 		
 	}
 }
