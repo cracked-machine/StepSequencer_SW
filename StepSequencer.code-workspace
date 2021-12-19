@@ -61,7 +61,9 @@
 			"iostream": "cpp",
 			"thread": "cpp",
 			"map": "cpp",
-			"set": "cpp"
+			"set": "cpp",
+			"gpio.h": "c",
+			"stm32g0xx_ll_gpio.h": "c"
 		}
 	}
 }

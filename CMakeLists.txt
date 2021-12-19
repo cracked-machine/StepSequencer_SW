@@ -38,7 +38,7 @@ add_executable(${BUILD_NAME} "")
 
 # add common sources
 add_subdirectory(main_app)
-add_subdirectory(cpp_tlc5955)
+# add_subdirectory(cpp_tlc5955)
 add_subdirectory(cpp_ssd1306)
 
 # add the stm32-specific sources for the embedded build
@@ -51,8 +51,9 @@ if(TARGET_TYPE STREQUAL ARM)
        
     # build STM32 HAL as static lib
     add_subdirectory(stm32cube_workspace)
-    target_link_libraries(${BUILD_NAME} PRIVATE STM32Cube)
-    target_include_directories(${BUILD_NAME} PRIVATE
+    # target_link_libraries(${BUILD_NAME} PRIVATE STM32CubeHAL)
+    target_link_libraries(${BUILD_NAME} PUBLIC STM32CubeLL)
+    target_include_directories(${BUILD_NAME} PUBLIC
         "${PROJECT_BINARY_DIR}"
         "${PROJECT_SOURCE_DIR}/stm32cube_workspace")
 # add the x86-specific sources for host build
@@ -61,7 +62,7 @@ elseif(TARGET_TYPE STREQUAL GNU)
     find_package(Catch2 3 REQUIRED)
     # add the test sources from these dirs
     add_subdirectory(main_app/tests)
-    add_subdirectory(cpp_tlc5955/tests)
+    #add_subdirectory(cpp_tlc5955/tests)
     add_subdirectory(cpp_ssd1306/tests)
     # link catch2 into the x86 build
     target_link_libraries(${BUILD_NAME} PRIVATE Catch2::Catch2WithMain)
