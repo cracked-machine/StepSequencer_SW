@@ -7,7 +7,7 @@ set(CMAKE_SYSTEM_NAME		Linux)
 set(CMAKE_SYSTEM_VERSION	1)
 set(CMAKE_SYSTEM_PROCESSOR	Linux)
 set(BUILD_NAME              build)
-
+add_compile_definitions(${TARGET} X86_UNIT_TESTING_ONLY)
 
 # binutils language settings
 # compilers are set by the select kit in vscode (CMAKE_C_COMPILER/CMAKE_CXX_COMPILER)
