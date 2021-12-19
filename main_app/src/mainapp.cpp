@@ -65,19 +65,26 @@ void mainapp()
 
 	
 	static ssd1306::Font5x7 font;
+	static ssd1306::Font16x26 font2;
 	static ssd1306::Display oled;
 
 	oled.init();
 	uint8_t count = 0;
+
 	//uint32_t delay_ms {0};
 	while(true)
 	{
 		// // run oled animation
-		std::stringstream msg;
-		msg << font.character_map[count];
-		oled.write(msg, font, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-		if (count < font.character_map.size() - 1) { count++; }
+		// std::stringstream bloated {};
+		
+		std::string msg {font2.character_map[count]};
+		oled.write(msg, font2, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+		if (count < font2.character_map.size() - 1) { count++; }
 		else { count = 0; }		
+		
+		#ifdef USE_FULL_LL_DRIVER
+			LL_mDelay(100);
+		#endif
 
 		// // turn all LEDs off
 		// leds.reset();
