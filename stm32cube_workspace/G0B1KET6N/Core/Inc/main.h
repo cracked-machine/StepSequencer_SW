@@ -29,7 +29,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "stm32g0xx_ll_dma.h"
 #include "stm32g0xx_ll_rcc.h"
 #include "stm32g0xx_ll_bus.h"
 #include "stm32g0xx_ll_crs.h"
@@ -38,6 +37,7 @@ extern "C" {
 #include "stm32g0xx_ll_cortex.h"
 #include "stm32g0xx_ll_utils.h"
 #include "stm32g0xx_ll_pwr.h"
+#include "stm32g0xx_ll_dma.h"
 #include "stm32g0xx_ll_spi.h"
 #include "stm32g0xx_ll_tim.h"
 #include "stm32g0xx_ll_gpio.h"
@@ -82,8 +82,6 @@ void Error_Handler(void);
 #define SPI1_DC_GPIO_Port GPIOA
 #define SPI1_RESET_Pin LL_GPIO_PIN_3
 #define SPI1_RESET_GPIO_Port GPIOA
-#define TLC5955_SPI2_GSCLK_Pin LL_GPIO_PIN_6
-#define TLC5955_SPI2_GSCLK_GPIO_Port GPIOB
 #define TLC5955_SPI2_MOSI_Pin LL_GPIO_PIN_7
 #define TLC5955_SPI2_MOSI_GPIO_Port GPIOB
 #define TLC5955_SPI2_SCK_Pin LL_GPIO_PIN_8
