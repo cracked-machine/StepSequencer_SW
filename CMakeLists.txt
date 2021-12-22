@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.13)
 # common variables
 set(CMAKE_C_STANDARD    17)
 set(CMAKE_CXX_STANDARD  20)
-set(DEBUG_LVL           "-g3")
+set(DEBUG_LVL           "-g")
 set(OPTIM_LVL           "-O0")
 
 set(ARM_TRIPLET     "arm-none-eabi")
@@ -38,7 +38,7 @@ add_executable(${BUILD_NAME} "")
 
 # add common sources
 add_subdirectory(main_app)
-# add_subdirectory(cpp_tlc5955)
+add_subdirectory(cpp_tlc5955)
 add_subdirectory(cpp_ssd1306)
 
 # add the stm32-specific sources for the embedded build

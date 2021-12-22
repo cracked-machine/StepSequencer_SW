@@ -19,15 +19,17 @@ set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/stm32cube_workspace/G0B1KET6N/STM32G
 set(BUILD_NAME          build.elf)
 set(HEX_NAME            build.hex)
 
+
+
 # set stm32 framework property for SSD1306 lib
 set(SSD1306_LIB NONE CACHE STRING "The SSD1306 STM32 library framework")
 set_property(CACHE SSD1306_LIB PROPERTY STRINGS NONE LL HAL) 
 set(SSD1306_LIB LL)
 
 # set stm32 framework property for TLC5955 lib
-# set(TLC5955_LIB NONE CACHE STRING "The TLC5955 STM32 library framework")
-# set_property(CACHE TLC5955_LIB PROPERTY STRINGS NONE LL HAL) 
-# set(TLC5955_LIB HAL)
+set(TLC5955_LIB NONE CACHE STRING "The TLC5955 STM32 library framework")
+set_property(CACHE TLC5955_LIB PROPERTY STRINGS NONE LL HAL) 
+set(TLC5955_LIB LL)
 
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=1024")
@@ -61,14 +63,22 @@ elseif(SSD1306_LIB STREQUAL NONE)
 endif()
 
 # add the stm32 framework compiler definition for TLC5955 lib
-# if(TLC5955_LIB STREQUAL HAL)
-#     add_compile_definitions(${TARGET} USE_TLC5955_HAL_DRIVER)
-# elseif(TLC5955_LIB STREQUAL LL)
-#     add_compile_definitions(${TARGET} USE_TLC5955_LL_DRIVER)
-# elseif(TLC5955_LIB STREQUAL LL)
-#     add_compile_definitions(${TARGET} USE_TLC5955_BAREMETAL)
-# endif()
+if(TLC5955_LIB STREQUAL HAL)
+    add_compile_definitions(${TARGET} USE_TLC5955_HAL_DRIVER)
+elseif(TLC5955_LIB STREQUAL LL)
+    add_compile_definitions(${TARGET} USE_TLC5955_LL_DRIVER)
+elseif(TLC5955_LIB STREQUAL LL)
+    add_compile_definitions(${TARGET} USE_TLC5955_BAREMETAL)
+endif()
 
-add_compile_definitions(${TARGET} STM32G0B1xx)
+add_compile_definitions(
+    ${TARGET} STM32G0B1xx
+)
 
+
+
+message("CMAKE_CXX_FLAGS_DEBUG:" ${CMAKE_CXX_FLAGS_DEBUG})
+message("CMAKE_CXX_FLAGS_RELEASE:" ${CMAKE_CXX_FLAGS_RELEASE})
+message("CMAKE_CXX_FLAGS_MINSIZEREL:" ${CMAKE_CXX_FLAGS_MINSIZEREL})
+message("CMAKE_CXX_FLAGS_RELWITHDEBINFO:" ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 
