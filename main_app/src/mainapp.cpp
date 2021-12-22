@@ -6,11 +6,13 @@
  */
 
 #include "mainapp.hpp"
+
 #include <ssd1306.hpp>
-// #include <tlc5955.hpp>
+#include <tlc5955.hpp>
+#include <ll_microsecond_delay.hpp>
+
 #include <chrono>
 #include <thread>
-
 #include <sstream>
 
 #ifdef __cplusplus
@@ -47,20 +49,29 @@ bool tlc5955_callback {false};
 void mainapp()
 {
 
-	// tlc5955::Driver leds;
-	// leds.reset();
-	// leds.set_latch_cmd(true);
-	// leds.set_function_cmd(false, true, false, true, false);
-	// leds.set_global_brightness_cmd(0x7F, 0x7F, 0x7F);
-	// leds.set_max_current_cmd(0x4, 0x4, 0x4);
-	// leds.set_dot_correction_cmd_all(0x7F);
-	// leds.process_register();
-	
+
+	tlc5955::Driver leds;
+	leds.reset();
+	leds.set_latch_cmd(true);
+	leds.set_function_cmd(false, true, false, true, false);
+	leds.set_global_brightness_cmd(0x7F, 0x7F, 0x7F);
+	leds.set_max_current_cmd(0x4, 0x4, 0x4);
+	leds.set_dot_correction_cmd_all(0x7F);
+	leds.process_register();
+	bool res = leds.enable_spi(tlc5955::dma::disable);
+	#ifdef USE_RTT
+		SEGGER_RTT_printf(0, "tlc5955::Driver::enable_spi: %u", res);
+	#else
+		UNUSED(res);
+	#endif
+
+
 	// enable the gsclk
 	// #ifdef USE_TLC5955_HAL_DRIVER
     // 	HAL_GPIO_WritePin(TLC5955_SPI2_GSCLK_GPIO_Port, TLC5955_SPI2_GSCLK_Pin, GPIO_PIN_SET);
 
-	// 	leds.start_dma_transmit();
+	// initialise SPI with DMA and start transmitting now
+	// leds.init_spi_transmit(true);
 	// #endif
 
 	
@@ -74,6 +85,8 @@ void mainapp()
 	//uint32_t delay_ms {0};
 	while(true)
 	{
+
+		leds.send_blocking_transmit();
 		// // run oled animation
 		// std::stringstream bloated {};
 		
