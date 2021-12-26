@@ -25,7 +25,10 @@
 #include <ssd1306.hpp>
 #include <tlc5955.hpp>
 
-#include <ll_tim_utils.hpp>
+#ifdef USE_FULL_LL_DRIVER
+	#include <ll_tim_utils.hpp>
+#endif
+
 #include <chrono>
 #include <thread>
 #include <sstream>
@@ -88,10 +91,12 @@ void mainapp()
 	oled.init();
 	uint8_t count = 0;
 
-	// set the max freq (16MHz) for PWM when TIM4_ARR is also 1.
-	LL_TIM_OC_SetCompareCH1(TIM4, 0x1);
-	// enable the timer but not the output
-	LL_TIM_EnableCounter(TIM4);    	
+	#ifdef USE_FULL_LL_DRIVER
+		// set the max freq (16MHz) for PWM when TIM4_ARR is also 1.
+		LL_TIM_OC_SetCompareCH1(TIM4, 0x1);
+		// enable the timer but not the output
+		LL_TIM_EnableCounter(TIM4);
+	#endif    	
 
 	//uint32_t delay_ms {0};
 	while(true)
