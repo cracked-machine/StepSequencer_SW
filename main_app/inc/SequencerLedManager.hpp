@@ -36,7 +36,10 @@ public:
     enum class LedColour {
         red,
         blue,
-        green
+        green,
+        magenta,
+        yellow,
+        cyan
     };
 
     // @brief The two rows in the bass station sequencer PCB
