@@ -19,8 +19,6 @@ set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/stm32cube_workspace/G0B1KET6N/STM32G
 set(BUILD_NAME          build.elf)
 set(HEX_NAME            build.hex)
 
-
-
 # set stm32 framework property for SSD1306 lib
 set(SSD1306_LIB NONE CACHE STRING "The SSD1306 STM32 library framework")
 set_property(CACHE SSD1306_LIB PROPERTY STRINGS NONE LL HAL) 
@@ -64,8 +62,10 @@ endif()
 
 # add the stm32 framework compiler definition for TLC5955 lib
 if(TLC5955_LIB STREQUAL HAL)
+    add_compile_definitions(${TARGET} USE_HAL_DRIVER)
     add_compile_definitions(${TARGET} USE_TLC5955_HAL_DRIVER)
 elseif(TLC5955_LIB STREQUAL LL)
+    add_compile_definitions(${TARGET} USE_FULL_LL_DRIVER)
     add_compile_definitions(${TARGET} USE_TLC5955_LL_DRIVER)
 elseif(TLC5955_LIB STREQUAL LL)
     add_compile_definitions(${TARGET} USE_TLC5955_BAREMETAL)
