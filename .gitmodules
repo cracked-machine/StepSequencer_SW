@@ -7,3 +7,6 @@
 [submodule "embedded_utils"]
 	path = embedded_utils
 	url = https://github.com/cracked-machine/embedded_utils
+[submodule "cpp_adp5587"]
+	path = cpp_adp5587
+	url = https://github.com/cracked-machine/cpp_adp5587
