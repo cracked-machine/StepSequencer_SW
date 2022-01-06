@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "i2c.h"
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
@@ -100,6 +101,7 @@ int main(void)
   MX_TIM14_Init();
   MX_TIM4_Init();
   MX_TIM17_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
 #ifdef USE_RTT
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);

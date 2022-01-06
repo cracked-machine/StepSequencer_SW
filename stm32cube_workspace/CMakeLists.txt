@@ -7,6 +7,7 @@
         #G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_exti.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_gpio.c
+        G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_i2c.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_pwr.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_spi.c
@@ -27,6 +28,7 @@
         G0B1KET6N/Core/Src/system_stm32g0xx.c
         G0B1KET6N/Core/Src/main.c
         G0B1KET6N/Core/Src/gpio.c
+        G0B1KET6N/Core/Src/i2c.c
         #G0B1KET6N/Core/Src/dma.c
         G0B1KET6N/Core/Src/spi.c
         G0B1KET6N/Core/Src/tim.c
