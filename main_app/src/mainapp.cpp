@@ -24,6 +24,8 @@
 
 #include <ssd1306.hpp>
 #include <SequencerLedManager.hpp>
+#include <adp5587.hpp>
+#include <ll_i2c_utils.hpp>
 
 
 #ifdef __cplusplus
@@ -32,39 +34,64 @@ extern "C"
 #endif
 
 uint8_t font_count = 0;
-ssd1306::Font16x26 font2;
+ssd1306::Font5x7 font2;
 ssd1306::Display oled;
 
 
-void update_oled()
+void update_oled(std::string &msg)
 {
-	std::string msg {font2.character_map[font_count]};
-	oled.write(msg, font2, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+	std::string font_char {font2.character_map[font_count]};
+	std::string final_msg = msg + font_char;
+	ssd1306::ErrorStatus res = oled.write(final_msg, font2, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+	if (res != ssd1306::ErrorStatus::OK) 
+	{ 
+		#if defined(USE_RTT) 
+			SEGGER_RTT_printf(0, "ssd1306::Display::write(): Error\n"); 
+		#endif	
+	}
+
 	if (font_count < font2.character_map.size() - 1) { font_count++; }
 	else { font_count = 0; }	
 }
 
+
+bool check_i2c_addr(uint8_t addr)
+{
+
+	LL_I2C_TransmitData8(I2C3, addr << 1);
+	if ( (LL_I2C_IsActiveFlag_NACK(I2C3)) || (LL_I2C_IsActiveFlag_STOP(I2C3)) )
+	{
+		return true;
+	}
+	return false;
+}
+
 void mainapp()
 {
-	// setup display driver
+	// setup SSD1306 IC display driver
 	oled.init();
 
-	// setup led driver
+	// setup ADP5587 IC keyscan driver
+	adp5587::Driver keyscanner;
+
+	// setup TLC5955 IC LED driver
 	bass_station::SequencerLedManager led_manager;
 
 	// variables used for sequencer LED demo
     uint16_t pwm_value = 0xFFFF;
     led_manager.send_control_data();
-    uint16_t delay {25};
+    uint16_t delay {10};
 
 	while(true)
 	{
 
+		// update oled animation
+		std::string msg {"Hello "};
+		update_oled(msg);	
+
 		// update sequencer LEDs
 		led_manager.update_ladder_demo(pwm_value, delay);
-
-		// update oled animation		
-		update_oled();					
+				
 
 	}
 }
