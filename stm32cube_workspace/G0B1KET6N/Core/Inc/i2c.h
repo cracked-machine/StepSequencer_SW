@@ -35,6 +35,7 @@ extern "C" {
 
 /* USER CODE END Private defines */
 
+void MX_I2C2_Init(void);
 void MX_I2C3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
