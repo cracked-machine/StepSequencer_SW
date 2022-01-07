@@ -10,3 +10,6 @@
 [submodule "cpp_adp5587"]
 	path = cpp_adp5587
 	url = https://github.com/cracked-machine/cpp_adp5587
+[submodule "cpp_adg2188"]
+	path = cpp_adg2188
+	url = https://github.com/cracked-machine/cpp_adg2188
