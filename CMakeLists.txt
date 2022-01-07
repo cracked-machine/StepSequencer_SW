@@ -38,9 +38,12 @@ add_executable(${BUILD_NAME} "")
 
 # add common sources
 add_subdirectory(main_app)
+add_subdirectory(embedded_utils)
 add_subdirectory(cpp_tlc5955)
 add_subdirectory(cpp_ssd1306)
-add_subdirectory(embedded_utils)
+add_subdirectory(cpp_adp5587)
+add_subdirectory(cpp_adg2188)
+
 
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
