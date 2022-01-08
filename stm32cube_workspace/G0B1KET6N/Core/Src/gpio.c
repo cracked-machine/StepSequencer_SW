@@ -123,7 +123,7 @@ void MX_GPIO_Init(void)
   LL_EXTI_Init(&EXTI_InitStruct);
 
   /**/
-  LL_GPIO_SetPinPull(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_PULL_NO);
+  LL_GPIO_SetPinPull(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_PULL_UP);
 
   /**/
   LL_GPIO_SetPinMode(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_MODE_INPUT);
