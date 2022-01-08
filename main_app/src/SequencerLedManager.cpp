@@ -132,6 +132,24 @@ void SequencerLedManager::send_greyscale_data(uint16_t led_position, const Seque
     }
 }
 
+void SequencerLedManager::clear_all_leds()
+{
+    tlc5955_driver.reset();
+
+    // send upper row first with no latching
+    // tlc5955_driver.set_greyscale_cmd_white(0);
+	tlc5955_driver.process_register();
+	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
+
+    // send lower row with latching
+    // tlc5955_driver.set_greyscale_cmd_white(0);
+	tlc5955_driver.process_register();
+	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);
+        
+}
+
 void SequencerLedManager::update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms)
 {
 

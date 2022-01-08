@@ -73,6 +73,8 @@ public:
     // @param delay_ms The delay between each iteration. Affects the speed of the demo
     void update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms);    
 
+    void clear_all_leds();
+
 
 private:
     // @brief The TLC5955 driver instance
