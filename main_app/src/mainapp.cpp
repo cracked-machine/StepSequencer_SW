@@ -42,7 +42,7 @@ extern "C"
 
 uint8_t font_count = 0;
 ssd1306::Font5x7 font2;
-ssd1306::Display oled;
+ssd1306::Display oled(SPI1, ssd1306::Display::SPIDMA::enabled);
 
 
 void update_oled(std::string &msg)
@@ -61,30 +61,19 @@ void update_oled(std::string &msg)
 	else { font_count = 0; }	
 }
 
-
-bool check_i2c_addr(uint8_t addr)
-{
-
-	LL_I2C_TransmitData8(I2C3, addr << 1);
-	if ( (LL_I2C_IsActiveFlag_NACK(I2C3)) || (LL_I2C_IsActiveFlag_STOP(I2C3)) )
-	{
-		return true;
-	}
-	return false;
-}
-
 // setup TLC5955 IC LED driver
-bass_station::LedManager led_manager;
+bass_station::LedManager led_manager(SPI2);
 uint16_t pwm_value = 0xFFFF;
 
 void mainapp()
 {
 	// setup SSD1306 IC display driver
 	oled.init();
+	std::string msg {"Hello "};
 
 	// setup ADP5587 IC keyscan driver
-	adp5587::Driver keyscanner [[maybe_unused]];
-	adg2188::Driver xpoint [[maybe_unused]];
+	adp5587::Driver keyscanner(I2C3);
+	adg2188::Driver xpoint(I2C2);
 
 	// variables used for sequencer LED demo
     led_manager.send_control_data();
@@ -92,18 +81,23 @@ void mainapp()
 
 	while(true)
 	{
-
-		// update oled animation
-		std::string msg {"Hello "};
-		update_oled(msg);	
+		LL_mDelay(delay);
 
 		// update sequencer LEDs
 		// led_manager.update_ladder_demo(pwm_value, delay);
-		LL_mDelay(delay);
 		led_manager.set_all_leds(pwm_value, bass_station::LedManager::LedColour::cyan);
 
+		// update oled animation
+		update_oled(msg);	
+
 		LL_mDelay(delay);
+		
+		// update sequencer LEDs
 		led_manager.clear_all_leds();
+
+		// update oled animation
+		update_oled(msg);	
+
 
 	}
 }
