@@ -31,7 +31,7 @@
 #include "mainapp.hpp"
 
 #include <ssd1306.hpp>
-#include <SequencerLedManager.hpp>
+#include <LedManager.hpp>
 #include <adp5587.hpp>
 #include <adg2188.hpp>
 
@@ -74,7 +74,7 @@ bool check_i2c_addr(uint8_t addr)
 }
 
 // setup TLC5955 IC LED driver
-bass_station::SequencerLedManager led_manager;
+bass_station::LedManager led_manager;
 uint16_t pwm_value = 0xFFFF;
 
 void mainapp()
@@ -86,12 +86,9 @@ void mainapp()
 	adp5587::Driver keyscanner [[maybe_unused]];
 	adg2188::Driver xpoint [[maybe_unused]];
 
-
-
 	// variables used for sequencer LED demo
-
     led_manager.send_control_data();
-    uint16_t delay {10};
+    uint16_t delay {1000};
 
 	while(true)
 	{
@@ -103,31 +100,11 @@ void mainapp()
 		// update sequencer LEDs
 		// led_manager.update_ladder_demo(pwm_value, delay);
 		LL_mDelay(delay);
+		led_manager.set_all_leds(pwm_value, bass_station::LedManager::LedColour::cyan);
+
+		LL_mDelay(delay);
 		led_manager.clear_all_leds();
 
-		keyscanner.process_fifo();
-				
-
-	}
-}
-
-
-void EXTI4_15_IRQHandler(void)
-{
-
-	if (LL_EXTI_IsActiveFallingFlag_0_31(LL_EXTI_LINE_5) != RESET)
-	{
-		led_manager.send_greyscale_data(
-			0, 
-			bass_station::SequencerLedManager::SequencerRow::lower, 
-			pwm_value, 
-			bass_station::SequencerLedManager::LedColour::magenta,
-			bass_station::SequencerLedManager::LatchOption::enable);
-
-		#if defined(USE_RTT) 
-			SEGGER_RTT_printf(0, "\nEXTI5 ISR\n");
-		#endif
-		LL_EXTI_ClearFallingFlag_0_31(LL_EXTI_LINE_5);
 	}
 }
 

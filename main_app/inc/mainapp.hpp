@@ -17,7 +17,6 @@
 
 	void mainapp();
 
-	void EXTI4_15_IRQHandler(void);
 
 #ifdef __cplusplus
 	}
