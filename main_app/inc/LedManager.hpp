@@ -29,7 +29,7 @@ namespace bass_station
 {
 
 // @brief manages the tlc5955 driver
-class SequencerLedManager
+class LedManager
 {
 public:
     // @brief The preset colours available
@@ -55,7 +55,7 @@ public:
     };
 
     // @brief Construct a new Sequencer Led Manager object
-    SequencerLedManager() = default;
+    LedManager() = default;
 
     // @brief write control data to buffer and send via SPI
     void send_control_data();
@@ -74,6 +74,10 @@ public:
     void update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms);    
 
     void clear_all_leds();
+
+    void set_all_leds(uint16_t greyscale_pwm, const LedColour &colour);
+
+    void send_greyscale_data(const SequencerRow &row, uint16_t greyscale_pwm, const LedColour &colour, const LatchOption &latch_option);
 
 
 private:

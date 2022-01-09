@@ -20,12 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <SequencerLedManager.hpp>
+#include <LedManager.hpp>
 
 namespace bass_station 
 {
 
-void SequencerLedManager::send_control_data()
+void LedManager::send_control_data()
 {
 	// refresh buffers
 	tlc5955_driver.reset();
@@ -57,7 +57,75 @@ void SequencerLedManager::send_control_data()
 	tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);
 }
 
-void SequencerLedManager::send_greyscale_data(uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm, const LedColour &colour, const LatchOption &latch_option)
+void LedManager::set_all_leds(uint16_t greyscale_pwm, const LedColour &colour)
+{
+	// refresh buffers
+	tlc5955_driver.reset();
+
+    // send upper row first
+    switch (colour)
+    {
+        case LedColour::red:
+            tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, 0);
+        break;
+        case LedColour::green:
+            tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, 0);
+        break;
+        case LedColour::blue:
+            tlc5955_driver.set_greyscale_cmd_rgb(0, 0, greyscale_pwm);
+        break;		
+        case LedColour::magenta:
+            tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, greyscale_pwm);
+        break;						
+        case LedColour::yellow:
+            tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, 0);
+        break;	
+        case LedColour::cyan:
+            tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, greyscale_pwm);
+        break;						             
+    }
+
+	// convert the bit buffer to bytes
+	tlc5955_driver.process_register();
+
+	// send a first bit as 0 to notify chip this is  greyscale data
+	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+
+    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch);
+
+    // send lower row second
+    switch (colour)
+    {
+        case LedColour::red:
+            tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, 0);
+        break;
+        case LedColour::green:
+            tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, 0);
+        break;
+        case LedColour::blue:
+            tlc5955_driver.set_greyscale_cmd_rgb(0, 0, greyscale_pwm);
+        break;		
+        case LedColour::magenta:
+            tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, greyscale_pwm);
+        break;						
+        case LedColour::yellow:
+            tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, 0);
+        break;	
+        case LedColour::cyan:
+            tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, greyscale_pwm);
+        break;						             
+    }
+
+	// convert the bit buffer to bytes
+	tlc5955_driver.process_register();
+
+	// send a first bit as 0 to notify chip this is  greyscale data
+	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send); 
+
+}
+
+void LedManager::send_greyscale_data(uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm, const LedColour &colour, const LatchOption &latch_option)
 {
 	// refresh buffers
 	tlc5955_driver.reset();
@@ -132,25 +200,25 @@ void SequencerLedManager::send_greyscale_data(uint16_t led_position, const Seque
     }
 }
 
-void SequencerLedManager::clear_all_leds()
+void LedManager::clear_all_leds()
 {
     tlc5955_driver.reset();
 
     // send upper row first with no latching
-    // tlc5955_driver.set_greyscale_cmd_white(0);
 	tlc5955_driver.process_register();
 	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
     tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
 
     // send lower row with latching
-    // tlc5955_driver.set_greyscale_cmd_white(0);
 	tlc5955_driver.process_register();
 	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
     tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);
         
 }
 
-void SequencerLedManager::update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms)
+
+
+void LedManager::update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms)
 {
 
     for (uint16_t led_position = 0; led_position<16; led_position++)
