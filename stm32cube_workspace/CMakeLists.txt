@@ -4,7 +4,7 @@
     add_library(STM32CubeLL STATIC "")
     target_sources(STM32CubeLL PUBLIC
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_crs.c
-        #G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
+        G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_exti.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_gpio.c
         G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_i2c.c
@@ -29,9 +29,10 @@
         G0B1KET6N/Core/Src/main.c
         G0B1KET6N/Core/Src/gpio.c
         G0B1KET6N/Core/Src/i2c.c
-        #G0B1KET6N/Core/Src/dma.c
+        G0B1KET6N/Core/Src/dma.c
         G0B1KET6N/Core/Src/spi.c
         G0B1KET6N/Core/Src/tim.c
+        G0B1KET6N/Core/Src/stm32g0xx_it.c
         
     )
     target_include_directories(${BUILD_NAME} PUBLIC 
