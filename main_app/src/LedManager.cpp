@@ -25,6 +25,11 @@
 namespace bass_station 
 {
 
+LedManager::LedManager(SPI_TypeDef *spi_handle)
+{
+    tlc5955_driver = tlc5955::Driver(spi_handle);
+}
+
 void LedManager::send_control_data()
 {
 	// refresh buffers

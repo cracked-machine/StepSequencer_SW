@@ -55,7 +55,7 @@ public:
     };
 
     // @brief Construct a new Sequencer Led Manager object
-    LedManager() = default;
+    LedManager(SPI_TypeDef *spi_handle);
 
     // @brief write control data to buffer and send via SPI
     void send_control_data();
