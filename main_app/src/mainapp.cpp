@@ -31,9 +31,11 @@
 #include "mainapp.hpp"
 
 #include <ssd1306.hpp>
-#include <LedManager.hpp>
+// #include <led_manager.hpp>
+#include <sequence_manager.hpp>
 #include <adp5587.hpp>
 #include <adg2188.hpp>
+
 
 #ifdef __cplusplus
 extern "C"
@@ -61,9 +63,7 @@ void update_oled(std::string &msg)
 	else { font_count = 0; }	
 }
 
-// setup TLC5955 IC LED driver
-bass_station::LedManager led_manager(SPI2);
-uint16_t pwm_value = 0xFFFF;
+
 
 void mainapp()
 {
@@ -72,32 +72,24 @@ void mainapp()
 	std::string msg {"Hello "};
 
 	// setup ADP5587 IC keyscan driver
-	adp5587::Driver keyscanner(I2C3);
+	
 	adg2188::Driver xpoint(I2C2);
+	static bass_station::SequenceManager sequencer;
 
-	// variables used for sequencer LED demo
-    led_manager.send_control_data();
-    uint16_t delay {1000};
+    uint16_t delay_ms {50};
 
 	while(true)
 	{
-		LL_mDelay(delay);
+
 
 		// update sequencer LEDs
 		// led_manager.update_ladder_demo(pwm_value, delay);
-		led_manager.set_all_leds(pwm_value, bass_station::LedManager::LedColour::cyan);
-
-		// update oled animation
-		update_oled(msg);	
-
-		LL_mDelay(delay);
 		
-		// update sequencer LEDs
-		led_manager.clear_all_leds();
-
 		// update oled animation
-		update_oled(msg);	
+		update_oled(msg);		
+		LL_mDelay(delay_ms);
 
+		sequencer.execute_sequence(delay_ms);
 
 	}
 }
