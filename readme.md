@@ -1,5 +1,9 @@
 # Step Sequencer Project
 
+![](doc/BassStationArchitectureDiagram.png)
+
+Hardware design can be found [here](https://github.com/cracked-machine/BassStationSequencerMidiController)
+
 For installation see [here](setup.md)
 
 For building see [here](building.md)
