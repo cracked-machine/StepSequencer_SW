@@ -13,3 +13,6 @@
 [submodule "cpp_adg2188"]
 	path = cpp_adg2188
 	url = https://github.com/cracked-machine/cpp_adg2188
+[submodule "stm32_interrupt_managers"]
+	path = stm32_interrupt_managers
+	url = https://github.com/cracked-machine/stm32_interrupt_managers
