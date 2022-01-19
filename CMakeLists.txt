@@ -43,7 +43,7 @@ add_subdirectory(cpp_tlc5955)
 add_subdirectory(cpp_ssd1306)
 add_subdirectory(cpp_adp5587)
 add_subdirectory(cpp_adg2188)
-
+add_subdirectory(stm32_interrupt_managers)
 
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
