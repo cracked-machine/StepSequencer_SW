@@ -21,26 +21,20 @@
 // SOFTWARE.
 
 
-// @file mainapp.cpp
-// @author Chris Sutton (chrisjsutton@gmail.com)
-// @brief 
-// @version 0.1
-// @date 2022-01-07
-
-
 #include "mainapp.hpp"
-
 #include <ssd1306.hpp>
-// #include <led_manager.hpp>
+
+// Owns LedManager part
 #include <sequence_manager.hpp>
+
 #include <adp5587.hpp>
 #include <adg2188.hpp>
-
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
 
 uint8_t font_count = 0;
 ssd1306::Font5x7 font2;
@@ -67,11 +61,10 @@ void update_oled(std::string &msg)
 
 void mainapp()
 {
+
 	// setup SSD1306 IC display driver
 	oled.init();
 	std::string msg {"Hello "};
-
-	// setup ADP5587 IC keyscan driver
 	
 	adg2188::Driver xpoint(I2C2);
 	static bass_station::SequenceManager sequencer;
