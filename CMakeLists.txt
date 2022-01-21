@@ -39,11 +39,16 @@ add_executable(${BUILD_NAME} "")
 # add common sources
 add_subdirectory(main_app)
 add_subdirectory(embedded_utils)
-add_subdirectory(cpp_tlc5955)
-add_subdirectory(cpp_ssd1306)
-add_subdirectory(cpp_adp5587)
-add_subdirectory(cpp_adg2188)
-add_subdirectory(stm32_interrupt_managers)
+add_subdirectory(cpp_tlc5955)               # led driver
+add_subdirectory(cpp_ssd1306)               # oled driver
+add_subdirectory(cpp_adp5587)               # keyscan/io expander driver
+add_subdirectory(cpp_adg2188)               # xpoint switch driver
+
+# don't enable both USE_RAWPTR_ISR and USE_FUNCTIONAL_ISR!
+# add_subdirectory(stm32_interrupt_managers/rawptrs)
+# add_compile_definitions(${TARGET} USE_RAWPTR_ISR)
+add_subdirectory(stm32_interrupt_managers/functional)
+add_compile_definitions(${TARGET} USE_FUNCTIONAL_ISR)
 
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
