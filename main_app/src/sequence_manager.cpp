@@ -30,10 +30,71 @@ SequenceManager::SequenceManager()
     m_led_manager.send_control_data();
 }
 
+#ifdef USE_STATIC_MAP_TYPE
+void SequenceManager::execute_sequence_map(uint16_t delay_ms [[maybe_unused]])
+{
+    process_key_events_map();
+
+    Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_beat_position)).second;
+
+    // save the previous colour and state for the current beat position key
+    LedColour previous_colour = current_step.m_colour;
+    KeyState previous_state = current_step.m_key_state;
+    
+    // change the sequence data for the current beat position key
+    current_step.m_key_state = KeyState::ON;
+    if (previous_state == KeyState::ON)
+    {
+        current_step.m_colour = m_beat_colour_on;
+    }
+    else
+    {
+        current_step.m_colour = m_beat_colour_off;
+    }
+    
+    
+    // apply the sequence with the change
+    m_led_manager.send_both_rows_greyscale_data(the_sequence.data);
+    
+    // restore the previous colour and state for the current beat position key
+    current_step.m_colour = previous_colour;
+    current_step.m_key_state = previous_state;
+
+    // increment
+    (m_beat_position >= m_sequencer_key_mapping.size() -1) ? m_beat_position = 0: m_beat_position++;
+    LL_mDelay(delay_ms);  
+}
+
+void SequenceManager::process_key_events_map()
+{
+    // get the key events FIFO list from the ADP5587 driver 
+    std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
+    m_keyscanner.get_key_events(key_events_list);
+    
+    for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
+    {
+        Step *current_step = the_sequence.find_key(key_event);
+        if(current_step == nullptr) { /* no match found in map */ }
+        else
+        {
+            if (current_step->m_key_state == KeyState::OFF)
+            {
+                current_step->m_key_state = KeyState::ON;
+            }
+            else
+            {
+                current_step->m_key_state = KeyState::OFF;
+            }
+        }
+    }
+}
+
+#else // (not defined) USE_STATIC_MAP_TYPE
+
 void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]])
 {
     // m_led_manager.clear_all_leds();
-
+    
     process_key_events();
 
     // save the previous colour and state for the current beat position key
@@ -63,6 +124,7 @@ void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]])
     (m_beat_position >= m_sequencer_key_mapping.size() -1) ? m_beat_position = 0: m_beat_position++;
     LL_mDelay(delay_ms);
 }
+
 
 void SequenceManager::process_key_events()
 {
@@ -279,5 +341,10 @@ void SequenceManager::process_key_events()
         }
     }    
 }
+
+#endif // USE_STATIC_MAP_TYPE
+
+
+
 
 } // namespace bass_station

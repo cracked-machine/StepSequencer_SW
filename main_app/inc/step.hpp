@@ -24,14 +24,12 @@
 #define __STEP_HPP__
 
 #include <cstdint>
-
 #include <adp5587.hpp>
-
-
 
 namespace bass_station
 {
 
+#ifndef USE_STATIC_MAP_TYPE
 enum LogicalKeyArrayMapping
 {
     A7=7,	A6=6,	A5=5,	A4=4,	A3=3,	A2=2,	A1=1,	A0=0,
@@ -39,12 +37,19 @@ enum LogicalKeyArrayMapping
     C7=23,	C6=22,	C5=21,	C4=20,	C3=19,	C2=18,	C1=17,	C0=16,
     D7=31,	D6=30,	D5=29,	D4=28,	D3=27,	D2=26,	D1=25,	D0=24,
 };
-
+#endif
 // @brief Refers to the two TLC5955 chips in the bass station sequencer PCB
 enum class SequencerRow {
     upper,
     lower
 };    
+
+// @brief Basic state for keys
+enum class KeyState {
+    ON,
+    OFF,
+};    
+
 
 // @brief The preset colours available
 enum class LedColour {
@@ -57,29 +62,36 @@ enum class LedColour {
     white,
 };
 
-// @brief toggle the LAT pin after each full write to the chip common register
-enum class LatchOption {
-    enable,
-    disable
-};
-
-class Step
+#ifdef USE_STATIC_MAP_TYPE
+struct Step
 {
-public:
-    Step(uint8_t position, SequencerRow row, adp5587::Driver::KeyPadMappings state, LedColour colour)
-    : m_position(position), m_row(row), m_state(state), m_colour(colour)
+
+    Step(KeyState key_state, LedColour colour)
+    : m_key_state(key_state), m_colour(colour)
     {
         // nothing else to do here
     }
-
+    KeyState m_key_state;
+    LedColour m_colour;
+    
+};
+#else // (not defined) USE_STATIC_MAP_TYPE
+struct Step
+{
+    Step(KeyState key_state, uint8_t position, SequencerRow row, adp5587::Driver::KeyPadMappings state, LedColour colour)
+    : m_key_state(key_state), m_position(position), m_row(row), m_state(state), m_colour(colour)
+    {
+        // nothing else to do here
+    }
+    KeyState m_key_state;
     const uint8_t m_position;
     const SequencerRow m_row;
     adp5587::Driver::KeyPadMappings m_state;
     LedColour m_colour;
-private:
-
     
 };
+#endif // USE_STATIC_MAP_TYPE
+
 
 } // namespace bass_station
 

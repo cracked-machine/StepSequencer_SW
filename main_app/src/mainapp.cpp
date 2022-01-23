@@ -82,7 +82,11 @@ void mainapp()
 		update_oled(msg);		
 		// LL_mDelay(10);
 
+#ifdef USE_STATIC_MAP_TYPE
+		sequencer.execute_sequence_map(delay_ms);
+#else
 		sequencer.execute_sequence(delay_ms);
+#endif
 
 	}
 }

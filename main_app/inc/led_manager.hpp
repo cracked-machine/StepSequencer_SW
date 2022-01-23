@@ -34,6 +34,12 @@ class LedManager
 {
 public:
 
+    // @brief toggle the LAT pin after each full write to the chip common register
+    enum class LatchOption {
+        enable,
+        disable
+    };
+
     // @brief Construct a new Sequencer Led Manager object
     LedManager(SPI_TypeDef *spi_handle);
 
@@ -54,6 +60,10 @@ public:
     // @param step_sequence The array of step objects that make up the full sequence
     template <std::size_t LED_NUMBER>
     void send_both_rows_greyscale_data(std::array<Step, LED_NUMBER> &step_sequence);
+
+    template <std::size_t LED_NUMBER>
+    void send_both_rows_greyscale_data(std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >,LED_NUMBER > &step_sequence);
+
     
     // @brief Run a simple demo that runs boths rows 0->15 then 15->0, for red, green and blue.
     // @param pwm_value The constrast for the iteration
@@ -82,10 +92,61 @@ private:
     // @param position Set the LED at this position in the buffer
     // @param colour The colour to set it to
     void set_position_and_colour(uint16_t position, LedColour colour);
+
+
 };
 
+#ifdef USE_STATIC_MAP_TYPE
+
 template <std::size_t LED_NUMBER>
-void LedManager::send_both_rows_greyscale_data(std::array<Step, LED_NUMBER> &step_sequence [[maybe_unused]])
+void LedManager::send_both_rows_greyscale_data(
+    std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, LED_NUMBER > &step_sequence)
+{
+
+	// refresh buffers
+	tlc5955_driver.reset();
+
+    // array for the upper row keys
+    for (size_t idx = step_sequence.size() / 2; idx < step_sequence.size(); idx++)
+    {
+        Step current_step = step_sequence.at(idx).second;
+        if (current_step.m_key_state == KeyState::ON)
+        {
+            // remap the logical array positions to the physical PCB wiring
+            set_position_and_colour(upper_row_physical_led_mapping.at(idx - 16), current_step.m_colour);             
+        }
+    }
+
+    // send the upper row data without latch
+ 	tlc5955_driver.process_register();
+	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
+
+    // clear buffer so that the upper row data that was just sent, does not contaminatate the lower row data we are about to send
+	tlc5955_driver.reset();
+    
+    // array for the lower row keys
+    for (size_t idx = 0; idx < step_sequence.size() / 2; idx++)
+    {
+        Step current_step = step_sequence.at(idx).second;
+        if (current_step.m_key_state == KeyState::ON)
+        {
+            // remap the logical array positions to the physical PCB wiring
+            set_position_and_colour(lower_row_physical_led_mapping.at(idx), current_step.m_colour);             
+        }
+        
+    }
+
+    // send the lower row data with latch
+	tlc5955_driver.process_register();
+	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);    
+}
+
+#else // (not defined) USE_STATIC_MAP_TYPE
+
+template <std::size_t LED_NUMBER>
+void LedManager::send_both_rows_greyscale_data(std::array<Step, LED_NUMBER> &step_sequence)
 {
 
     // uint16_t greyscale_pwm {0xFFFF};
@@ -129,6 +190,7 @@ void LedManager::send_both_rows_greyscale_data(std::array<Step, LED_NUMBER> &ste
     tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);     
 
 }
+#endif // USE_STATIC_MAP_TYPE
 
 } // namespace bass_station
 
