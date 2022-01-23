@@ -91,6 +91,7 @@ class SequenceManager
 {
 public:
     SequenceManager();
+    void execute_sequence(uint16_t delay_ms, bool run_demo_only = false);
 private:
 
     bass_station::LedManager m_led_manager {SPI2};
@@ -102,16 +103,11 @@ private:
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
-
-public: 
-    void execute_sequence(uint16_t delay_ms, bool run_demo_only = false);
-private:
-    void process_key_events();
-
     // @brief The map initialised with sequence data
     noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> the_sequence = 
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
 
+    void process_key_events();
 };
 
 

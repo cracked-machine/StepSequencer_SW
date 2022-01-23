@@ -40,6 +40,7 @@ void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]], bool 
     {
         process_key_events();
 
+        // get the current step remapped for the sequencer execution order
         Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_beat_position)).second;
 
         // save the previous colour and state for the current beat position key
