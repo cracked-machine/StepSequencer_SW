@@ -64,7 +64,11 @@ public:
     // @brief Run a simple demo that runs boths rows 0->15 then 15->0, for red, green and blue.
     // @param pwm_value The constrast for the iteration
     // @param delay_ms The delay between each iteration. Affects the speed of the demo
-    void update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms);    
+    template <std::size_t LED_NUMBER>
+    void update_ladder_demo( 
+        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, LED_NUMBER> &sequence_map, 
+        uint16_t pwm_value, 
+        uint32_t delay_ms);   
 
     // @brief Writes empty data to the keys. Not as useful as you might think. Will probably cause flickering.
     void clear_all_leds();
@@ -78,18 +82,10 @@ private:
     // @brief The TLC5955 driver instance
     tlc5955::Driver tlc5955_driver;
 
-    // @brief lower row mapping of indices to the physical wiring to the TLC5955 chip on the PCB
-    std::array<uint16_t, 16> lower_row_physical_led_mapping = {4,0,5,1,2,6,3,7, 11,15,10,14,13,9,12,8};
-
-    // @brief upper row mapping of indices to the physical wiring to the TLC5955 chip on the PCB
-    std::array<uint16_t, 16> upper_row_physical_led_mapping = {7,3,6,2,1,5,0,4, 8,12,9,13,14,10,15,11};
-
     // @brief Helper function that maps RGB pwm values to preset primary and secondary colours
     // @param position Set the LED at this position in the buffer
     // @param colour The colour to set it to
     void set_position_and_colour(uint16_t position, LedColour colour);
-
-
 };
 
 template <std::size_t LED_NUMBER>
@@ -111,7 +107,7 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
             if (current_step.m_key_state == KeyState::ON)
             {
                 // remap the logical array positions to the physical PCB wiring
-                set_position_and_colour(upper_row_physical_led_mapping.at(current_step.m_relative_index), current_step.m_colour);             
+                set_position_and_colour(current_step.m_physical_mapping_index, current_step.m_colour);             
             }
         }
     );
@@ -132,7 +128,7 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
             if (current_step.m_key_state == KeyState::ON)
             {
                 // remap the logical array positions to the physical PCB wiring
-                set_position_and_colour(lower_row_physical_led_mapping.at(current_step.m_relative_index), current_step.m_colour);             
+                set_position_and_colour(current_step.m_physical_mapping_index, current_step.m_colour);             
             }
         }
     );    
@@ -143,6 +139,100 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
     tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);    
 }
 
+
+template <std::size_t LED_NUMBER>
+void LedManager::update_ladder_demo( 
+    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, LED_NUMBER> &sequence_map, 
+    uint16_t pwm_value, 
+    uint32_t delay_ms)
+{
+
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::red, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::red, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::yellow, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::yellow, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::green, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::green, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );    
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::cyan, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::cyan, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::blue, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::blue, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );    
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::green, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::green, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );    
+
+    std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
+        (std::pair< adp5587::Driver::KeyPadMappings, Step > &data_pair)
+        {
+            // set the LED colours and positions
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::upper, pwm_value, LedColour::white, LatchOption::disable);
+            send_one_led_greyscale_data_at(
+                data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::white, LatchOption::enable);
+            LL_mDelay(delay_ms);
+        }
+    );    
+
+}
 } // namespace bass_station
 
 #endif // __LEDMANAGER_HPP__

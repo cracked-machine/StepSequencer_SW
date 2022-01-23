@@ -184,22 +184,22 @@ void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const Seq
 			switch (colour)
 			{
 				case LedColour::red:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(upper_row_physical_led_mapping.at(led_position), greyscale_pwm, 0, 0);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, 0);
 				break;
 				case LedColour::green:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(upper_row_physical_led_mapping.at(led_position), 0, greyscale_pwm, 0);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, 0);
 				break;
 				case LedColour::blue:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(upper_row_physical_led_mapping.at(led_position), 0, 0, greyscale_pwm);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, 0, greyscale_pwm);
 				break;		
 				case LedColour::magenta:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(upper_row_physical_led_mapping.at(led_position), greyscale_pwm, 0, greyscale_pwm);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, greyscale_pwm);
 				break;						
 				case LedColour::yellow:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(upper_row_physical_led_mapping.at(led_position), greyscale_pwm, greyscale_pwm, 0);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, greyscale_pwm, 0);
 				break;	
 				case LedColour::cyan:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(upper_row_physical_led_mapping.at(led_position), 0, greyscale_pwm, greyscale_pwm);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, greyscale_pwm);
 				break;		
                 case LedColour::white:
                     tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, greyscale_pwm);
@@ -212,22 +212,22 @@ void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const Seq
 			switch (colour)
 			{
 				case LedColour::red:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(lower_row_physical_led_mapping.at(led_position), greyscale_pwm, 0, 0);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, 0);
 				break;
 				case LedColour::green:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(lower_row_physical_led_mapping.at(led_position), 0, greyscale_pwm, 0);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, 0);
 				break;
 				case LedColour::blue:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(lower_row_physical_led_mapping.at(led_position), 0, 0, greyscale_pwm);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, 0, greyscale_pwm);
 				break;		
 				case LedColour::magenta:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(lower_row_physical_led_mapping.at(led_position), greyscale_pwm, 0, greyscale_pwm);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, greyscale_pwm);
 				break;		
 				case LedColour::yellow:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(lower_row_physical_led_mapping.at(led_position), greyscale_pwm, greyscale_pwm, 0);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, greyscale_pwm, 0);
 				break;		
 				case LedColour::cyan:
-					tlc5955_driver.set_greyscale_cmd_rgb_at_position(lower_row_physical_led_mapping.at(led_position), 0, greyscale_pwm, greyscale_pwm);
+					tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, greyscale_pwm);
 				break;					
                 case LedColour::white:
                     tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, greyscale_pwm);
@@ -271,118 +271,5 @@ void LedManager::clear_all_leds()
 
 
 
-void LedManager::update_ladder_demo(uint16_t pwm_value, uint32_t delay_ms)
-{
-
-    for (uint16_t led_position = 0; led_position<16; led_position++)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(led_position, SequencerRow::upper, pwm_value, LedColour::red, LatchOption::disable);
-        send_one_led_greyscale_data_at(led_position, SequencerRow::lower, pwm_value, LedColour::red, LatchOption::enable);
-
-        LL_mDelay(delay_ms);
-    }
-
-    for (int16_t led_position = 15; led_position > -1; led_position--)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::upper, pwm_value, LedColour::red, LatchOption::disable);
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::lower, pwm_value, LedColour::red, LatchOption::enable);	
-
-        LL_mDelay(delay_ms);
-    }	
-
-    for (uint16_t led_position = 0; led_position<16; led_position++)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(led_position, SequencerRow::upper, pwm_value, LedColour::yellow, LatchOption::disable);
-        send_one_led_greyscale_data_at(led_position, SequencerRow::lower, pwm_value, LedColour::yellow, LatchOption::enable);
-        
-        LL_mDelay(delay_ms);
-    }
-
-    for (int16_t led_position = 15; led_position > -1; led_position--)
-    {
-        // set the LED colours and positions	
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::upper, pwm_value, LedColour::yellow, LatchOption::disable);
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::lower, pwm_value, LedColour::yellow, LatchOption::enable);	
-
-        LL_mDelay(delay_ms);
-    }		
-
-    for (uint16_t led_position = 0; led_position<16; led_position++)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(led_position, SequencerRow::upper, pwm_value, LedColour::green, LatchOption::disable);
-        send_one_led_greyscale_data_at(led_position, SequencerRow::lower, pwm_value, LedColour::green, LatchOption::enable);
-
-        LL_mDelay(delay_ms);
-    }
-
-    for (int16_t led_position = 15; led_position > -1; led_position--)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::upper, pwm_value, LedColour::green, LatchOption::disable);
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::lower, pwm_value, LedColour::green, LatchOption::enable);	
-        
-        LL_mDelay(delay_ms);
-    }	
-
-    for (uint16_t led_position = 0; led_position<16; led_position++)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(led_position, SequencerRow::upper, pwm_value, LedColour::cyan, LatchOption::disable);
-        send_one_led_greyscale_data_at(led_position, SequencerRow::lower, pwm_value, LedColour::cyan, LatchOption::enable);
-        
-        LL_mDelay(delay_ms);
-    }
-
-    for (int16_t led_position = 15; led_position > -1; led_position--)
-    {
-        // set the LED colours and positions	
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::upper, pwm_value, LedColour::cyan, LatchOption::disable);
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::lower, pwm_value, LedColour::cyan, LatchOption::enable);	
-
-        LL_mDelay(delay_ms);
-    }			
-	
-    for (uint16_t led_position = 0; led_position<16; led_position++)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(led_position, SequencerRow::upper, pwm_value, LedColour::blue, LatchOption::disable);
-        send_one_led_greyscale_data_at(led_position, SequencerRow::lower, pwm_value, LedColour::blue, LatchOption::enable);
-        
-        LL_mDelay(delay_ms);
-    }
-
-    for (int16_t led_position = 15; led_position > -1; led_position--)
-    {
-        // set the LED colours and positions	
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::upper, pwm_value, LedColour::blue, LatchOption::disable);
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::lower, pwm_value, LedColour::blue, LatchOption::enable);	
-
-        LL_mDelay(delay_ms);
-    }	
-
-    for (uint16_t led_position = 0; led_position<16; led_position++)
-    {
-        // set the LED colours and positions
-        send_one_led_greyscale_data_at(led_position, SequencerRow::upper, pwm_value, LedColour::magenta, LatchOption::disable);
-        send_one_led_greyscale_data_at(led_position, SequencerRow::lower, pwm_value, LedColour::magenta, LatchOption::enable);
-        
-        LL_mDelay(delay_ms);
-    }
-
-    for (int16_t led_position = 15; led_position > -1; led_position--)
-    {
-        // set the LED colours and positions	
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::upper, pwm_value, LedColour::magenta, LatchOption::disable);
-        send_one_led_greyscale_data_at(static_cast<uint16_t>(led_position), SequencerRow::lower, pwm_value, LedColour::magenta, LatchOption::enable);	
-
-        LL_mDelay(delay_ms);
-    }	
-
-
-}
 
 } // namespace bass_station
