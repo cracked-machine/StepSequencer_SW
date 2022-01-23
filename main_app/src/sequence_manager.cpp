@@ -30,37 +30,45 @@ SequenceManager::SequenceManager()
     m_led_manager.send_control_data();
 }
 
-void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]])
+void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]], bool run_demo_only)
 {
-    process_key_events();
-
-    Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_beat_position)).second;
-
-    // save the previous colour and state for the current beat position key
-    LedColour previous_colour = current_step.m_colour;
-    KeyState previous_state = current_step.m_key_state;
-    
-    // change the sequence data for the current beat position key
-    current_step.m_key_state = KeyState::ON;
-    if (previous_state == KeyState::ON)
+    if (run_demo_only)
     {
-        current_step.m_colour = m_beat_colour_on;
-    }
+        m_led_manager.update_ladder_demo(the_sequence, 0xFFFF, delay_ms);
+    }   
     else
     {
-        current_step.m_colour = m_beat_colour_off;
-    }
-    
-    // apply the sequence with the change
-    m_led_manager.send_both_rows_greyscale_data(the_sequence);
-    
-    // restore the previous colour and state for the current beat position key
-    current_step.m_colour = previous_colour;
-    current_step.m_key_state = previous_state;
+        process_key_events();
 
-    // increment
-    (m_beat_position >= m_sequencer_key_mapping.size() -1) ? m_beat_position = 0: m_beat_position++;
-    LL_mDelay(delay_ms);  
+        Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_beat_position)).second;
+
+        // save the previous colour and state for the current beat position key
+        LedColour previous_colour = current_step.m_colour;
+        KeyState previous_state = current_step.m_key_state;
+        
+        // change the sequence data for the current beat position key
+        current_step.m_key_state = KeyState::ON;
+        if (previous_state == KeyState::ON)
+        {
+            current_step.m_colour = m_beat_colour_on;
+        }
+        else
+        {
+            current_step.m_colour = m_beat_colour_off;
+        }
+        
+        // apply the sequence with the change
+        m_led_manager.send_both_rows_greyscale_data(the_sequence);
+        
+        // restore the previous colour and state for the current beat position key
+        current_step.m_colour = previous_colour;
+        current_step.m_key_state = previous_state;
+
+        // increment
+        (m_beat_position >= m_sequencer_key_mapping.size() -1) ? m_beat_position = 0: m_beat_position++;
+        
+        LL_mDelay(delay_ms);  
+    }
 }
 
 void SequenceManager::process_key_events()

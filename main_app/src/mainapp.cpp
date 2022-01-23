@@ -69,15 +69,11 @@ void mainapp()
 	adg2188::Driver xpoint(I2C2);
 	static bass_station::SequenceManager sequencer;
 
-    uint16_t delay_ms {400};
+    [[maybe_unused]] uint16_t delay_ms {100};
 
 	while(true)
 	{
 
-
-		// update sequencer LEDs
-		// led_manager.update_ladder_demo(pwm_value, delay);
-		
 		// update oled animation
 		update_oled(msg);		
 		// LL_mDelay(10);
