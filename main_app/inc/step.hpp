@@ -55,17 +55,46 @@ enum class LedColour {
 };
 
 
+// @brief Represents a single step/key/button in the sequencer
 struct Step
 {
 
-    Step(KeyState key_state, LedColour colour, int rel_idx)
-    : m_key_state(key_state), m_colour(colour), m_relative_index(rel_idx)
+    // @brief Construct a new Step object
+    // @param key_state ON or OFF
+    // @param colour The colour when ON
+    // @param logical_mapping_index Maps this step to a position index in one of two 16 position arrays.
+    // @param physical_mapping_index Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
+    // @param sequence_mapping_index Maps this step to a position index in the sequence execution order.
+    Step(   KeyState key_state, 
+            LedColour colour, 
+            int logical_mapping_index, 
+            int physical_mapping_index,
+            int sequence_mapping_index)
+
+    :   m_key_state(key_state), 
+        m_colour(colour), 
+        m_logical_mapping_index(logical_mapping_index),
+        m_physical_mapping_index(physical_mapping_index),
+        m_sequence_mapping_index(sequence_mapping_index)
     {
         // nothing else to do here
     }
+
+    // @brief Is the Key ON or OFF
     KeyState m_key_state;
+    
+    // @brief The colour of the key when it is ON
     LedColour m_colour;
-    int m_relative_index;
+    
+    // @brief Maps this step to a position index in one of two 16 position arrays.
+    int m_logical_mapping_index;
+
+    // @brief Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
+    int m_physical_mapping_index;
+    
+    // @brief Maps this step to a position index in the sequence execution order.
+    // This begins on the upper row and ends on the lower row, sweeping left to right
+    int m_sequence_mapping_index;
     
 };
 

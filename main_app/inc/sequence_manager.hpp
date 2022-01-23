@@ -38,6 +38,7 @@ namespace bass_station
 
 
 
+
 constexpr LedColour m_default_colour { LedColour::white };
 constexpr LedColour m_beat_colour_off { LedColour::white };
 constexpr LedColour m_beat_colour_on { LedColour::blue };
@@ -45,41 +46,43 @@ constexpr LedColour m_beat_colour_on { LedColour::blue };
 // The sequence data
 static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_data{
 {
-    {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::ON,  m_default_colour, 0)},
-    {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::OFF, m_default_colour, 1)},
-    {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::OFF, m_default_colour, 2)},
-    {adp5587::Driver::KeyPadMappings::A3_ON, Step(KeyState::OFF, m_default_colour, 3)},
-    {adp5587::Driver::KeyPadMappings::A4_ON, Step(KeyState::ON,  m_default_colour, 4)},
-    {adp5587::Driver::KeyPadMappings::A5_ON, Step(KeyState::OFF, m_default_colour, 5)},
-    {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::OFF, m_default_colour, 6)},
-    {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::OFF, m_default_colour, 7)},
 
-    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::ON,  m_default_colour, 8)},
-    {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::OFF, m_default_colour, 9)},
-    {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::OFF, m_default_colour, 10)},
-    {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::OFF, m_default_colour, 11)},
-    {adp5587::Driver::KeyPadMappings::B4_ON, Step(KeyState::ON,  m_default_colour, 12)},
-    {adp5587::Driver::KeyPadMappings::B5_ON, Step(KeyState::OFF, m_default_colour, 13)},
-    {adp5587::Driver::KeyPadMappings::B6_ON, Step(KeyState::OFF, m_default_colour, 14)},
-    {adp5587::Driver::KeyPadMappings::B7_ON, Step(KeyState::OFF, m_default_colour, 15)}, 
 
-    {adp5587::Driver::KeyPadMappings::C0_ON, Step(KeyState::ON,  m_default_colour, 0)},
-    {adp5587::Driver::KeyPadMappings::C1_ON, Step(KeyState::OFF, m_default_colour, 1)},
-    {adp5587::Driver::KeyPadMappings::C2_ON, Step(KeyState::OFF, m_default_colour, 2)},
-    {adp5587::Driver::KeyPadMappings::C3_ON, Step(KeyState::OFF, m_default_colour, 3)},
-    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::ON,  m_default_colour, 4)},
-    {adp5587::Driver::KeyPadMappings::C5_ON, Step(KeyState::OFF, m_default_colour, 5)},
-    {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::OFF, m_default_colour, 6)},
-    {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::OFF, m_default_colour, 7)},  
+    {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::ON,  m_default_colour, 0,   4,  16)},
+    {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::OFF, m_default_colour, 1,   0,  17)},
+    {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::OFF, m_default_colour, 2,   5,  18)},
+    {adp5587::Driver::KeyPadMappings::A3_ON, Step(KeyState::OFF, m_default_colour, 3,   1,  19)},
+    {adp5587::Driver::KeyPadMappings::A4_ON, Step(KeyState::ON,  m_default_colour, 4,   2,  20)},
+    {adp5587::Driver::KeyPadMappings::A5_ON, Step(KeyState::OFF, m_default_colour, 5,   6,  21)},
+    {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::OFF, m_default_colour, 6,   3,  22)},
+    {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::OFF, m_default_colour, 7,   7,  23)},
 
-    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::ON,  m_default_colour, 8)},
-    {adp5587::Driver::KeyPadMappings::D1_ON, Step(KeyState::OFF, m_default_colour, 9)},
-    {adp5587::Driver::KeyPadMappings::D2_ON, Step(KeyState::OFF, m_default_colour, 10)},
-    {adp5587::Driver::KeyPadMappings::D3_ON, Step(KeyState::OFF, m_default_colour, 11)},
-    {adp5587::Driver::KeyPadMappings::D4_ON, Step(KeyState::ON,  m_default_colour, 12)},
-    {adp5587::Driver::KeyPadMappings::D5_ON, Step(KeyState::OFF, m_default_colour, 13)},
-    {adp5587::Driver::KeyPadMappings::D6_ON, Step(KeyState::OFF, m_default_colour, 14)},
-    {adp5587::Driver::KeyPadMappings::D7_ON, Step(KeyState::OFF, m_default_colour, 15)},       
+    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::ON,  m_default_colour, 8,   11, 24)},
+    {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::OFF, m_default_colour, 9,   15, 25)},
+    {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::OFF, m_default_colour, 10,  10, 26)},
+    {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::OFF, m_default_colour, 11,  14, 27)},
+    {adp5587::Driver::KeyPadMappings::B4_ON, Step(KeyState::ON,  m_default_colour, 12,  13, 28)},
+    {adp5587::Driver::KeyPadMappings::B5_ON, Step(KeyState::OFF, m_default_colour, 13,  9,  29)},
+    {adp5587::Driver::KeyPadMappings::B6_ON, Step(KeyState::OFF, m_default_colour, 14,  12, 30)},
+    {adp5587::Driver::KeyPadMappings::B7_ON, Step(KeyState::OFF, m_default_colour, 15,  8,  31)}, 
+
+    {adp5587::Driver::KeyPadMappings::C0_ON, Step(KeyState::ON,  m_default_colour, 0,   7,  0)},
+    {adp5587::Driver::KeyPadMappings::C1_ON, Step(KeyState::OFF, m_default_colour, 1,   3,  1)},
+    {adp5587::Driver::KeyPadMappings::C2_ON, Step(KeyState::OFF, m_default_colour, 2,   6,  2)},
+    {adp5587::Driver::KeyPadMappings::C3_ON, Step(KeyState::OFF, m_default_colour, 3,   2,  3)},
+    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::ON,  m_default_colour, 4,   1,  4)},
+    {adp5587::Driver::KeyPadMappings::C5_ON, Step(KeyState::OFF, m_default_colour, 5,   5,  5)},
+    {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::OFF, m_default_colour, 6,   0,  6)},
+    {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::OFF, m_default_colour, 7,   4,  7)},  
+
+    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::ON,  m_default_colour, 8,   8,  8)},
+    {adp5587::Driver::KeyPadMappings::D1_ON, Step(KeyState::OFF, m_default_colour, 9,   12, 9)},
+    {adp5587::Driver::KeyPadMappings::D2_ON, Step(KeyState::OFF, m_default_colour, 10,  9,  10)},
+    {adp5587::Driver::KeyPadMappings::D3_ON, Step(KeyState::OFF, m_default_colour, 11,  13, 11)},
+    {adp5587::Driver::KeyPadMappings::D4_ON, Step(KeyState::ON,  m_default_colour, 12,  14, 12)},
+    {adp5587::Driver::KeyPadMappings::D5_ON, Step(KeyState::OFF, m_default_colour, 13,  10, 13)},
+    {adp5587::Driver::KeyPadMappings::D6_ON, Step(KeyState::OFF, m_default_colour, 14,  15, 14)},
+    {adp5587::Driver::KeyPadMappings::D7_ON, Step(KeyState::OFF, m_default_colour, 15,  11, 15)},       
     
 }};
 
@@ -95,13 +98,13 @@ private:
 
     uint8_t m_beat_position {0};
 
-    // @brief This determines the positional order in which the cursor sweeps the sequence
+        // @brief This determines the positional order in which the cursor sweeps the sequence
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 
 public: 
-    void execute_sequence(uint16_t delay_ms);
+    void execute_sequence(uint16_t delay_ms, bool run_demo_only = false);
 private:
     void process_key_events();
 
