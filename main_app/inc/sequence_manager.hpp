@@ -26,6 +26,7 @@
 #include <array>
 #include <step.hpp>
 #include <led_manager.hpp>
+#include <keypad_manager.hpp>
 #include <static_map.hpp>
 
 // The ADP5587 HW maps the following values to the keys press/release events on the bass station sequencer
@@ -95,7 +96,7 @@ public:
 private:
 
     bass_station::LedManager m_led_manager {SPI2};
-    adp5587::Driver m_keyscanner {I2C3};
+    bass_station::KeypadManager m_keyscanner {I2C3};
 
     uint8_t m_beat_position {0};
 
