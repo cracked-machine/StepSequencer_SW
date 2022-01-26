@@ -80,7 +80,7 @@ public:
 
 private:
     // @brief The TLC5955 driver instance
-    tlc5955::Driver tlc5955_driver;
+    tlc5955::Driver m_tlc5955_driver;
 
     // @brief Helper function that maps RGB pwm values to preset primary and secondary colours
     // @param position Set the LED at this position in the buffer
@@ -97,7 +97,7 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
     auto end_pos = sequence_map.data.end();
 
 	// refresh buffers
-	tlc5955_driver.reset();
+	m_tlc5955_driver.reset();
 
     // set the TLC5955 register data for the upper row keys
     std::for_each(mid_pos, end_pos, [this, &sequence_map]
@@ -113,12 +113,12 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
     );
 
     // send the upper row data without latch
- 	tlc5955_driver.process_register();
-	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
+ 	m_tlc5955_driver.process_register();
+	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
 
     // clear buffer so that the upper row data that was just sent, does not contaminatate the lower row data we are about to send
-	tlc5955_driver.reset();
+	m_tlc5955_driver.reset();
 
     // set the TLC5955 register data for the lower row keys
     std::for_each(start_pos, mid_pos, [this, &sequence_map] 
@@ -134,9 +134,9 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
     );    
 
     // send the lower row data with latch
-	tlc5955_driver.process_register();
-	tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);    
+	m_tlc5955_driver.process_register();
+	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);    
 }
 
 
