@@ -38,7 +38,7 @@ extern "C"
 
 void mainapp()
 {	
-	static bass_station::SequenceManager sequencer(TIM16);
+	static bass_station::SequenceManager sequencer(TIM16, TIM1);
 
 	while(true)
 	{
