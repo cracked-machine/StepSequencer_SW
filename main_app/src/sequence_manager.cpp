@@ -59,12 +59,12 @@ void SequenceManager::update_display_and_tempo()
 void SequenceManager::tempo_timer_isr()
 {
     update_display_and_tempo();
-    execute_sequence();
+    increment_and_execute_sequence_step();
     LL_TIM_ClearFlag_UPDATE(m_tempo_timer.get());
 
 }
 
-void SequenceManager::execute_sequence(bool run_demo_only)
+void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
 {
     if (run_demo_only)
     {

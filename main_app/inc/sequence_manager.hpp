@@ -124,7 +124,7 @@ private:
 
     // @brief Runs the note/step sequence
     // @param run_demo_only 
-    void execute_sequence(bool run_demo_only = false);
+    void increment_and_execute_sequence_step(bool run_demo_only = false);
 
 	struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
