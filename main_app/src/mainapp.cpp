@@ -22,66 +22,27 @@
 
 
 #include "mainapp.hpp"
-#include <ssd1306.hpp>
+#include <display_manager.hpp>
+// #include <ssd1306.hpp>
 
 // Owns LedManager part
 #include <sequence_manager.hpp>
 
 #include <adp5587.hpp>
-#include <adg2188.hpp>
+
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-
-uint8_t font_count = 0;
-ssd1306::Font5x7 font2;
-ssd1306::Display oled(SPI1, ssd1306::Display::SPIDMA::enabled);
-
-
-void update_oled(std::string &msg)
-{
-	std::string font_char {font2.character_map[font_count]};
-	std::string final_msg = msg + font_char;
-	ssd1306::ErrorStatus res = oled.write(final_msg, font2, 2, 2, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-	if (res != ssd1306::ErrorStatus::OK) 
-	{ 
-		#if defined(USE_RTT) 
-			SEGGER_RTT_printf(0, "ssd1306::Display::write(): Error\n"); 
-		#endif	
-	}
-
-	if (font_count < font2.character_map.size() - 1) { font_count++; }
-	else { font_count = 0; }	
-}
-
-
-
 void mainapp()
-{
-
-	// setup SSD1306 IC display driver
-	oled.init();
-	std::string msg {"Hello "};
-	
-	adg2188::Driver xpoint(I2C2);
-	static bass_station::SequenceManager sequencer;
-
-    [[maybe_unused]] uint16_t delay_ms {100};
+{	
+	static bass_station::SequenceManager sequencer(TIM16);
 
 	while(true)
 	{
-
-		// update oled animation
-		update_oled(msg);		
-		// LL_mDelay(10);
-
-
-		sequencer.execute_sequence(delay_ms);
-
-
+		// main loop; do nothing here
 	}
 }
 
