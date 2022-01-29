@@ -3,6 +3,7 @@ target_sources(${BUILD_NAME} PRIVATE
     src/led_manager.cpp
     src/sequence_manager.cpp
     src/keypad_manager.cpp
+    src/display_manager.cpp
     src/step.cpp
 )
 
