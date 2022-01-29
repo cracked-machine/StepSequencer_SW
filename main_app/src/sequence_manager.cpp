@@ -25,20 +25,42 @@
 namespace bass_station
 {
 
-SequenceManager::SequenceManager()
+SequenceManager::SequenceManager(TIM_TypeDef* timer) : m_sequence_tempo_timer(timer)
 {
+    // send configuration data to TLC5955
     m_led_manager.send_control_data();
+
+    // setup this class as timer callback
+    m_sequence_timer_isr_handler.initialise(this);
+
+    // SequenceManager needs to be enabled first, because ISR has higher priority (0)
+    LL_TIM_EnableCounter(m_sequence_tempo_timer.get());
+	LL_TIM_EnableIT_UPDATE(m_sequence_tempo_timer.get());
+
+    // DisplayManager needs to be enabled second
+    m_oled.start_isr();
 }
 
-void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]], bool run_demo_only)
+void SequenceManager::sequence_timer_isr()
+{
+    execute_sequence();
+    LL_TIM_ClearFlag_UPDATE(m_sequence_tempo_timer.get());
+}
+
+void SequenceManager::execute_sequence(bool run_demo_only)
 {
     if (run_demo_only)
     {
-        m_led_manager.update_ladder_demo(the_sequence, 0xFFFF, delay_ms);
+        m_led_manager.update_ladder_demo(the_sequence, 0xFFFF, 100);
     }   
     else
     {
+        // get latest key events from adp5587
         process_key_events();
+
+        std::string beat_pos;
+        beat_pos = std::to_string(m_beat_position) + ' ';
+        m_oled.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
 
         // get the current step remapped for the sequencer execution order
         Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_beat_position)).second;
@@ -51,11 +73,23 @@ void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]], bool 
         current_step.m_key_state = KeyState::ON;
         if (previous_state == KeyState::ON)
         {
+            // turn the note switch on
             current_step.m_colour = m_beat_colour_on;
+            
+            xpoint.write_switch(
+                adg2188::Driver::Throw::close, 
+                adg2188::Driver::Pole::x4_to_y2,
+                adg2188::Driver::Latch::set);            
         }
         else
         {
+            // turn the note switch off
             current_step.m_colour = m_beat_colour_off;
+        
+            xpoint.write_switch(
+                adg2188::Driver::Throw::open, 
+                adg2188::Driver::Pole::x4_to_y2,
+                adg2188::Driver::Latch::set);            
         }
         
         // apply the sequence with the change
@@ -67,8 +101,7 @@ void SequenceManager::execute_sequence(uint16_t delay_ms [[maybe_unused]], bool 
 
         // increment
         (m_beat_position >= m_sequencer_key_mapping.size() -1) ? m_beat_position = 0: m_beat_position++;
-        
-        LL_mDelay(delay_ms);  
+
     }
 }
 

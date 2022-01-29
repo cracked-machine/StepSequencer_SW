@@ -28,6 +28,8 @@
 #include <led_manager.hpp>
 #include <keypad_manager.hpp>
 #include <static_map.hpp>
+#include <adg2188.hpp>
+#include <display_manager.hpp>
 
 // The ADP5587 HW maps the following values to the keys press/release events on the bass station sequencer
 //              1       2       3       4       5       6       7       8       9       10      11      12      13      14      15      16
@@ -87,16 +89,25 @@ static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_
     
 }};
 
-
+// This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
 {
 public:
-    SequenceManager();
-    void execute_sequence(uint16_t delay_ms, bool run_demo_only = false);
+    // @brief Construct a new Sequence Manager object
+    // @param timer Used for sequence run tempo
+    SequenceManager(TIM_TypeDef* timer);
+
+    // @brief Runs the note/step sequence
+    // @param run_demo_only 
+    void execute_sequence(bool run_demo_only = false);
 private:
+
+std::unique_ptr<TIM_TypeDef> m_sequence_tempo_timer;
 
     bass_station::LedManager m_led_manager {SPI2};
     bass_station::KeypadManager m_keyscanner {I2C3};
+    adg2188::Driver xpoint{I2C2};
+    bass_station::DisplayManager m_oled{TIM15};
 
     uint8_t m_beat_position {0};
 
@@ -109,6 +120,31 @@ private:
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
 
     void process_key_events();
+
+    void sequence_timer_isr();
+
+#ifdef USE_RAWPTR_ISR
+	struct TimerIntHandler : public stm32::isr::STM32G0InterruptManager
+	{
+        // @brief the parent driver class
+        SequenceManager *m_seq_man_ptr;
+		// @brief initialise and register this handler instance with STM32G0InterruptManager
+		// @param parent_driver_ptr the instance to register
+		void initialise(SequenceManager *seq_man_ptr)
+		{
+			m_seq_man_ptr = seq_man_ptr;
+			// register pointer to this handler class in stm32::isr::STM32G0InterruptManager
+			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim16, this);
+		}        
+        // @brief The callback used by STM32G0InterruptManager
+		virtual void ISR()
+		{
+            m_seq_man_ptr->sequence_timer_isr();
+		}        
+	};
+	// @brief SequenceManager's TIM16 interrupt handler member
+    TimerIntHandler m_sequence_timer_isr_handler;
+#endif // USE_RAWPTR_ISR    
 };
 
 
