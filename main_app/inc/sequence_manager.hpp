@@ -95,14 +95,13 @@ class SequenceManager
 public:
     // @brief Construct a new Sequence Manager object
     // @param timer Used for sequence run tempo
-    SequenceManager(TIM_TypeDef* timer);
-
-    // @brief Runs the note/step sequence
-    // @param run_demo_only 
-    void execute_sequence(bool run_demo_only = false);
+    SequenceManager(TIM_TypeDef* tempo_timer, TIM_TypeDef *encoder_timer);
+    
+    void update_display_and_tempo();
 private:
 
-std::unique_ptr<TIM_TypeDef> m_sequence_tempo_timer;
+    std::unique_ptr<TIM_TypeDef> m_tempo_timer;
+    std::unique_ptr<TIM_TypeDef> m_encoder_timer;
 
     bass_station::LedManager m_led_manager {SPI2};
     bass_station::KeypadManager m_keyscanner {I2C3};
@@ -121,10 +120,14 @@ std::unique_ptr<TIM_TypeDef> m_sequence_tempo_timer;
 
     void process_key_events();
 
-    void sequence_timer_isr();
+    void tempo_timer_isr();
+
+    // @brief Runs the note/step sequence
+    // @param run_demo_only 
+    void execute_sequence(bool run_demo_only = false);
 
 #ifdef USE_RAWPTR_ISR
-	struct TimerIntHandler : public stm32::isr::STM32G0InterruptManager
+	struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         // @brief the parent driver class
         SequenceManager *m_seq_man_ptr;
@@ -139,11 +142,12 @@ std::unique_ptr<TIM_TypeDef> m_sequence_tempo_timer;
         // @brief The callback used by STM32G0InterruptManager
 		virtual void ISR()
 		{
-            m_seq_man_ptr->sequence_timer_isr();
+            m_seq_man_ptr->tempo_timer_isr();
 		}        
 	};
 	// @brief SequenceManager's TIM16 interrupt handler member
-    TimerIntHandler m_sequence_timer_isr_handler;
+    TempoTimerIntHandler m_tempo_timer_isr_handler;
+
 #endif // USE_RAWPTR_ISR    
 };
 

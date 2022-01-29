@@ -25,26 +25,43 @@
 namespace bass_station
 {
 
-SequenceManager::SequenceManager(TIM_TypeDef* timer) : m_sequence_tempo_timer(timer)
+SequenceManager::SequenceManager(TIM_TypeDef* tempo_timer, TIM_TypeDef *encoder_timer) 
+    : m_tempo_timer(tempo_timer), m_encoder_timer(encoder_timer)
 {
     // send configuration data to TLC5955
     m_led_manager.send_control_data();
 
-    // setup this class as timer callback
-    m_sequence_timer_isr_handler.initialise(this);
+    LL_TIM_EnableCounter(m_encoder_timer.get());
+    m_encoder_timer->CNT = 128;
 
+    // setup this class as timer callback
     // SequenceManager needs to be enabled first, because ISR has higher priority (0)
-    LL_TIM_EnableCounter(m_sequence_tempo_timer.get());
-	LL_TIM_EnableIT_UPDATE(m_sequence_tempo_timer.get());
+    m_tempo_timer_isr_handler.initialise(this);
+    LL_TIM_EnableCounter(m_tempo_timer.get());
+	LL_TIM_EnableIT_UPDATE(m_tempo_timer.get());
 
     // DisplayManager needs to be enabled second
     m_oled.start_isr();
 }
 
-void SequenceManager::sequence_timer_isr()
+void SequenceManager::update_display_and_tempo()
 {
+    // update the display with the encoder count value
+    std::string encoder_pos{"Tempo: "};
+    encoder_pos += std::to_string(m_encoder_timer->CNT) + "   ";
+    m_oled.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);
+
+    // update the sequencer tempo (prescaler) with the encoder count value
+    
+    m_tempo_timer->PSC = m_encoder_timer->CNT;    
+}
+
+void SequenceManager::tempo_timer_isr()
+{
+    update_display_and_tempo();
     execute_sequence();
-    LL_TIM_ClearFlag_UPDATE(m_sequence_tempo_timer.get());
+    LL_TIM_ClearFlag_UPDATE(m_tempo_timer.get());
+
 }
 
 void SequenceManager::execute_sequence(bool run_demo_only)
@@ -58,8 +75,8 @@ void SequenceManager::execute_sequence(bool run_demo_only)
         // get latest key events from adp5587
         process_key_events();
 
-        std::string beat_pos;
-        beat_pos = std::to_string(m_beat_position) + ' ';
+        std::string beat_pos{"Position: "};
+        beat_pos += std::to_string(m_beat_position) + ' ';
         m_oled.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
 
         // get the current step remapped for the sequencer execution order
