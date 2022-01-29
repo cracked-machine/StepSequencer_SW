@@ -126,7 +126,6 @@ private:
     // @param run_demo_only 
     void execute_sequence(bool run_demo_only = false);
 
-#ifdef USE_RAWPTR_ISR
 	struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         // @brief the parent driver class
@@ -148,7 +147,6 @@ private:
 	// @brief SequenceManager's TIM16 interrupt handler member
     TempoTimerIntHandler m_tempo_timer_isr_handler;
 
-#endif // USE_RAWPTR_ISR    
 };
 
 

@@ -69,7 +69,6 @@ private:
     void update_oled();
     void display_timer_isr();
 
-#ifdef USE_RAWPTR_ISR
 	struct TimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         // @brief the parent driver class
@@ -90,7 +89,6 @@ private:
 	};
 	// @brief SequenceManager's TIM16 interrupt handler member
     TimerIntHandler m_display_timer_isr_handler;
-#endif // USE_RAWPTR_ISR    
 
 };
 
