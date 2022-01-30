@@ -33,9 +33,10 @@ namespace bass_station
 class DisplayManager
 {
 public:
+
     // @brief Construct a new Display Manager object
     // @param timer Used for refresh rate of the display
-    DisplayManager(TIM_TypeDef *timer);
+    DisplayManager(SPI_TypeDef * spi, TIM_TypeDef *timer);
     
     // @brief Allow delayed start of the timer interrupt
     void start_isr();
@@ -66,14 +67,16 @@ private:
     std::string m_display_line5{"line5"};
     std::string m_display_line6{"line6"};
 
-    // @brief Timer for the OLED refresh rate
-    std::unique_ptr<TIM_TypeDef> m_refresh_timer;
-
     // @brief The font character map used
     ssd1306::Font5x7 m_font;
 
     // @brief Manages the SSD1306 Display chip
-    ssd1306::Display m_oled{SPI1, ssd1306::Display::SPIDMA::enabled};
+    ssd1306::Display m_oled;
+    
+    // @brief Timer for the OLED refresh rate
+    std::unique_ptr<TIM_TypeDef> m_refresh_timer;
+
+
 
     // @brief update the display with m_display_line1 to m_display_line6
     void update_oled();

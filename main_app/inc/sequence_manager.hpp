@@ -95,23 +95,30 @@ class SequenceManager
 public:
     // @brief Construct a new Sequence Manager object
     // @param timer Used for sequence run tempo
-    SequenceManager(TIM_TypeDef* tempo_timer, TIM_TypeDef *encoder_timer);
+    SequenceManager(
+        TIM_TypeDef *sequencer_tempo_timer, 
+        TIM_TypeDef *sequencer_encoder_timer,
+        SPI_TypeDef *display_spi, 
+        TIM_TypeDef *display_refresh_timer,
+        I2C_TypeDef *ad5587_keypad_i2c,
+        I2C_TypeDef *adg2188_control_sw_i2c,
+        SPI_TypeDef *tlc5955_led_spi);
     
 private:
 
     // @brief The timer for tempo of the sequencer
-    std::unique_ptr<TIM_TypeDef> m_tempo_timer;
+    std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;
     // @brief The timer used for rotary encoder
-    std::unique_ptr<TIM_TypeDef> m_encoder_timer;
+    std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
 
-    // @brief Manages the TLC5955 chip
-    bass_station::LedManager m_led_manager {SPI2};
-    // @brief Manages the ADP5587 chip
-    bass_station::KeypadManager m_keyscanner {I2C3};
-    // @brief Manages the ADG2188 crosspoint switch chip
-    adg2188::Driver m_synth_control_switch{I2C2};
     // @brief Manages the SSD1306 OLED display
-    bass_station::DisplayManager m_oled{TIM15};
+    bass_station::DisplayManager m_ssd1306_display_spi;
+    // @brief Manages the ADP5587 chip
+    bass_station::KeypadManager m_ad5587_keypad_i2c;
+    // @brief Manages the ADG2188 crosspoint switch chip
+    adg2188::Driver m_synth_control_switch;
+    // @brief Manages the TLC5955 chip
+    bass_station::LedManager m_led_manager;
 
     // @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_step_position {0};
@@ -145,7 +152,7 @@ private:
 		}        
 	};
 	// @brief TempoTimerIntHandler member
-    TempoTimerIntHandler m_tempo_timer_isr_handler;
+    TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler;
 
     // @brief SequenceManager callback, the main sequencer execution loop
     void tempo_timer_isr();
