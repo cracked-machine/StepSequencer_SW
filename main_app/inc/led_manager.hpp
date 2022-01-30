@@ -114,8 +114,8 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
 
     // send the upper row data without latch
  	m_tlc5955_driver.process_register();
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch); 
 
     // clear buffer so that the upper row data that was just sent, does not contaminatate the lower row data we are about to send
 	m_tlc5955_driver.reset();
@@ -135,8 +135,8 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
 
     // send the lower row data with latch
 	m_tlc5955_driver.process_register();
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);    
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);    
 }
 
 

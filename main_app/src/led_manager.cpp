@@ -53,12 +53,12 @@ void LedManager::send_control_data()
 	m_tlc5955_driver.process_register();
 
 	// send data for top row (no latch)
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::control);
-	m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch);
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::control);
+	m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
 	
 	// send data for bottom row
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::control);
-	m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::control);
+	m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
 }
 
 void LedManager::set_all_leds(uint16_t greyscale_pwm, const LedColour &colour)
@@ -96,9 +96,9 @@ void LedManager::set_all_leds(uint16_t greyscale_pwm, const LedColour &colour)
 	m_tlc5955_driver.process_register();
 
 	// send a first bit as 0 to notify chip this is  greyscale data
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
 
-    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
 
     // send lower row second
     switch (colour)
@@ -130,8 +130,8 @@ void LedManager::set_all_leds(uint16_t greyscale_pwm, const LedColour &colour)
 	m_tlc5955_driver.process_register();
 
 	// send a first bit as 0 to notify chip this is  greyscale data
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send); 
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send); 
 
 }
 
@@ -240,16 +240,16 @@ void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const Seq
 	m_tlc5955_driver.process_register();
 
 	// send a first bit as 0 to notify chip this is  greyscale data
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
 
     // now send the 96 bytes of greyscale data for this row (toggle the latch if requested)
 	if (latch_option == LatchOption::enable) 
     { 
-        m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send); 
+        m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send); 
     }
 	else 
     { 
-        m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch);
+        m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
     }
 }
 
@@ -259,13 +259,13 @@ void LedManager::clear_all_leds()
 
     // send upper row first with no latching
 	m_tlc5955_driver.process_register();
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::no_latch); 
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch); 
 
     // send lower row with latching
 	m_tlc5955_driver.process_register();
-	m_tlc5955_driver.send_first_bit(tlc5955::DataLatchType::greyscale);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::LatchPinOption::latch_after_send);
+	m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
+    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
         
 }
 
