@@ -31,6 +31,7 @@ SequenceManager::SequenceManager(TIM_TypeDef* tempo_timer, TIM_TypeDef *encoder_
     // send configuration data to TLC5955
     m_led_manager.send_control_data();
 
+    // enable the timer and set a sensible starting "tempo"
     LL_TIM_EnableCounter(m_encoder_timer.get());
     m_encoder_timer->CNT = 128;
 
@@ -44,80 +45,89 @@ SequenceManager::SequenceManager(TIM_TypeDef* tempo_timer, TIM_TypeDef *encoder_
     m_oled.start_isr();
 }
 
+void SequenceManager::tempo_timer_isr()
+{
+    // probably needs its own timer callback as this will become less responsive at slower tempos
+    update_display_and_tempo();
+
+    // get latest key events from adp5587
+    process_key_events();
+
+    // update the LED and synth control switch for the next sequence position
+    increment_and_execute_sequence_step();
+
+    // reset the UIF bit to re-enable interrupts
+    LL_TIM_ClearFlag_UPDATE(m_tempo_timer.get());
+
+}
+
 void SequenceManager::update_display_and_tempo()
 {
+    // update the display with the sequencer position index
+    std::string beat_pos{"Position: "};
+    beat_pos += std::to_string(m_step_position) + ' ';
+    m_oled.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
+    
     // update the display with the encoder count value
     std::string encoder_pos{"Tempo: "};
     encoder_pos += std::to_string(m_encoder_timer->CNT) + "   ";
     m_oled.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);
 
     // update the sequencer tempo (prescaler) with the encoder count value
-    
+    // TODO this is backwards: Should be CW = increase tempo, CCW = decrease tempo
     m_tempo_timer->PSC = m_encoder_timer->CNT;    
-}
-
-void SequenceManager::tempo_timer_isr()
-{
-    update_display_and_tempo();
-    increment_and_execute_sequence_step();
-    LL_TIM_ClearFlag_UPDATE(m_tempo_timer.get());
-
 }
 
 void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
 {
     if (run_demo_only)
     {
+        // this is kinda broken but it does something colourful
         m_led_manager.update_ladder_demo(the_sequence, 0xFFFF, 100);
     }   
     else
     {
-        // get latest key events from adp5587
-        process_key_events();
+        // get the Step object for the current sequence position
+        Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
 
-        std::string beat_pos{"Position: "};
-        beat_pos += std::to_string(m_beat_position) + ' ';
-        m_oled.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
-
-        // get the current step remapped for the sequencer execution order
-        Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_beat_position)).second;
-
-        // save the previous colour and state for the current beat position key
+        // save the colour and state
         LedColour previous_colour = current_step.m_colour;
         KeyState previous_state = current_step.m_key_state;
         
-        // change the sequence data for the current beat position key
+        // temporariliy update the state of the current step
         current_step.m_key_state = KeyState::ON;
+
+        // check if the step was selected by the user
         if (previous_state == KeyState::ON)
         {
-            // turn the note switch on
+            // update LED colour
             current_step.m_colour = m_beat_colour_on;
-            
-            xpoint.write_switch(
+            // close synth control switch
+            m_synth_control_switch.write_switch(
                 adg2188::Driver::Throw::close, 
                 adg2188::Driver::Pole::x4_to_y2,
                 adg2188::Driver::Latch::set);            
         }
         else
         {
-            // turn the note switch off
+            // update the LED colour
             current_step.m_colour = m_beat_colour_off;
-        
-            xpoint.write_switch(
+            // open the synth control switch
+            m_synth_control_switch.write_switch(
                 adg2188::Driver::Throw::open, 
                 adg2188::Driver::Pole::x4_to_y2,
                 adg2188::Driver::Latch::set);            
         }
         
-        // apply the sequence with the change
+        // send the entire updated sequence to the TL5955 driver
         m_led_manager.send_both_rows_greyscale_data(the_sequence);
         
-        // restore the previous colour and state for the current beat position key
+        // restore the state of the current step (so it is cleared on the next iteration)
         current_step.m_colour = previous_colour;
         current_step.m_key_state = previous_state;
 
-        // increment
-        (m_beat_position >= m_sequencer_key_mapping.size() -1) ? m_beat_position = 0: m_beat_position++;
+        // increment the current step position
+        (m_step_position >= m_sequencer_key_mapping.size() -1) ? m_step_position = 0: m_step_position++;
 
     }
 }

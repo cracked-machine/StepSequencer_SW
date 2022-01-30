@@ -97,39 +97,39 @@ public:
     // @param timer Used for sequence run tempo
     SequenceManager(TIM_TypeDef* tempo_timer, TIM_TypeDef *encoder_timer);
     
-    void update_display_and_tempo();
 private:
 
+    // @brief The timer for tempo of the sequencer
     std::unique_ptr<TIM_TypeDef> m_tempo_timer;
+    // @brief The timer used for rotary encoder
     std::unique_ptr<TIM_TypeDef> m_encoder_timer;
 
+    // @brief Manages the TLC5955 chip
     bass_station::LedManager m_led_manager {SPI2};
+    // @brief Manages the ADP5587 chip
     bass_station::KeypadManager m_keyscanner {I2C3};
-    adg2188::Driver xpoint{I2C2};
+    // @brief Manages the ADG2188 crosspoint switch chip
+    adg2188::Driver m_synth_control_switch{I2C2};
+    // @brief Manages the SSD1306 OLED display
     bass_station::DisplayManager m_oled{TIM15};
 
-    uint8_t m_beat_position {0};
+    // @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
+    uint8_t m_step_position {0};
 
-        // @brief This determines the positional order in which the cursor sweeps the sequence
+    // @brief This determines the positional order in which the cursor sweeps the sequence
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
-    // @brief The map initialised with sequence data
+    // @brief Map holding the 32-step sequence data
     noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> the_sequence = 
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
 
-    void process_key_events();
-
-    void tempo_timer_isr();
-
-    // @brief Runs the note/step sequence
-    // @param run_demo_only 
-    void increment_and_execute_sequence_step(bool run_demo_only = false);
-
+    // @brief Registers ISR callback with STM32G0InterruptManager
 	struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         // @brief the parent driver class
         SequenceManager *m_seq_man_ptr;
+
 		// @brief initialise and register this handler instance with STM32G0InterruptManager
 		// @param parent_driver_ptr the instance to register
 		void initialise(SequenceManager *seq_man_ptr)
@@ -144,9 +144,21 @@ private:
             m_seq_man_ptr->tempo_timer_isr();
 		}        
 	};
-	// @brief SequenceManager's TIM16 interrupt handler member
+	// @brief TempoTimerIntHandler member
     TempoTimerIntHandler m_tempo_timer_isr_handler;
 
+    // @brief SequenceManager callback, the main sequencer execution loop
+    void tempo_timer_isr();
+
+    // @brief Update the display and tempo timer
+    void update_display_and_tempo();
+
+    // @brief Runs the note/step sequence
+    // @param run_demo_only 
+    void increment_and_execute_sequence_step(bool run_demo_only = false);
+
+    // @brief poll the ADP5587 keyscanner for the latest key event data
+    void process_key_events();
 };
 
 
