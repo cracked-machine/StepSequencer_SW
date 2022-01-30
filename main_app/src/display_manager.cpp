@@ -25,19 +25,19 @@
 namespace bass_station 
 {
 
-DisplayManager::DisplayManager(TIM_TypeDef *timer) : m_timer_device(timer)
+DisplayManager::DisplayManager(TIM_TypeDef *timer) : m_refresh_timer(timer)
 {
     // setup SSD1306 IC display driver
 	m_oled.init();
-	std::string msg {"Hello "};
+    // register the dispay resolution timer callback
     m_display_timer_isr_handler.initialise(this);
 }
 
 void DisplayManager::start_isr()
 {
-
-    LL_TIM_EnableCounter(m_timer_device.get());
-    LL_TIM_EnableIT_UPDATE(m_timer_device.get());
+    // enable the display resolution timer
+    LL_TIM_EnableCounter(m_refresh_timer.get());
+    LL_TIM_EnableIT_UPDATE(m_refresh_timer.get());
 }
 
 void DisplayManager::set_display_line(DisplayLine line, std::string &msg)

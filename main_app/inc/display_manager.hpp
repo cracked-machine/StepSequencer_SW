@@ -37,8 +37,10 @@ public:
     // @param timer Used for refresh rate of the display
     DisplayManager(TIM_TypeDef *timer);
     
+    // @brief Allow delayed start of the timer interrupt
     void start_isr();
     
+    // @brief Abstract representation of a line of the display
     enum class DisplayLine
     {
         LINE_ONE,
@@ -48,9 +50,15 @@ public:
         LINE_FIVE,
         LINE_SIX,
     };
+
+    // @brief Set a message to a specific line display (assumes Font5x7 size)
+    // @param line The line to write to 
+    // @param msg The text to write
     void set_display_line(DisplayLine line, std::string &msg);
+
 private:
 
+    // set some default values
     std::string m_display_line1{"line1"};
     std::string m_display_line2{"line2"};
     std::string m_display_line3{"line3"};
@@ -58,22 +66,23 @@ private:
     std::string m_display_line5{"line5"};
     std::string m_display_line6{"line6"};
 
-    
+    // @brief Timer for the OLED refresh rate
+    std::unique_ptr<TIM_TypeDef> m_refresh_timer;
 
-    std::unique_ptr<TIM_TypeDef> m_timer_device;
-
-    uint8_t m_font_count = 0;
+    // @brief The font character map used
     ssd1306::Font5x7 m_font;
+
+    // @brief Manages the SSD1306 Display chip
     ssd1306::Display m_oled{SPI1, ssd1306::Display::SPIDMA::enabled};
 
+    // @brief update the display with m_display_line1 to m_display_line6
     void update_oled();
-    void display_timer_isr();
 
 	struct TimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         // @brief the parent driver class
         DisplayManager *m_display_man_ptr;
-		// @brief initialise and register this handler instance with STM32G0InterruptManager
+		// @brief Register DisplayManager with STM32G0InterruptManager
 		// @param parent_driver_ptr the instance to register
 		void initialise(DisplayManager *display_man_ptr)
 		{
@@ -87,9 +96,12 @@ private:
             m_display_man_ptr->display_timer_isr();
 		}        
 	};
-	// @brief SequenceManager's TIM16 interrupt handler member
+
+	// @brief TimerIntHandler instance
     TimerIntHandler m_display_timer_isr_handler;
 
+    // @brief timer callback called by TimerIntHandler
+    void display_timer_isr();
 };
 
 } // namespace bass_station
