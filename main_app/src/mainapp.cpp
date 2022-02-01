@@ -27,7 +27,7 @@
 
 // Owns LedManager part
 #include <sequence_manager.hpp>
-
+#include <timer_manager.hpp>
 #include <adp5587.hpp>
 
 
@@ -38,6 +38,9 @@ extern "C"
 
 void mainapp()
 {	
+	// initialise the timer used for microsecond timeout
+	stm32::TimerManager::initialise(TIM14);
+
 	// Timer peripheral for sequencer manager tempo control
 	TIM_TypeDef *sequencer_tempo_timer = TIM16;
 
@@ -58,6 +61,9 @@ void mainapp()
 
 	// SPI peripheral for led driver serial communication
 	SPI_TypeDef *tlc5955_led_spi = SPI2;
+
+	// debounce timer
+	TIM_TypeDef *ad5587_debounce_timer = TIM17;
 	
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
@@ -67,7 +73,8 @@ void mainapp()
 		display_refresh_timer, 
 		ad5587_keypad_i2c, 
 		adg2188_control_sw_i2c, 
-		tlc5955_led_spi);
+		tlc5955_led_spi,
+		ad5587_debounce_timer);
 
 	while(true)
 	{
