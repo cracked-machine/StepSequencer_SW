@@ -28,6 +28,8 @@
 namespace bass_station
 {
 
+/// @brief This is really just a wrapper for the ADP5587 driver at the moment
+/// @todo Some of the SequenceManager functionality should be moved into here at some point...
 class KeypadManager
 {
 public:
