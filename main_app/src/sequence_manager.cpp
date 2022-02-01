@@ -32,15 +32,20 @@ SequenceManager::SequenceManager(
     TIM_TypeDef *display_refresh_timer,
     I2C_TypeDef *ad5587_keypad_i2c,
     I2C_TypeDef *adg2188_control_sw_i2c,
-    SPI_TypeDef *tlc5955_led_spi) 
+    SPI_TypeDef *tlc5955_led_spi,
+    TIM_TypeDef *debounce_timer) 
     
     :   m_sequencer_tempo_timer(sequencer_tempo_timer), 
         m_sequencer_encoder_timer(sequencer_encoder_timer),
         m_ssd1306_display_spi(bass_station::DisplayManager(display_spi, display_refresh_timer)),
         m_ad5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c)),
         m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
-        m_led_manager(bass_station::LedManager(tlc5955_led_spi))
+        m_led_manager(bass_station::LedManager(tlc5955_led_spi)),
+        m_debounce_timer(debounce_timer)
 {
+    // start the timer
+    LL_TIM_EnableCounter(m_debounce_timer.get());
+
     // send configuration data to TLC5955
     m_led_manager.send_control_data();
 
@@ -96,22 +101,18 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
     if (run_demo_only)
     {
         // this is kinda broken but it does something colourful
-        m_led_manager.update_ladder_demo(the_sequence, 0xFFFF, 100);
+        m_led_manager.update_ladder_demo(m_sequence_map, 0xFFFF, 100);
     }   
     else
     {
         // get the Step object for the current sequence position
-        Step &current_step = the_sequence.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
+        Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
 
         // save the colour and state
         LedColour previous_colour = current_step.m_colour;
         KeyState previous_state = current_step.m_key_state;
-        
-        // temporariliy update the state of the current step
-        current_step.m_key_state = KeyState::ON;
 
-        // check if the step was selected by the user
-        if (previous_state == KeyState::ON)
+        if (current_step.m_key_state == KeyState::ON)
         {
             // update LED colour
             current_step.m_colour = m_beat_colour_on;
@@ -131,9 +132,12 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
                 adg2188::Driver::Pole::x4_to_y2,
                 adg2188::Driver::Latch::set);            
         }
-        
+
+        // turn on the current step in the sequence
+        current_step.m_key_state = KeyState::ON;
+
         // send the entire updated sequence to the TL5955 driver
-        m_led_manager.send_both_rows_greyscale_data(the_sequence);
+        m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
         
         // restore the state of the current step (so it is cleared on the next iteration)
         current_step.m_colour = previous_colour;
@@ -153,18 +157,24 @@ void SequenceManager::process_key_events()
     
     for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
     {
-        Step *current_step = the_sequence.find_key(key_event);
-        if(current_step == nullptr) { /* no match found in map */ }
+        Step *step = m_sequence_map.find_key(key_event);
+        if(step == nullptr) { /* no match found in map */ }
         else
         {
-            if (current_step->m_key_state == KeyState::OFF)
+            // only toggle key state if debounce conditions are met
+            [[maybe_unused]] uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+            if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
             {
-                current_step->m_key_state = KeyState::ON;
+                if (step->m_key_state == KeyState::OFF)
+                {
+                    step->m_key_state = KeyState::ON;
+                }
+                else
+                {
+                    step->m_key_state = KeyState::OFF;
+                }
             }
-            else
-            {
-                current_step->m_key_state = KeyState::OFF;
-            }
+            m_last_debounce_count_ms = timer_count_ms;
         }
     }
 }

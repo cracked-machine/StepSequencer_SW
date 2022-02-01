@@ -93,7 +93,7 @@ static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_
 class SequenceManager
 {
 public:
-    // @brief Construct a new Sequence Manager object
+    /// @brief Construct a new Sequence Manager object
     // @param timer Used for sequence run tempo
     SequenceManager(
         TIM_TypeDef *sequencer_tempo_timer, 
@@ -102,42 +102,45 @@ public:
         TIM_TypeDef *display_refresh_timer,
         I2C_TypeDef *ad5587_keypad_i2c,
         I2C_TypeDef *adg2188_control_sw_i2c,
-        SPI_TypeDef *tlc5955_led_spi);
+        SPI_TypeDef *tlc5955_led_spi,
+        TIM_TypeDef *debounce_timer);
     
 private:
 
-    // @brief The timer for tempo of the sequencer
+    /// @brief The timer for tempo of the sequencer
     std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;
-    // @brief The timer used for rotary encoder
+    /// @brief The timer used for rotary encoder
     std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
 
-    // @brief Manages the SSD1306 OLED display
+    /// @brief Manages the SSD1306 OLED display
     bass_station::DisplayManager m_ssd1306_display_spi;
-    // @brief Manages the ADP5587 chip
+    /// @brief Manages the ADP5587 chip
     bass_station::KeypadManager m_ad5587_keypad_i2c;
-    // @brief Manages the ADG2188 crosspoint switch chip
+    /// @brief Manages the ADG2188 crosspoint switch chip
     adg2188::Driver m_synth_control_switch;
-    // @brief Manages the TLC5955 chip
+    /// @brief Manages the TLC5955 chip
     bass_station::LedManager m_led_manager;
+    /// @brief The timer used to test m_debounce_threshold
+    std::unique_ptr<TIM_TypeDef> m_debounce_timer;
 
-    // @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
+    /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_step_position {0};
 
-    // @brief This determines the positional order in which the cursor sweeps the sequence
+    /// @brief This determines the positional order in which the cursor sweeps the sequence
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
-    // @brief Map holding the 32-step sequence data
-    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> the_sequence = 
+    /// @brief Map holding the 32-step sequence data
+    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> m_sequence_map = 
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
 
-    // @brief Registers ISR callback with STM32G0InterruptManager
+    /// @brief Registers ISR callback with STM32G0InterruptManager
 	struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
-        // @brief the parent driver class
+        /// @brief the parent driver class
         SequenceManager *m_seq_man_ptr;
 
-		// @brief initialise and register this handler instance with STM32G0InterruptManager
+		/// @brief initialise and register this handler instance with STM32G0InterruptManager
 		// @param parent_driver_ptr the instance to register
 		void initialise(SequenceManager *seq_man_ptr)
 		{
@@ -145,27 +148,34 @@ private:
 			// register pointer to this handler class in stm32::isr::STM32G0InterruptManager
 			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim16, this);
 		}        
-        // @brief The callback used by STM32G0InterruptManager
+        /// @brief The callback used by STM32G0InterruptManager
 		virtual void ISR()
 		{
             m_seq_man_ptr->tempo_timer_isr();
 		}        
 	};
-	// @brief TempoTimerIntHandler member
+	/// @brief TempoTimerIntHandler member
     TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler;
 
-    // @brief SequenceManager callback, the main sequencer execution loop
+    /// @brief SequenceManager callback, the main sequencer execution loop
     void tempo_timer_isr();
 
-    // @brief Update the display and tempo timer
+    /// @brief Update the display and tempo timer
     void update_display_and_tempo();
 
-    // @brief Runs the note/step sequence
-    // @param run_demo_only 
+    /// @brief Runs the note/step sequence
+    /// @param run_demo_only 
     void increment_and_execute_sequence_step(bool run_demo_only = false);
 
-    // @brief poll the ADP5587 keyscanner for the latest key event data
+    /// @brief poll the ADP5587 keyscanner for the latest key event data
+    /// and update the m_sequence map
     void process_key_events();
+
+
+    // @brief Store the last timer count for debounce
+    uint32_t m_last_debounce_count_ms{0};
+    // @brief Requirements fo debounce
+    uint32_t m_debounce_threshold_ms{500};
 };
 
 
