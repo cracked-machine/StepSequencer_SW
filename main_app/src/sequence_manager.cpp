@@ -101,12 +101,12 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
     if (run_demo_only)
     {
         // this is kinda broken but it does something colourful
-        m_led_manager.update_ladder_demo(m_sequence_map, 0xFFFF, 100);
+        m_led_manager.update_ladder_demo(m_ad5587_keypad_i2c.m_sequence_map, 0xFFFF, 100);
     }   
     else
     {
         // get the Step object for the current sequence position
-        Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
+        Step &current_step = m_ad5587_keypad_i2c.m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
 
         // save the colour and state
         LedColour previous_colour = current_step.m_colour;
@@ -115,7 +115,7 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         if (current_step.m_key_state == KeyState::ON)
         {
             // update LED colour
-            current_step.m_colour = m_beat_colour_on;
+            current_step.m_colour = beat_colour_on;
             // close synth control switch
             m_synth_control_switch.write_switch(
                 adg2188::Driver::Throw::close, 
@@ -125,7 +125,7 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         else
         {
             // update the LED colour
-            current_step.m_colour = m_beat_colour_off;
+            current_step.m_colour = beat_colour_off;
             // open the synth control switch
             m_synth_control_switch.write_switch(
                 adg2188::Driver::Throw::open, 
@@ -137,7 +137,7 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         current_step.m_key_state = KeyState::ON;
 
         // send the entire updated sequence to the TL5955 driver
-        m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
+        m_led_manager.send_both_rows_greyscale_data(m_ad5587_keypad_i2c.m_sequence_map);
         
         // restore the state of the current step (so it is cleared on the next iteration)
         current_step.m_colour = previous_colour;
@@ -157,7 +157,7 @@ void SequenceManager::process_key_events()
     
     for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
     {
-        Step *step = m_sequence_map.find_key(key_event);
+        Step *step = m_ad5587_keypad_i2c.m_sequence_map.find_key(key_event);
         if(step == nullptr) { /* no match found in map */ }
         else
         {

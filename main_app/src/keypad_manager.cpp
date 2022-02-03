@@ -26,6 +26,7 @@
 namespace bass_station
 {
 
+
 KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle) : m_keypad_driver(adp5587::Driver(i2c_handle))
 {
     

@@ -30,6 +30,7 @@
 namespace bass_station
 {
 
+
 // @brief Refers to the two TLC5955 chips in the bass station sequencer PCB
 enum class SequencerRow {
     upper,
@@ -54,6 +55,10 @@ enum class LedColour {
     white,
 };
 
+
+constexpr LedColour default_colour { LedColour::white };
+constexpr LedColour beat_colour_off { LedColour::white };
+constexpr LedColour beat_colour_on { LedColour::blue };
 
 // @brief Represents a single step/key/button in the sequencer
 struct Step
