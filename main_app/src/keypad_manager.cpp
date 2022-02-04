@@ -26,7 +26,6 @@
 namespace bass_station
 {
 
-
 KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_timer) 
 : m_keypad_driver(adp5587::Driver(i2c_handle)), m_debounce_timer(debounce_timer)
 {
@@ -42,17 +41,19 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
         (m_keypad_driver.KP_GPIO::C0 | m_keypad_driver.KP_GPIO::C1 | m_keypad_driver.KP_GPIO::C2 | m_keypad_driver.KP_GPIO::C3),
         0x00);
 
+    // 3) Select the two columns for GPIO interrupts
     m_keypad_driver.gpio_interrupt_select(
         0x00,
         0x00,
         m_keypad_driver.KP_GPIO::C8 | m_keypad_driver.KP_GPIO::C9);
     
+    // 4) Select the two columns for inclusion in the key event FIFO registers
     m_keypad_driver.gpio_fifo_select(
         0x00,
         0x00,
         m_keypad_driver.KP_GPIO::C8 | m_keypad_driver.KP_GPIO::C9);
 
-    // start the debounce timer
+    // start the debounce timer for the keypad
     LL_TIM_EnableCounter(m_debounce_timer.get());        
 
 }
@@ -64,8 +65,10 @@ void KeypadManager::process_key_events(
     std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
     get_key_events(key_events_list);
     
+    // process each key event in turn (if any)
     for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
     {
+        // find the key event that matches the sequence step
         Step *step = sequence_map.find_key(key_event);
         if(step == nullptr) { /* no match found in map */ }
         else
@@ -74,14 +77,8 @@ void KeypadManager::process_key_events(
             [[maybe_unused]] uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
             if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
             {
-                if (step->m_key_state == KeyState::OFF)
-                {
-                    step->m_key_state = KeyState::ON;
-                }
-                else
-                {
-                    step->m_key_state = KeyState::OFF;
-                }
+                // flip the key state
+                step->m_key_state = static_cast<KeyState>( !(step->m_key_state) );
             }
             m_last_debounce_count_ms = timer_count_ms;
         }
@@ -92,7 +89,5 @@ void KeypadManager::get_key_events(std::array<adp5587::Driver::KeyPadMappings, 1
 {
     m_keypad_driver.get_key_events(key_events_list);
 }
-
-
 
 } // namespace bass_station

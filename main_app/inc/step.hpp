@@ -38,7 +38,8 @@ enum class SequencerRow {
 };    
 
 // @brief Basic state for keys
-enum class KeyState {
+// Not enum class so it can be used as boolean
+enum KeyState {
     ON,
     OFF,
 };    
