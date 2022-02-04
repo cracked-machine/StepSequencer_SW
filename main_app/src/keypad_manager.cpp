@@ -57,7 +57,8 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
 
 }
 
-void KeypadManager::process_key_events()
+void KeypadManager::process_key_events(
+    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &sequence_map)
 {
     // get the key events FIFO list from the ADP5587 driver 
     std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
@@ -65,7 +66,7 @@ void KeypadManager::process_key_events()
     
     for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
     {
-        Step *step = m_sequence_map.find_key(key_event);
+        Step *step = sequence_map.find_key(key_event);
         if(step == nullptr) { /* no match found in map */ }
         else
         {

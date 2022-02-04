@@ -67,7 +67,7 @@ void SequenceManager::tempo_timer_isr()
     update_display_and_tempo();
 
     // get latest key events from adp5587
-    m_ad5587_keypad_i2c.process_key_events();
+    m_ad5587_keypad_i2c.process_key_events(m_sequence_map);
 
     // update the LED and synth control switch for the next sequence position
     increment_and_execute_sequence_step();
@@ -99,12 +99,12 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
     if (run_demo_only)
     {
         // this is kinda broken but it does something colourful
-        m_led_manager.update_ladder_demo(m_ad5587_keypad_i2c.m_sequence_map, 0xFFFF, 100);
+        m_led_manager.update_ladder_demo(m_sequence_map, 0xFFFF, 100);
     }   
     else
     {
         // get the Step object for the current sequence position
-        Step &current_step = m_ad5587_keypad_i2c.m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
+        Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
 
         // save the colour and state
         LedColour previous_colour = current_step.m_colour;
@@ -135,7 +135,7 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         current_step.m_key_state = KeyState::ON;
 
         // send the entire updated sequence to the TL5955 driver
-        m_led_manager.send_both_rows_greyscale_data(m_ad5587_keypad_i2c.m_sequence_map);
+        m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
         
         // restore the state of the current step (so it is cleared on the next iteration)
         current_step.m_colour = previous_colour;
