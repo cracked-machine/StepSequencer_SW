@@ -33,8 +33,6 @@
 namespace bass_station
 {
 
-
-
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
 {
@@ -60,6 +58,8 @@ public:
         SPI_TypeDef *tlc5955_led_spi);
 
 private:
+
+    NoteSwitchMapping m_previous_enabled_note{NoteSwitchMapping::e0};
 
     // The default sequence data
     static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_data;
@@ -125,6 +125,8 @@ private:
     /// @brief Runs the note/step sequence
     /// @param run_demo_only 
     void increment_and_execute_sequence_step(bool run_demo_only = false);
+
+
 
 };
 

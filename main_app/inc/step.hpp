@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <adp5587.hpp>
+#include <adg2188.hpp>
 #include <static_map.hpp>
 
 namespace bass_station
@@ -57,9 +58,40 @@ enum class LedColour {
 };
 
 
+
 constexpr LedColour default_colour { LedColour::white };
 constexpr LedColour beat_colour_off { LedColour::white };
 constexpr LedColour beat_colour_on { LedColour::blue };
+
+    enum class NoteSwitchMapping
+    {
+        c0          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y0),
+        c0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x5_to_y0),
+        d0          =   static_cast<int>(adg2188::Driver::Pole::x6_to_y0),
+        d0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x7_to_y0),
+        e0          =   static_cast<int>(adg2188::Driver::Pole::x0_to_y2),
+        f0          =   static_cast<int>(adg2188::Driver::Pole::x1_to_y2),
+        f0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x2_to_y2),
+        g0          =   static_cast<int>(adg2188::Driver::Pole::x3_to_y2),
+        g0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x4_to_y2),
+        a1          =   static_cast<int>(adg2188::Driver::Pole::x5_to_y2),
+        a1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x6_to_y2),
+        b1          =   static_cast<int>(adg2188::Driver::Pole::x7_to_y2),
+        c1          =   static_cast<int>(adg2188::Driver::Pole::x0_to_y4),  // Middle C
+        c1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x1_to_y4),
+        d1          =   static_cast<int>(adg2188::Driver::Pole::x2_to_y4),
+        d1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x3_to_y4),
+        e1          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y4),
+        f1          =   static_cast<int>(adg2188::Driver::Pole::x5_to_y4),
+        f1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x6_to_y4),
+        g1          =   static_cast<int>(adg2188::Driver::Pole::x7_to_y4),
+        g2_sharp     =   static_cast<int>(adg2188::Driver::Pole::x0_to_y6),
+        a2          =   static_cast<int>(adg2188::Driver::Pole::x1_to_y6),
+        a2_sharp     =   static_cast<int>(adg2188::Driver::Pole::x2_to_y6),
+        b2          =   static_cast<int>(adg2188::Driver::Pole::x3_to_y6),
+        c2          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y6),
+        
+    };
 
 // @brief Represents a single step/key/button in the sequencer
 struct Step
@@ -71,13 +103,15 @@ struct Step
     // @param logical_mapping_index Maps this step to a position index in one of two 16 position arrays.
     // @param physical_mapping_index Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
     // @param sequence_mapping_index Maps this step to a position index in the sequence execution order.
-    Step(   KeyState key_state, 
+    Step(   KeyState key_state,
+            NoteSwitchMapping note, 
             LedColour colour, 
             int logical_mapping_index, 
             int physical_mapping_index,
             int sequence_mapping_index)
 
     :   m_key_state(key_state), 
+        m_note(note),
         m_colour(colour), 
         m_logical_mapping_index(logical_mapping_index),
         m_physical_mapping_index(physical_mapping_index),
@@ -88,6 +122,8 @@ struct Step
 
     // @brief Is the Key ON or OFF
     KeyState m_key_state;
+
+    NoteSwitchMapping m_note;
     
     // @brief The colour of the key when it is ON
     LedColour m_colour;
