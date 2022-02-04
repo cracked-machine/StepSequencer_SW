@@ -40,38 +40,37 @@ static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_
     {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::OFF, default_colour, 1,   0,  17)},
     {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::OFF, default_colour, 2,   5,  18)},
     {adp5587::Driver::KeyPadMappings::A3_ON, Step(KeyState::OFF, default_colour, 3,   1,  19)},
-    {adp5587::Driver::KeyPadMappings::A4_ON, Step(KeyState::ON,  default_colour, 4,   2,  20)},
+    {adp5587::Driver::KeyPadMappings::A4_ON, Step(KeyState::OFF,  default_colour, 4,   2,  20)},
     {adp5587::Driver::KeyPadMappings::A5_ON, Step(KeyState::OFF, default_colour, 5,   6,  21)},
     {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::OFF, default_colour, 6,   3,  22)},
     {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::OFF, default_colour, 7,   7,  23)},
 
-    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::ON,  default_colour, 8,   11, 24)},
+    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::OFF,  default_colour, 8,   11, 24)},
     {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::OFF, default_colour, 9,   15, 25)},
     {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::OFF, default_colour, 10,  10, 26)},
     {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::OFF, default_colour, 11,  14, 27)},
-    {adp5587::Driver::KeyPadMappings::B4_ON, Step(KeyState::ON,  default_colour, 12,  13, 28)},
+    {adp5587::Driver::KeyPadMappings::B4_ON, Step(KeyState::OFF,  default_colour, 12,  13, 28)},
     {adp5587::Driver::KeyPadMappings::B5_ON, Step(KeyState::OFF, default_colour, 13,  9,  29)},
     {adp5587::Driver::KeyPadMappings::B6_ON, Step(KeyState::OFF, default_colour, 14,  12, 30)},
     {adp5587::Driver::KeyPadMappings::B7_ON, Step(KeyState::OFF, default_colour, 15,  8,  31)}, 
 
-    {adp5587::Driver::KeyPadMappings::C0_ON, Step(KeyState::ON,  default_colour, 0,   7,  0)},
+    {adp5587::Driver::KeyPadMappings::C0_ON, Step(KeyState::OFF,  default_colour, 0,   7,  0)},
     {adp5587::Driver::KeyPadMappings::C1_ON, Step(KeyState::OFF, default_colour, 1,   3,  1)},
     {adp5587::Driver::KeyPadMappings::C2_ON, Step(KeyState::OFF, default_colour, 2,   6,  2)},
     {adp5587::Driver::KeyPadMappings::C3_ON, Step(KeyState::OFF, default_colour, 3,   2,  3)},
-    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::ON,  default_colour, 4,   1,  4)},
+    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::OFF,  default_colour, 4,   1,  4)},
     {adp5587::Driver::KeyPadMappings::C5_ON, Step(KeyState::OFF, default_colour, 5,   5,  5)},
     {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::OFF, default_colour, 6,   0,  6)},
     {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::OFF, default_colour, 7,   4,  7)},  
 
-    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::ON,  default_colour, 8,   8,  8)},
+    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::OFF,  default_colour, 8,   8,  8)},
     {adp5587::Driver::KeyPadMappings::D1_ON, Step(KeyState::OFF, default_colour, 9,   12, 9)},
     {adp5587::Driver::KeyPadMappings::D2_ON, Step(KeyState::OFF, default_colour, 10,  9,  10)},
     {adp5587::Driver::KeyPadMappings::D3_ON, Step(KeyState::OFF, default_colour, 11,  13, 11)},
-    {adp5587::Driver::KeyPadMappings::D4_ON, Step(KeyState::ON,  default_colour, 12,  14, 12)},
+    {adp5587::Driver::KeyPadMappings::D4_ON, Step(KeyState::OFF,  default_colour, 12,  14, 12)},
     {adp5587::Driver::KeyPadMappings::D5_ON, Step(KeyState::OFF, default_colour, 13,  10, 13)},
     {adp5587::Driver::KeyPadMappings::D6_ON, Step(KeyState::OFF, default_colour, 14,  15, 14)},
     {adp5587::Driver::KeyPadMappings::D7_ON, Step(KeyState::OFF, default_colour, 15,  11, 15)},       
-    
 }};    
 
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
@@ -98,10 +97,9 @@ public:
         I2C_TypeDef *adg2188_control_sw_i2c,
         SPI_TypeDef *tlc5955_led_spi);
 
-    
 private:
 
-    /// @brief Map holding the 32-step sequence data
+    /// @brief Map holding the loaded 32-step sequence pattern
     noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> m_sequence_map = 
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
 

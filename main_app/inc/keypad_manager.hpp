@@ -32,12 +32,8 @@
 //  UpperRow    131/3   141/13  151/23  161/33  171/43  181/53  191/63  201/73  132/4   142/14  152/24  162/34  172/44  182/54  192/64  202/74
 //  LowerRow    129/1   139/11  149/21  159/31  169/41  179/51  189/61  199/71  130/2   140/12  150/22  160/32  170/42  180/52  190/62  200/72
 
-
 namespace bass_station
 {
-
-
-
 
 /// @brief This is really just a wrapper for the ADP5587 driver at the moment
 /// @todo Some of the SequenceManager functionality should be moved into here at some point...
@@ -45,8 +41,8 @@ class KeypadManager
 {
 public:
     /// @brief Construct a new Keypad Manager object
-    /// @param i2c_handle 
-    /// @param debounce_timer 
+    /// @param i2c_handle The ADP5587 I2C interface
+    /// @param debounce_timer The debouce timer for the keypad
     KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_timer);
 
     /// @brief Get the key events object
@@ -58,8 +54,8 @@ public:
     void process_key_events(
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
 
-
 private:
+    // @brief The ADP5587 keypad driver 
     adp5587::Driver m_keypad_driver;
 
     /// @brief The timer used to test m_debounce_threshold
@@ -69,11 +65,8 @@ private:
     uint32_t m_last_debounce_count_ms{0};
     /// @brief Requirements fo debounce
     uint32_t m_debounce_threshold_ms{500};    
-
-
 };
 
 } // namespace bass_station
-
 
 #endif // __KEYPAD_MANAGER_HPP__
