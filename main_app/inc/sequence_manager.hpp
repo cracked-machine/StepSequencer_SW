@@ -37,17 +37,26 @@ namespace bass_station
 class SequenceManager
 {
 public:
-    /// @brief Construct a new Sequence Manager object
-    // @param timer Used for sequence run tempo
+
+    /// @brief Construct a new Sequence Manager
+    /// @param sequencer_tempo_timer The SequenceManager timer for looping the sequence pattern
+    /// @param sequencer_encoder_timer The SequenceManager rotary encoder interface
+    /// @param display_spi The DisplayManager SPI interface
+    /// @param display_refresh_timer The DisplayManager refresh rate timer
+    /// @param ad5587_keypad_i2c The KeypadManager I2C interface        
+    /// @param ad5587_keypad_debounce_timer  The KeypadManager debouce timer
+    /// @param adg2188_control_sw_i2c The crosspoint switch I2C interface for controlling the synth notes
+    /// @param tlc5955_led_spi The LedManager SPI interface
     SequenceManager(
         TIM_TypeDef *sequencer_tempo_timer, 
         TIM_TypeDef *sequencer_encoder_timer,
         SPI_TypeDef *display_spi, 
         TIM_TypeDef *display_refresh_timer,
         I2C_TypeDef *ad5587_keypad_i2c,
+        TIM_TypeDef *ad5587_keypad_debounce_timer,
         I2C_TypeDef *adg2188_control_sw_i2c,
-        SPI_TypeDef *tlc5955_led_spi,
-        TIM_TypeDef *debounce_timer);
+        SPI_TypeDef *tlc5955_led_spi);
+
     
 private:
 
@@ -55,13 +64,12 @@ private:
     std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;
 
     /// @brief The timer used for rotary encoder
-
     std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
 
     /// @brief Manages the SSD1306 OLED display
     bass_station::DisplayManager m_ssd1306_display_spi;
 
-    /// @brief Manages the ADP5587 chip
+    /// @brief Manages the ADP5587 keyscanner/io expander chip
     bass_station::KeypadManager m_ad5587_keypad_i2c;
 
     /// @brief Manages the ADG2188 crosspoint switch chip
@@ -69,9 +77,6 @@ private:
 
     /// @brief Manages the TLC5955 chip
     bass_station::LedManager m_led_manager;
-
-    /// @brief The timer used to test m_debounce_threshold
-    std::unique_ptr<TIM_TypeDef> m_debounce_timer;
 
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_step_position {0};
@@ -113,15 +118,6 @@ private:
     /// @param run_demo_only 
     void increment_and_execute_sequence_step(bool run_demo_only = false);
 
-    /// @brief poll the ADP5587 keyscanner for the latest key event data
-    /// and update the m_sequence map
-    void process_key_events();
-
-
-    // @brief Store the last timer count for debounce
-    uint32_t m_last_debounce_count_ms{0};
-    // @brief Requirements fo debounce
-    uint32_t m_debounce_threshold_ms{500};
 };
 
 

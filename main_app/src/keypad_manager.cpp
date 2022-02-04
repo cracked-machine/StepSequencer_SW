@@ -27,7 +27,8 @@ namespace bass_station
 {
 
 
-KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle) : m_keypad_driver(adp5587::Driver(i2c_handle))
+KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_timer) 
+: m_keypad_driver(adp5587::Driver(i2c_handle)), m_debounce_timer(debounce_timer)
 {
     
     // 1) Enable keypad interrupts
@@ -51,11 +52,46 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle) : m_keypad_driver(adp5587:
         0x00,
         m_keypad_driver.KP_GPIO::C8 | m_keypad_driver.KP_GPIO::C9);
 
+    // start the debounce timer
+    LL_TIM_EnableCounter(m_debounce_timer.get());        
+
+}
+
+void KeypadManager::process_key_events()
+{
+    // get the key events FIFO list from the ADP5587 driver 
+    std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
+    get_key_events(key_events_list);
+    
+    for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
+    {
+        Step *step = m_sequence_map.find_key(key_event);
+        if(step == nullptr) { /* no match found in map */ }
+        else
+        {
+            // only toggle key state if debounce conditions are met
+            [[maybe_unused]] uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+            if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
+            {
+                if (step->m_key_state == KeyState::OFF)
+                {
+                    step->m_key_state = KeyState::ON;
+                }
+                else
+                {
+                    step->m_key_state = KeyState::OFF;
+                }
+            }
+            m_last_debounce_count_ms = timer_count_ms;
+        }
+    }
 }
 
 void KeypadManager::get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list)
 {
     m_keypad_driver.get_key_events(key_events_list);
 }
+
+
 
 } // namespace bass_station

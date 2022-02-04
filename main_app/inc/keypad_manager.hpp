@@ -85,14 +85,34 @@ static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_
 class KeypadManager
 {
 public:
-    KeypadManager(I2C_TypeDef *i2c_handle);
+    /// @brief Construct a new Keypad Manager object
+    /// @param i2c_handle 
+    /// @param debounce_timer 
+    KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_timer);
+
+    /// @brief Get the key events object
+    /// @param key_events_list 
     void get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list);
+    
+    /// @brief poll the ADP5587 keyscanner for the latest key event data
+    /// and update the m_sequence map
+    void process_key_events();
 
     /// @brief Map holding the 32-step sequence data
     noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> m_sequence_map = 
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
 private:
     adp5587::Driver m_keypad_driver;
+
+    /// @brief The timer used to test m_debounce_threshold
+    std::unique_ptr<TIM_TypeDef> m_debounce_timer;
+
+    /// @brief Store the last timer count for debounce
+    uint32_t m_last_debounce_count_ms{0};
+    /// @brief Requirements fo debounce
+    uint32_t m_debounce_threshold_ms{500};    
+
+
 };
 
 } // namespace bass_station

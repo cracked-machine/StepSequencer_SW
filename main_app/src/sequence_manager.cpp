@@ -31,20 +31,18 @@ SequenceManager::SequenceManager(
     SPI_TypeDef *display_spi, 
     TIM_TypeDef *display_refresh_timer,
     I2C_TypeDef *ad5587_keypad_i2c,
+    TIM_TypeDef *ad5587_keypad_debounce_timer,
     I2C_TypeDef *adg2188_control_sw_i2c,
-    SPI_TypeDef *tlc5955_led_spi,
-    TIM_TypeDef *debounce_timer) 
+    SPI_TypeDef *tlc5955_led_spi) 
     
     :   m_sequencer_tempo_timer(sequencer_tempo_timer), 
         m_sequencer_encoder_timer(sequencer_encoder_timer),
         m_ssd1306_display_spi(bass_station::DisplayManager(display_spi, display_refresh_timer)),
-        m_ad5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c)),
+        m_ad5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, ad5587_keypad_debounce_timer)),
         m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
-        m_led_manager(bass_station::LedManager(tlc5955_led_spi)),
-        m_debounce_timer(debounce_timer)
+        m_led_manager(bass_station::LedManager(tlc5955_led_spi))
 {
-    // start the timer
-    LL_TIM_EnableCounter(m_debounce_timer.get());
+
 
     // send configuration data to TLC5955
     m_led_manager.send_control_data();
@@ -69,7 +67,7 @@ void SequenceManager::tempo_timer_isr()
     update_display_and_tempo();
 
     // get latest key events from adp5587
-    process_key_events();
+    m_ad5587_keypad_i2c.process_key_events();
 
     // update the LED and synth control switch for the next sequence position
     increment_and_execute_sequence_step();
@@ -149,34 +147,6 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
     }
 }
 
-void SequenceManager::process_key_events()
-{
-    // get the key events FIFO list from the ADP5587 driver 
-    std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
-    m_ad5587_keypad_i2c.get_key_events(key_events_list);
-    
-    for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
-    {
-        Step *step = m_ad5587_keypad_i2c.m_sequence_map.find_key(key_event);
-        if(step == nullptr) { /* no match found in map */ }
-        else
-        {
-            // only toggle key state if debounce conditions are met
-            [[maybe_unused]] uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
-            if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
-            {
-                if (step->m_key_state == KeyState::OFF)
-                {
-                    step->m_key_state = KeyState::ON;
-                }
-                else
-                {
-                    step->m_key_state = KeyState::OFF;
-                }
-            }
-            m_last_debounce_count_ms = timer_count_ms;
-        }
-    }
-}
+
 
 } // namespace bass_station
