@@ -36,7 +36,7 @@ public:
 
     // @brief Construct a new Display Manager object
     // @param timer Used for refresh rate of the display
-    DisplayManager(ssd1306::DriverSerialInterface display_spi_interface, TIM_TypeDef *timer);
+    DisplayManager(ssd1306::DriverSerialInterface &display_spi_interface, TIM_TypeDef *timer);
     
     // @brief Allow delayed start of the timer interrupt
     void start_isr();

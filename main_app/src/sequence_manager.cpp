@@ -68,7 +68,7 @@ std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceMan
 SequenceManager::SequenceManager(
     TIM_TypeDef* sequencer_tempo_timer, 
     TIM_TypeDef *sequencer_encoder_timer,
-    ssd1306::DriverSerialInterface display_spi_interface, 
+    ssd1306::DriverSerialInterface &display_spi_interface, 
     TIM_TypeDef *display_refresh_timer,
     I2C_TypeDef *ad5587_keypad_i2c,
     TIM_TypeDef *ad5587_keypad_debounce_timer,
