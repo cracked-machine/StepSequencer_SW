@@ -62,8 +62,22 @@ void mainapp()
 	// I2C periperhal for synth output control switch serial communication
 	I2C_TypeDef *adg2188_control_sw_i2c = I2C2;
 
-	// SPI peripheral for led driver serial communication
-	SPI_TypeDef *tlc5955_led_spi = SPI2;
+	tlc5955::DriverSerialInterface tlc5955_spi_interface(
+		SPI2, 
+		TLC5955_SPI2_LAT_GPIO_Port, 
+		TLC5955_SPI2_LAT_Pin, 
+		TLC5955_SPI2_MOSI_GPIO_Port, 
+		TLC5955_SPI2_MOSI_Pin, 
+		TLC5955_SPI2_SCK_GPIO_Port, 
+		TLC5955_SPI2_SCK_Pin,
+		TIM4,
+		LL_TIM_CHANNEL_CH1,
+		LL_SYSCFG_I2C_FASTMODEPLUS_PB7,
+		LL_SYSCFG_I2C_FASTMODEPLUS_PB8,
+		LL_IOP_GRP1_PERIPH_GPIOB,
+		LL_APB1_GRP1_PERIPH_SPI2);
+
+	// SPI_TypeDef *tlc5955_led_spi = SPI2;
 	
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
@@ -74,7 +88,7 @@ void mainapp()
 		ad5587_keypad_i2c, 
 		ad5587_debounce_timer,
 		adg2188_control_sw_i2c, 
-		tlc5955_led_spi);
+		tlc5955_spi_interface);
 
 	while(true)
 	{
