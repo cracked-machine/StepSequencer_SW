@@ -51,13 +51,10 @@ public:
     
     /// @brief poll the ADP5587 keyscanner for the latest key event data
     /// and update the m_sequence map
-    void process_key_events(
-        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
+    void process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
 
-    // @brief Converts a NoteSwitchMapping to string value for using with OLED display
-    // @param sw [in] The NoteSwitchMapping to convert
-    // @param note [out] The returned string value
-    void translate_sw_pole_to_note_string(NoteSwitchMapping sw, std::string &note);
+    // store the index of the last key selected by the user. We can use this index to lookup the position in the StaticMap later on.
+    uint8_t last_user_selected_key_idx{0};
 
 private:
     // @brief The ADP5587 keypad driver 

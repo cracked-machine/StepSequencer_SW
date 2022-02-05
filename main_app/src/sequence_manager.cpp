@@ -25,46 +25,6 @@
 namespace bass_station
 {
 
-// The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
-std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceManager::sequence_data = {{
-    {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 0,   4,  16)},
-    {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::OFF, NoteSwitchMapping::c0_sharp, default_colour, 1,   0,  17)},
-    {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::OFF, NoteSwitchMapping::d0, default_colour, 2,   5,  18)},
-    {adp5587::Driver::KeyPadMappings::A3_ON, Step(KeyState::OFF, NoteSwitchMapping::d0_sharp, default_colour, 3,   1,  19)},
-    {adp5587::Driver::KeyPadMappings::A4_ON, Step(KeyState::OFF, NoteSwitchMapping::e0, default_colour, 4,   2,  20)},
-    {adp5587::Driver::KeyPadMappings::A5_ON, Step(KeyState::OFF, NoteSwitchMapping::f0, default_colour, 5,   6,  21)},
-    {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::OFF, NoteSwitchMapping::f0_sharp, default_colour, 6,   3,  22)},
-    {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::OFF, NoteSwitchMapping::g0, default_colour, 7,   7,  23)},
-
-    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::OFF, NoteSwitchMapping::none, default_colour, 8,   11, 24)},
-    {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 9,   15, 25)},
-    {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 10,  10, 26)},
-    {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 11,  14, 27)},
-    {adp5587::Driver::KeyPadMappings::B4_ON, Step(KeyState::OFF, NoteSwitchMapping::c2, default_colour, 12,  13, 28)},
-    {adp5587::Driver::KeyPadMappings::B5_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 13,  9,  29)},
-    {adp5587::Driver::KeyPadMappings::B6_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 14,  12, 30)},
-    {adp5587::Driver::KeyPadMappings::B7_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 15,  8,  31)}, 
-
-    {adp5587::Driver::KeyPadMappings::C0_ON, Step(KeyState::OFF, NoteSwitchMapping::e1, default_colour, 0,   7,  0)},
-    {adp5587::Driver::KeyPadMappings::C1_ON, Step(KeyState::OFF, NoteSwitchMapping::f1, default_colour, 1,   3,  1)},
-    {adp5587::Driver::KeyPadMappings::C2_ON, Step(KeyState::OFF, NoteSwitchMapping::f1_sharp, default_colour, 2,   6,  2)},
-    {adp5587::Driver::KeyPadMappings::C3_ON, Step(KeyState::OFF, NoteSwitchMapping::g1, default_colour, 3,   2,  3)},
-    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::OFF, NoteSwitchMapping::g1_sharp, default_colour, 4,   1,  4)},
-    {adp5587::Driver::KeyPadMappings::C5_ON, Step(KeyState::OFF, NoteSwitchMapping::a2, default_colour, 5,   5,  5)},
-    {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::OFF, NoteSwitchMapping::a2_sharp, default_colour, 6,   0,  6)},
-    {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::OFF, NoteSwitchMapping::b2, default_colour, 7,   4,  7)},  
-
-    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::OFF, NoteSwitchMapping::c2, default_colour, 8,   8,  8)},
-    {adp5587::Driver::KeyPadMappings::D1_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 9,   12, 9)},
-    {adp5587::Driver::KeyPadMappings::D2_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 10,  9,  10)},
-    {adp5587::Driver::KeyPadMappings::D3_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 11,  13, 11)},
-    {adp5587::Driver::KeyPadMappings::D4_ON, Step(KeyState::OFF, NoteSwitchMapping::c2, default_colour, 12,  14, 12)},
-    {adp5587::Driver::KeyPadMappings::D5_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 13,  10, 13)},
-    {adp5587::Driver::KeyPadMappings::D6_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 14,  15, 14)},
-    {adp5587::Driver::KeyPadMappings::D7_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 15,  11, 15)},       
-}};    
-
-
 SequenceManager::SequenceManager(
     TIM_TypeDef* sequencer_tempo_timer, 
     TIM_TypeDef *sequencer_encoder_timer,
@@ -83,14 +43,13 @@ SequenceManager::SequenceManager(
         m_led_manager(bass_station::LedManager(led_spi_interface))
 {
 
-
     // send configuration data to TLC5955
     m_led_manager.send_control_data();
 
-    // enable the timer and set a sensible starting "tempo"
-    LL_TIM_EnableCounter(m_sequencer_encoder_timer.get());
+    // enable the timer with a starting "tempo"
     m_sequencer_encoder_timer->CNT = 128;
-
+    LL_TIM_EnableCounter(m_sequencer_encoder_timer.get());
+    
     // setup this class as timer callback
     // SequenceManager needs to be enabled first, because ISR has higher priority (0)
     m_sequencer_tempo_timer_isr_handler.initialise(this);
@@ -109,6 +68,7 @@ void SequenceManager::tempo_timer_isr()
     // get latest key events from adp5587
     m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
 
+
     // update the LED and synth control switch for the next sequence position
     increment_and_execute_sequence_step();
 
@@ -124,20 +84,57 @@ void SequenceManager::update_display_and_tempo()
     beat_pos += std::to_string(m_step_position) + ' ';
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
     
-    // update the display with the encoder count value
+    // update the display with the encoder count value (using the PSC as a shadow value if Mode::NOTE_SELECT)
     std::string encoder_pos{"Tempo: "};
-    encoder_pos += std::to_string(m_sequencer_encoder_timer->CNT) + "   ";
-    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);
+    encoder_pos += std::to_string(m_sequencer_tempo_timer->PSC) + "   ";
+    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);          
 
-    std::string note_value;
-    m_adp5587_keypad_i2c.translate_sw_pole_to_note_string(
-        m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second.m_note, 
-        note_value);
-    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, note_value);
+    if (m_current_mode == Mode::TEMPO_ADJUST)
+    {
+        // update the sequencer tempo (prescaler) 
+        // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
+        m_sequencer_tempo_timer->PSC = m_sequencer_encoder_timer->CNT;    
+    }
+    else if (m_current_mode == Mode::NOTE_SELECT)
+    {
+        // lookup the step position using the index of the last user selected key
+        Step last_selected_step = m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second;
+        Note last_selected_step_note = last_selected_step.m_note;
+        
+        // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
+        std::string direction{""};
+        if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
+        {
+            if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
+            {
+                direction += "up  ";
+                m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
+                    static_cast<Note>(last_selected_step_note + 1);
+            }
+            else
+            {
+                direction += "down";
+                m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
+                    static_cast<Note>(last_selected_step_note - 1);                
+            }
+        }
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FOUR, direction);
+        m_last_encoder_value = m_sequencer_encoder_timer->CNT;
+    }
 
-    // update the sequencer tempo (prescaler) with the encoder count value
-    // TODO this is backwards: Should be CW = increase tempo, CCW = decrease tempo
-    m_sequencer_tempo_timer->PSC = m_sequencer_encoder_timer->CNT;    
+    // now read back the updated note from the step to get the note string value
+    NoteData *lookup_note_data = m_note_switch_map.find_key(m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note);
+
+    if (lookup_note_data != nullptr)
+    {
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, lookup_note_data->m_note_string);
+    }
+    else
+    {
+        std::string nullptr_text{"---"};
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, nullptr_text);
+    }     
+
 }
 
 void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
@@ -153,30 +150,40 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
 
         // save the colour and state of the current step so it can be restored later
-        m_previous_colour = current_step.m_colour;
-        m_previous_state = current_step.m_key_state;
+        LedColour previous_colour = current_step.m_colour;
+        KeyState previous_key_state = current_step.m_key_state;
         
         if (current_step.m_key_state == KeyState::ON)
         {
+            NoteData *found_note_data = m_note_switch_map.find_key(current_step.m_note);
+
             // update LED colour
             current_step.m_colour = beat_colour_on;
             
             // turn off the note sound from the previous step
-            m_synth_control_switch.write_switch(
-                adg2188::Driver::Throw::open, 
-                static_cast<adg2188::Driver::Pole>(m_previous_enabled_note),
-                adg2188::Driver::Latch::set); 
-
-            if (current_step.m_note != NoteSwitchMapping::none)
+            if (m_previous_enabled_note != nullptr)
             {
-                // turn on the note sound for the current step
                 m_synth_control_switch.write_switch(
-                    adg2188::Driver::Throw::close, 
-                    static_cast<adg2188::Driver::Pole>(current_step.m_note),
-                    adg2188::Driver::Latch::set);        
+                    adg2188::Driver::Throw::open, 
+                    m_previous_enabled_note->m_sw,
+                    adg2188::Driver::Latch::set); 
+            }
+
+            if (current_step.m_note != Note::none)
+            {
+
+                if (found_note_data != nullptr)
+                {
+                    // turn on the note sound for the current step
+                    m_synth_control_switch.write_switch(
+                        adg2188::Driver::Throw::close, 
+                        found_note_data->m_sw,
+                        adg2188::Driver::Latch::set);                            
+                }
+                
             }    
             // retain the note we enabled this iteration so we can turn it off in the next iteration
-            m_previous_enabled_note = current_step.m_note;                
+            m_previous_enabled_note = found_note_data;                
         }
         else
         {
@@ -184,10 +191,13 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
             current_step.m_colour = beat_colour_off;
 
             // turn off the note sound from the previous step
-            m_synth_control_switch.write_switch(
-                adg2188::Driver::Throw::open, 
-                static_cast<adg2188::Driver::Pole>(m_previous_enabled_note),
-                adg2188::Driver::Latch::set); 
+            if (m_previous_enabled_note != nullptr)
+            {
+                m_synth_control_switch.write_switch(
+                    adg2188::Driver::Throw::open, 
+                    m_previous_enabled_note->m_sw,
+                    adg2188::Driver::Latch::set); 
+            }
         }    
 
         // enable the current step in the sequence
@@ -197,14 +207,81 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
         
         // restore the state of the current step (so it is cleared on the next iteration)
-        current_step.m_colour = m_previous_colour;
-        current_step.m_key_state = m_previous_state;
+        current_step.m_colour = previous_colour;
+        current_step.m_key_state = previous_key_state;
 
         // increment the current step position
         (m_step_position >= m_sequencer_key_mapping.size() -1) ? m_step_position = 0: m_step_position++;
-
     }
-
 }
+
+// @brief The keyboard notes of the BassStation and their associated control switch pole
+std::array< std::pair< Note, NoteData>, 25> SequenceManager::m_note_switch_data = {{
+    { Note::c0,       NoteData("C0 ", adg2188::Driver::Pole::x4_to_y0) },
+    { Note::c0_sharp, NoteData("C0#", adg2188::Driver::Pole::x5_to_y0) },
+    { Note::d0,       NoteData("D0 ", adg2188::Driver::Pole::x6_to_y0) },
+    { Note::d0_sharp, NoteData("D0#", adg2188::Driver::Pole::x7_to_y0) },
+    { Note::e0,       NoteData("E0 ", adg2188::Driver::Pole::x0_to_y2) },
+    { Note::f0,       NoteData("F0 ", adg2188::Driver::Pole::x1_to_y2) },
+    { Note::f0_sharp, NoteData("F0#", adg2188::Driver::Pole::x2_to_y2) },
+    { Note::g0,       NoteData("G0 ", adg2188::Driver::Pole::x3_to_y2) },
+    { Note::g0_sharp, NoteData("G0#", adg2188::Driver::Pole::x4_to_y2) },
+    { Note::a1,       NoteData("A1 ", adg2188::Driver::Pole::x5_to_y2) },
+    { Note::a1_sharp, NoteData("A1#", adg2188::Driver::Pole::x6_to_y2) },
+    { Note::b1,       NoteData("B1 ", adg2188::Driver::Pole::x7_to_y2) },
+    { Note::c1,       NoteData("C1 ", adg2188::Driver::Pole::x0_to_y4) },  // Middle C
+    { Note::c1_sharp, NoteData("C1#", adg2188::Driver::Pole::x1_to_y4) },
+    { Note::d1,       NoteData("D1 ", adg2188::Driver::Pole::x2_to_y4) },
+    { Note::d1_sharp, NoteData("D1#", adg2188::Driver::Pole::x3_to_y4) },
+    { Note::e1,       NoteData("E1 ", adg2188::Driver::Pole::x4_to_y4) },
+    { Note::f1,       NoteData("F1 ", adg2188::Driver::Pole::x5_to_y4) },
+    { Note::f1_sharp, NoteData("F1#", adg2188::Driver::Pole::x6_to_y4) },
+    { Note::g1,       NoteData("G1 ", adg2188::Driver::Pole::x7_to_y4) },
+    { Note::g1_sharp, NoteData("G1#", adg2188::Driver::Pole::x0_to_y6) },
+    { Note::a2,       NoteData("A2 ", adg2188::Driver::Pole::x1_to_y6) },
+    { Note::a2_sharp, NoteData("A2#", adg2188::Driver::Pole::x2_to_y6) },
+    { Note::b2,       NoteData("B2 ", adg2188::Driver::Pole::x3_to_y6) },
+    { Note::c2,       NoteData("C2 ", adg2188::Driver::Pole::x4_to_y6) }
+}};
+
+// The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
+std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceManager::m_sequence_data = {{
+    {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::ON, Note::c0, default_colour,         0,   4,  0)},
+    {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::ON, Note::c0_sharp, default_colour,   1,   0,  1)},
+    {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::ON, Note::d0, default_colour,         2,   5,  2)},
+    {adp5587::Driver::KeyPadMappings::A3_ON, Step(KeyState::ON, Note::d0_sharp, default_colour,   3,   1,  3)},
+    {adp5587::Driver::KeyPadMappings::A4_ON, Step(KeyState::ON, Note::e0, default_colour,         4,   2,  4)},
+    {adp5587::Driver::KeyPadMappings::A5_ON, Step(KeyState::ON, Note::f0, default_colour,         5,   6,  5)},
+    {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::ON, Note::f0_sharp, default_colour,   6,   3,  6)},
+    {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::ON, Note::g0, default_colour,         7,   7,  7)},
+
+    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::ON, Note::none, default_colour,       8,   11, 8)},
+    {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::ON, Note::c1, default_colour,         9,   15, 9)},
+    {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::ON, Note::c0, default_colour,         10,  10, 10)},
+    {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::ON, Note::c1, default_colour,         11,  14, 11)},
+    {adp5587::Driver::KeyPadMappings::B4_ON, Step(KeyState::ON, Note::c2, default_colour,         12,  13, 12)},
+    {adp5587::Driver::KeyPadMappings::B5_ON, Step(KeyState::ON, Note::c1, default_colour,         13,  9,  13)},
+    {adp5587::Driver::KeyPadMappings::B6_ON, Step(KeyState::ON, Note::c0, default_colour,         14,  12, 14)},
+    {adp5587::Driver::KeyPadMappings::B7_ON, Step(KeyState::ON, Note::c1, default_colour,         15,  8,  15)}, 
+
+    {adp5587::Driver::KeyPadMappings::C0_ON, Step(KeyState::ON, Note::e1, default_colour,         0,   7,  16)},
+    {adp5587::Driver::KeyPadMappings::C1_ON, Step(KeyState::ON, Note::f1, default_colour,         1,   3,  17)},
+    {adp5587::Driver::KeyPadMappings::C2_ON, Step(KeyState::ON, Note::f1_sharp, default_colour,   2,   6,  18)},
+    {adp5587::Driver::KeyPadMappings::C3_ON, Step(KeyState::ON, Note::g1, default_colour,         3,   2,  19)},
+    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::ON, Note::g1_sharp, default_colour,   4,   1,  20)},
+    {adp5587::Driver::KeyPadMappings::C5_ON, Step(KeyState::ON, Note::a2, default_colour,         5,   5,  21)},
+    {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::ON, Note::a2_sharp, default_colour,   6,   0,  22)},
+    {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::ON, Note::b2, default_colour,         7,   4,  23)},  
+
+    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::ON, Note::c2, default_colour,         8,   8,  24)},
+    {adp5587::Driver::KeyPadMappings::D1_ON, Step(KeyState::ON, Note::c1, default_colour,         9,   12, 25)},
+    {adp5587::Driver::KeyPadMappings::D2_ON, Step(KeyState::ON, Note::c0, default_colour,         10,  9,  26)},
+    {adp5587::Driver::KeyPadMappings::D3_ON, Step(KeyState::ON, Note::c1, default_colour,         11,  13, 27)},
+    {adp5587::Driver::KeyPadMappings::D4_ON, Step(KeyState::ON, Note::c2, default_colour,         12,  14, 28)},
+    {adp5587::Driver::KeyPadMappings::D5_ON, Step(KeyState::ON, Note::c1, default_colour,         13,  10, 29)},
+    {adp5587::Driver::KeyPadMappings::D6_ON, Step(KeyState::ON, Note::c0, default_colour,         14,  15, 30)},
+    {adp5587::Driver::KeyPadMappings::D7_ON, Step(KeyState::ON, Note::c1, default_colour,         15,  11, 31)},       
+}};    
+
 
 } // namespace bass_station

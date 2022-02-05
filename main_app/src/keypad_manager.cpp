@@ -58,9 +58,9 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
 
 }
 
-void KeypadManager::process_key_events(
-    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &sequence_map)
+void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, 32U> &sequence_map)
 {
+
     // get the key events FIFO list from the ADP5587 driver 
     std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
     get_key_events(key_events_list);
@@ -73,14 +73,41 @@ void KeypadManager::process_key_events(
         if(step == nullptr) { /* no match found in map */ }
         else
         {
-            // only toggle key state if debounce conditions are met
-            [[maybe_unused]] uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+            // only update the key if debounce conditions are met
+            uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
             if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
             {
-                // flip the key state
-                step->m_key_state = static_cast<KeyState>( !(step->m_key_state) );
+                if (step->m_key_state == KeyState::ON)
+                {
+                    if (step->m_colour == default_colour)
+                    {
+                        // the key was ON but not highlighted, user selected it so lets highlight it
+                        step->m_colour = user_select_colour;
+                    }
+                    else
+                    {
+                        // the key was ON and already highlighted, user selected it so lets switch it off completely
+                        step->m_colour = default_colour;
+                        step->m_key_state = KeyState::OFF;
+                    }
+                }
+                else
+                {
+                    // the key was OFF, user selected it so lets highlight it and switch it on!
+                    step->m_colour = user_select_colour;
+                    step->m_key_state = KeyState::ON;
+                }
+            
+                // de-highlight the previously highlighted key...unless we just selected the same key again, then skip
+                if (last_user_selected_key_idx != step->m_array_index)
+                {
+                    sequence_map.data.at(last_user_selected_key_idx).second.m_colour = default_colour;
+                }
             }
             m_last_debounce_count_ms = timer_count_ms;
+
+            // store the index position of the user selected step for next key interrupt
+            last_user_selected_key_idx = step->m_array_index;
         }
     }
 }
@@ -88,91 +115,6 @@ void KeypadManager::process_key_events(
 void KeypadManager::get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list)
 {
     m_keypad_driver.get_key_events(key_events_list);
-}
-
-void KeypadManager::translate_sw_pole_to_note_string(NoteSwitchMapping sw, std::string &note)
-{
-    switch(sw)
-    {
-        case bass_station::NoteSwitchMapping::c0:
-            note = "C0 ";
-            break;
-        case bass_station::NoteSwitchMapping::c0_sharp:
-            note = "C0#";
-            break;
-        case bass_station::NoteSwitchMapping::d0:
-            note = "D0 ";
-            break;
-        case bass_station::NoteSwitchMapping::d0_sharp:
-            note = "D0#";
-            break;
-        case bass_station::NoteSwitchMapping::e0:
-            note = "E0 ";
-            break;
-        case bass_station::NoteSwitchMapping::f0:
-            note = "F0 ";
-            break;
-        case bass_station::NoteSwitchMapping::f0_sharp:
-            note = "F0#";
-            break;
-        case bass_station::NoteSwitchMapping::g0:
-            note = "G0 ";
-            break;
-        case bass_station::NoteSwitchMapping::g0_sharp:
-            note = "G0#";
-            break;
-        case bass_station::NoteSwitchMapping::a1:
-            note = "A1 ";
-            break;
-        case bass_station::NoteSwitchMapping::a1_sharp:
-            note = "A1#";
-            break;
-        case bass_station::NoteSwitchMapping::b1:
-            note = "B1 ";
-            break;
-        case bass_station::NoteSwitchMapping::c1:
-            note = "C1 ";
-            break;
-        case bass_station::NoteSwitchMapping::c1_sharp:
-            note = "C1#";
-            break;
-        case bass_station::NoteSwitchMapping::d1:
-            note = "D1 ";
-            break;
-        case bass_station::NoteSwitchMapping::d1_sharp:
-            note = "D1#";
-            break;
-        case bass_station::NoteSwitchMapping::e1:
-            note = "E1 ";
-            break;
-        case bass_station::NoteSwitchMapping::f1:
-            note = "F1 ";
-            break;
-        case bass_station::NoteSwitchMapping::f1_sharp:
-            note = "F1#";
-            break;
-        case bass_station::NoteSwitchMapping::g1:
-            note = "G1 ";
-            break;
-        case bass_station::NoteSwitchMapping::g1_sharp:
-            note = "G1#";
-            break;
-        case bass_station::NoteSwitchMapping::a2:
-            note = "A2 ";
-            break;
-        case bass_station::NoteSwitchMapping::a2_sharp:
-            note = "A2#";
-            break;
-        case bass_station::NoteSwitchMapping::b2:
-            note = "B2 ";
-            break;
-        case bass_station::NoteSwitchMapping::c2:
-            note = "C2 ";
-            break;        
-        case bass_station::NoteSwitchMapping::none:
-            note = "---";
-            break;
-    }
 }
 
 } // namespace bass_station

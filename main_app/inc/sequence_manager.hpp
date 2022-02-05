@@ -59,16 +59,35 @@ public:
 
 private:
 
-    NoteSwitchMapping m_previous_enabled_note{NoteSwitchMapping::e0};
-    LedColour m_previous_colour;
-    KeyState m_previous_state;
+    // @brief List of operation modes for the sequencer
+    enum class Mode
+    {
+        TEMPO_ADJUST,   // @brief User can select tempo using rotary encoder (enabled after NOTE_SELECT timeout)
+        NOTE_SELECT,    // @brief User can select note using rotary encoder (enabled after selecting step key)
+    };
 
-    // The default sequence data
-    static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > sequence_data;
+    // @brief The current mode (and its default)
+    Mode m_current_mode {Mode::NOTE_SELECT};
 
-    /// @brief Map holding the 32-step sequence pattern (Sequencer::sequence_data)
-    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, sequence_data.size()> m_sequence_map = 
-        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, sequence_data.size()>{{sequence_data}};
+    // @brief state variable for previous note
+    NoteData *m_previous_enabled_note;
+
+    // @brief The previously captured rotary encoder value
+    uint16_t m_last_encoder_value;
+
+    // @brief  The 32-step sequence data
+    static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > m_sequence_data;
+
+    /// @brief Map holding the sequence data associated to its ADP5587 HW button index
+    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, m_sequence_data.size()> m_sequence_map = 
+        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, m_sequence_data.size()>{{m_sequence_data}};
+
+    // @brief The 25-key note data of the BassStation keyboard
+    static std::array< std::pair< Note, NoteData >, 25> m_note_switch_data;
+
+    // @brief Map holding the note data associated with its ADG2188 HW crosspoint switch config
+    noarch::containers::StaticMap< Note, NoteData, m_note_switch_data.size() > m_note_switch_map =
+        noarch::containers::StaticMap< Note, NoteData, m_note_switch_data.size()>{{ m_note_switch_data }};
 
     /// @brief The timer for tempo of the sequencer
     std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;
@@ -127,9 +146,6 @@ private:
     /// @brief Runs the note/step sequence
     /// @param run_demo_only 
     void increment_and_execute_sequence_step(bool run_demo_only = false);
-
-
-
 };
 
 
