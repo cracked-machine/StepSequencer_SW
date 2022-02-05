@@ -57,41 +57,40 @@ enum class LedColour {
     white,
 };
 
-
-
 constexpr LedColour default_colour { LedColour::white };
 constexpr LedColour beat_colour_off { LedColour::white };
 constexpr LedColour beat_colour_on { LedColour::blue };
 
-    enum class NoteSwitchMapping
-    {
-        c0          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y0),
-        c0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x5_to_y0),
-        d0          =   static_cast<int>(adg2188::Driver::Pole::x6_to_y0),
-        d0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x7_to_y0),
-        e0          =   static_cast<int>(adg2188::Driver::Pole::x0_to_y2),
-        f0          =   static_cast<int>(adg2188::Driver::Pole::x1_to_y2),
-        f0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x2_to_y2),
-        g0          =   static_cast<int>(adg2188::Driver::Pole::x3_to_y2),
-        g0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x4_to_y2),
-        a1          =   static_cast<int>(adg2188::Driver::Pole::x5_to_y2),
-        a1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x6_to_y2),
-        b1          =   static_cast<int>(adg2188::Driver::Pole::x7_to_y2),
-        c1          =   static_cast<int>(adg2188::Driver::Pole::x0_to_y4),  // Middle C
-        c1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x1_to_y4),
-        d1          =   static_cast<int>(adg2188::Driver::Pole::x2_to_y4),
-        d1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x3_to_y4),
-        e1          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y4),
-        f1          =   static_cast<int>(adg2188::Driver::Pole::x5_to_y4),
-        f1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x6_to_y4),
-        g1          =   static_cast<int>(adg2188::Driver::Pole::x7_to_y4),
-        g2_sharp     =   static_cast<int>(adg2188::Driver::Pole::x0_to_y6),
-        a2          =   static_cast<int>(adg2188::Driver::Pole::x1_to_y6),
-        a2_sharp     =   static_cast<int>(adg2188::Driver::Pole::x2_to_y6),
-        b2          =   static_cast<int>(adg2188::Driver::Pole::x3_to_y6),
-        c2          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y6),
-        
-    };
+// @brief Maps the musical note to crosspoint switch pole
+enum class NoteSwitchMapping
+{
+    c0          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y0),
+    c0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x5_to_y0),
+    d0          =   static_cast<int>(adg2188::Driver::Pole::x6_to_y0),
+    d0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x7_to_y0),
+    e0          =   static_cast<int>(adg2188::Driver::Pole::x0_to_y2),
+    f0          =   static_cast<int>(adg2188::Driver::Pole::x1_to_y2),
+    f0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x2_to_y2),
+    g0          =   static_cast<int>(adg2188::Driver::Pole::x3_to_y2),
+    g0_sharp     =   static_cast<int>(adg2188::Driver::Pole::x4_to_y2),
+    a1          =   static_cast<int>(adg2188::Driver::Pole::x5_to_y2),
+    a1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x6_to_y2),
+    b1          =   static_cast<int>(adg2188::Driver::Pole::x7_to_y2),
+    c1          =   static_cast<int>(adg2188::Driver::Pole::x0_to_y4),  // Middle C
+    c1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x1_to_y4),
+    d1          =   static_cast<int>(adg2188::Driver::Pole::x2_to_y4),
+    d1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x3_to_y4),
+    e1          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y4),
+    f1          =   static_cast<int>(adg2188::Driver::Pole::x5_to_y4),
+    f1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x6_to_y4),
+    g1          =   static_cast<int>(adg2188::Driver::Pole::x7_to_y4),
+    g1_sharp     =   static_cast<int>(adg2188::Driver::Pole::x0_to_y6),
+    a2          =   static_cast<int>(adg2188::Driver::Pole::x1_to_y6),
+    a2_sharp     =   static_cast<int>(adg2188::Driver::Pole::x2_to_y6),
+    b2          =   static_cast<int>(adg2188::Driver::Pole::x3_to_y6),
+    c2          =   static_cast<int>(adg2188::Driver::Pole::x4_to_y6),
+    none        = 0,
+};
 
 // @brief Represents a single step/key/button in the sequencer
 struct Step

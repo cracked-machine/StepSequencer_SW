@@ -54,6 +54,11 @@ public:
     void process_key_events(
         noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
 
+    // @brief Converts a NoteSwitchMapping to string value for using with OLED display
+    // @param sw [in] The NoteSwitchMapping to convert
+    // @param note [out] The returned string value
+    void translate_sw_pole_to_note_string(NoteSwitchMapping sw, std::string &note);
+
 private:
     // @brief The ADP5587 keypad driver 
     adp5587::Driver m_keypad_driver;

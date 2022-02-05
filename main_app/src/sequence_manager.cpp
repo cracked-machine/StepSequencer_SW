@@ -36,7 +36,7 @@ std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceMan
     {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::OFF, NoteSwitchMapping::f0_sharp, default_colour, 6,   3,  22)},
     {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::OFF, NoteSwitchMapping::g0, default_colour, 7,   7,  23)},
 
-    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::OFF, NoteSwitchMapping::c2, default_colour, 8,   11, 24)},
+    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::OFF, NoteSwitchMapping::none, default_colour, 8,   11, 24)},
     {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 9,   15, 25)},
     {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 10,  10, 26)},
     {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::OFF, NoteSwitchMapping::c1, default_colour, 11,  14, 27)},
@@ -49,7 +49,7 @@ std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceMan
     {adp5587::Driver::KeyPadMappings::C1_ON, Step(KeyState::OFF, NoteSwitchMapping::f1, default_colour, 1,   3,  1)},
     {adp5587::Driver::KeyPadMappings::C2_ON, Step(KeyState::OFF, NoteSwitchMapping::f1_sharp, default_colour, 2,   6,  2)},
     {adp5587::Driver::KeyPadMappings::C3_ON, Step(KeyState::OFF, NoteSwitchMapping::g1, default_colour, 3,   2,  3)},
-    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::OFF, NoteSwitchMapping::g2_sharp, default_colour, 4,   1,  4)},
+    {adp5587::Driver::KeyPadMappings::C4_ON, Step(KeyState::OFF, NoteSwitchMapping::g1_sharp, default_colour, 4,   1,  4)},
     {adp5587::Driver::KeyPadMappings::C5_ON, Step(KeyState::OFF, NoteSwitchMapping::a2, default_colour, 5,   5,  5)},
     {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::OFF, NoteSwitchMapping::a2_sharp, default_colour, 6,   0,  6)},
     {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::OFF, NoteSwitchMapping::b2, default_colour, 7,   4,  7)},  
@@ -78,7 +78,7 @@ SequenceManager::SequenceManager(
     :   m_sequencer_tempo_timer(sequencer_tempo_timer), 
         m_sequencer_encoder_timer(sequencer_encoder_timer),
         m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface, display_refresh_timer)),
-        m_ad5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, ad5587_keypad_debounce_timer)),
+        m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, ad5587_keypad_debounce_timer)),
         m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
         m_led_manager(bass_station::LedManager(led_spi_interface))
 {
@@ -107,7 +107,7 @@ void SequenceManager::tempo_timer_isr()
     update_display_and_tempo();
 
     // get latest key events from adp5587
-    m_ad5587_keypad_i2c.process_key_events(m_sequence_map);
+    m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
 
     // update the LED and synth control switch for the next sequence position
     increment_and_execute_sequence_step();
@@ -129,6 +129,12 @@ void SequenceManager::update_display_and_tempo()
     encoder_pos += std::to_string(m_sequencer_encoder_timer->CNT) + "   ";
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);
 
+    std::string note_value;
+    m_adp5587_keypad_i2c.translate_sw_pole_to_note_string(
+        m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second.m_note, 
+        note_value);
+    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, note_value);
+
     // update the sequencer tempo (prescaler) with the encoder count value
     // TODO this is backwards: Should be CW = increase tempo, CCW = decrease tempo
     m_sequencer_tempo_timer->PSC = m_sequencer_encoder_timer->CNT;    
@@ -146,28 +152,29 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         // get the Step object for the current sequence position
         Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_step_position)).second;
 
-        // save the colour and state
-        LedColour previous_colour = current_step.m_colour;
-        KeyState previous_state = current_step.m_key_state;
+        // save the colour and state of the current step so it can be restored later
+        m_previous_colour = current_step.m_colour;
+        m_previous_state = current_step.m_key_state;
         
-        
-
         if (current_step.m_key_state == KeyState::ON)
         {
             // update LED colour
             current_step.m_colour = beat_colour_on;
             
-
+            // turn off the note sound from the previous step
             m_synth_control_switch.write_switch(
                 adg2188::Driver::Throw::open, 
                 static_cast<adg2188::Driver::Pole>(m_previous_enabled_note),
                 adg2188::Driver::Latch::set); 
 
-            m_synth_control_switch.write_switch(
-                adg2188::Driver::Throw::close, 
-                static_cast<adg2188::Driver::Pole>(current_step.m_note),
-                adg2188::Driver::Latch::set);        
-            
+            if (current_step.m_note != NoteSwitchMapping::none)
+            {
+                // turn on the note sound for the current step
+                m_synth_control_switch.write_switch(
+                    adg2188::Driver::Throw::close, 
+                    static_cast<adg2188::Driver::Pole>(current_step.m_note),
+                    adg2188::Driver::Latch::set);        
+            }    
             // retain the note we enabled this iteration so we can turn it off in the next iteration
             m_previous_enabled_note = current_step.m_note;                
         }
@@ -176,29 +183,27 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
             // update the LED colour
             current_step.m_colour = beat_colour_off;
 
+            // turn off the note sound from the previous step
             m_synth_control_switch.write_switch(
                 adg2188::Driver::Throw::open, 
                 static_cast<adg2188::Driver::Pole>(m_previous_enabled_note),
                 adg2188::Driver::Latch::set); 
         }    
 
-
-
-        // turn on the current step in the sequence
+        // enable the current step in the sequence
         current_step.m_key_state = KeyState::ON;
 
-        // send the entire updated sequence to the TL5955 driver
+        // send the entire updated LED sequence to the TL5955 driver
         m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
         
         // restore the state of the current step (so it is cleared on the next iteration)
-        current_step.m_colour = previous_colour;
-        current_step.m_key_state = previous_state;
+        current_step.m_colour = m_previous_colour;
+        current_step.m_key_state = m_previous_state;
 
         // increment the current step position
         (m_step_position >= m_sequencer_key_mapping.size() -1) ? m_step_position = 0: m_step_position++;
 
     }
-
 
 }
 

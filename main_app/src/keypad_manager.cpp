@@ -90,4 +90,89 @@ void KeypadManager::get_key_events(std::array<adp5587::Driver::KeyPadMappings, 1
     m_keypad_driver.get_key_events(key_events_list);
 }
 
+void KeypadManager::translate_sw_pole_to_note_string(NoteSwitchMapping sw, std::string &note)
+{
+    switch(sw)
+    {
+        case bass_station::NoteSwitchMapping::c0:
+            note = "C0 ";
+            break;
+        case bass_station::NoteSwitchMapping::c0_sharp:
+            note = "C0#";
+            break;
+        case bass_station::NoteSwitchMapping::d0:
+            note = "D0 ";
+            break;
+        case bass_station::NoteSwitchMapping::d0_sharp:
+            note = "D0#";
+            break;
+        case bass_station::NoteSwitchMapping::e0:
+            note = "E0 ";
+            break;
+        case bass_station::NoteSwitchMapping::f0:
+            note = "F0 ";
+            break;
+        case bass_station::NoteSwitchMapping::f0_sharp:
+            note = "F0#";
+            break;
+        case bass_station::NoteSwitchMapping::g0:
+            note = "G0 ";
+            break;
+        case bass_station::NoteSwitchMapping::g0_sharp:
+            note = "G0#";
+            break;
+        case bass_station::NoteSwitchMapping::a1:
+            note = "A1 ";
+            break;
+        case bass_station::NoteSwitchMapping::a1_sharp:
+            note = "A1#";
+            break;
+        case bass_station::NoteSwitchMapping::b1:
+            note = "B1 ";
+            break;
+        case bass_station::NoteSwitchMapping::c1:
+            note = "C1 ";
+            break;
+        case bass_station::NoteSwitchMapping::c1_sharp:
+            note = "C1#";
+            break;
+        case bass_station::NoteSwitchMapping::d1:
+            note = "D1 ";
+            break;
+        case bass_station::NoteSwitchMapping::d1_sharp:
+            note = "D1#";
+            break;
+        case bass_station::NoteSwitchMapping::e1:
+            note = "E1 ";
+            break;
+        case bass_station::NoteSwitchMapping::f1:
+            note = "F1 ";
+            break;
+        case bass_station::NoteSwitchMapping::f1_sharp:
+            note = "F1#";
+            break;
+        case bass_station::NoteSwitchMapping::g1:
+            note = "G1 ";
+            break;
+        case bass_station::NoteSwitchMapping::g1_sharp:
+            note = "G1#";
+            break;
+        case bass_station::NoteSwitchMapping::a2:
+            note = "A2 ";
+            break;
+        case bass_station::NoteSwitchMapping::a2_sharp:
+            note = "A2#";
+            break;
+        case bass_station::NoteSwitchMapping::b2:
+            note = "B2 ";
+            break;
+        case bass_station::NoteSwitchMapping::c2:
+            note = "C2 ";
+            break;        
+        case bass_station::NoteSwitchMapping::none:
+            note = "---";
+            break;
+    }
+}
+
 } // namespace bass_station

@@ -60,6 +60,8 @@ public:
 private:
 
     NoteSwitchMapping m_previous_enabled_note{NoteSwitchMapping::e0};
+    LedColour m_previous_colour;
+    KeyState m_previous_state;
 
     // The default sequence data
     static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > sequence_data;
@@ -78,7 +80,7 @@ private:
     bass_station::DisplayManager m_ssd1306_display_spi;
 
     /// @brief Manages the ADP5587 keyscanner/io expander chip
-    bass_station::KeypadManager m_ad5587_keypad_i2c;
+    bass_station::KeypadManager m_adp5587_keypad_i2c;
 
     /// @brief Manages the ADG2188 crosspoint switch chip
     adg2188::Driver m_synth_control_switch;
