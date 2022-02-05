@@ -46,7 +46,7 @@ public:
     /// @param ad5587_keypad_i2c The KeypadManager I2C interface        
     /// @param ad5587_keypad_debounce_timer  The KeypadManager debouce timer
     /// @param adg2188_control_sw_i2c The crosspoint switch I2C interface for controlling the synth notes
-    /// @param tlc5955_led_spi The LedManager SPI interface
+    /// @param led_spi_interface The LedManager SPI interface
     SequenceManager(
         TIM_TypeDef *sequencer_tempo_timer, 
         TIM_TypeDef *sequencer_encoder_timer,
@@ -55,7 +55,7 @@ public:
         I2C_TypeDef *ad5587_keypad_i2c,
         TIM_TypeDef *ad5587_keypad_debounce_timer,
         I2C_TypeDef *adg2188_control_sw_i2c,
-        tlc5955::DriverSerialInterface &tlc5955_led_spi);
+        tlc5955::DriverSerialInterface &led_spi_interface);
 
 private:
 

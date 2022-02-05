@@ -38,7 +38,7 @@ extern "C"
 
 void mainapp()
 {	
-	// initialise the timer used for microsecond timeout
+	// initialise the timer used for system wide microsecond timeout
 	stm32::TimerManager::initialise(TIM14);
 
 	// Timer peripheral for sequencer manager tempo control
@@ -47,8 +47,13 @@ void mainapp()
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
-	// SPI peripheral for display manager serial communication
-	ssd1306::DriverSerialInterface ssd1306_spi_interface(SPI1, SPI1_DC_GPIO_Port, SPI1_DC_Pin, SPI1_RESET_GPIO_Port, SPI1_RESET_Pin);
+	// SPI peripheral for SSD1306 display driver serial communication
+	ssd1306::DriverSerialInterface ssd1306_spi_interface(
+		SPI1, 
+		SPI1_DC_GPIO_Port, 
+		SPI1_DC_Pin, 
+		SPI1_RESET_GPIO_Port, 
+		SPI1_RESET_Pin);
 
 	// Timer peripheral for display manager refresh rate control
 	TIM_TypeDef *display_refresh_timer = TIM15;
@@ -62,6 +67,7 @@ void mainapp()
 	// I2C periperhal for synth output control switch serial communication
 	I2C_TypeDef *adg2188_control_sw_i2c = I2C2;
 
+	// SPI peripheral for TLC5955 LED driver serial communication
 	tlc5955::DriverSerialInterface tlc5955_spi_interface(
 		SPI2, 
 		TLC5955_SPI2_LAT_GPIO_Port, 
@@ -77,7 +83,6 @@ void mainapp()
 		LL_IOP_GRP1_PERIPH_GPIOB,
 		LL_APB1_GRP1_PERIPH_SPI2);
 
-	// SPI_TypeDef *tlc5955_led_spi = SPI2;
 	
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(

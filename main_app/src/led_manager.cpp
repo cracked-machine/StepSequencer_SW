@@ -25,7 +25,7 @@
 namespace bass_station 
 {
 
-LedManager::LedManager(tlc5955::DriverSerialInterface &spi_handle) : m_tlc5955_driver(tlc5955::Driver(spi_handle))
+LedManager::LedManager(tlc5955::DriverSerialInterface &serial_interface) : m_tlc5955_driver(tlc5955::Driver(serial_interface))
 {
 }
 
