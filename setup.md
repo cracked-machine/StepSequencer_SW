@@ -9,7 +9,7 @@ This project uses:
 - `cmake v3.22` to build the project. it is recommened to use VSCode with the `CMake tools` extension.
 - `SEGGER JLink` to debug the device. You will need to purchase [JLink probe from SEGGER](https://www.segger.com/products/debug-probes/j-link/).  You also need to install [JLink SW and doc pack](https://www.segger.com/downloads/jlink/)
 - `SEGGER RTT` to view printf output. JLinkRTTViewerExe is included in the JLink SW pack.
-- `STM32CubeIDE v1.6.1` to generate the startup file, linker script and the HAL related library files. _This IDE is not used to compile the project._
+- `STM32CubeIDE v1.6.1` to generate the startup file, linker script and the LL related library files. _This IDE is not used to compile the project._
 
 ## Installing the project
 

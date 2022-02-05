@@ -66,10 +66,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-// this macro is defined in HAL but we still want it when using LL or x86
-#if defined(X86_UNIT_TESTING_ONLY) || defined(USE_SSD1306_LL_DRIVER)
-    #define UNUSED(X) (void)X 
-#endif
+
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

@@ -53,13 +53,13 @@ if(TARGET_TYPE STREQUAL ARM)
         add_compile_definitions(USE_RTT)
     endif()
        
-    # build STM32 HAL as static lib
+    # build STM32 LL as static lib
     add_subdirectory(stm32cube_workspace)
-    # target_link_libraries(${BUILD_NAME} PRIVATE STM32CubeHAL)
     target_link_libraries(${BUILD_NAME} PUBLIC STM32CubeLL)
     target_include_directories(${BUILD_NAME} PUBLIC
         "${PROJECT_BINARY_DIR}"
         "${PROJECT_SOURCE_DIR}/stm32cube_workspace")
+        
 # add the x86-specific sources for host build
 elseif(TARGET_TYPE STREQUAL GNU)
     # setup catch2 testing framework
