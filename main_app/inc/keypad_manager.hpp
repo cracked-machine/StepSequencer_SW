@@ -63,8 +63,9 @@ private:
 
     /// @brief Store the last timer count for debounce
     uint32_t m_last_debounce_count_ms{0};
-    /// @brief Requirements fo debounce
-    uint32_t m_debounce_threshold_ms{500};    
+
+    /// @brief The allowable delay between pressing keys on the sequence keypad
+    const uint32_t m_debounce_threshold_ms{200};    
 };
 
 } // namespace bass_station
