@@ -97,7 +97,7 @@ SequenceManager::SequenceManager(
     LL_TIM_EnableCounter(m_sequencer_tempo_timer.get());
 	LL_TIM_EnableIT_UPDATE(m_sequencer_tempo_timer.get());
 
-    // DisplayManager needs to be enabled second
+    // Start the display refresh timer interrupts *after* the sequencer tempo timer interrupts
     m_ssd1306_display_spi.start_isr();
 }
 

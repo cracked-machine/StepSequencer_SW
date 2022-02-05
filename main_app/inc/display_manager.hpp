@@ -70,7 +70,7 @@ private:
     // @brief The font character map used
     ssd1306::Font5x7 m_font;
 
-    // @brief Manages the SSD1306 Display chip
+    // @brief SSD1306 OLED driver
     ssd1306::Driver m_oled;
     
     // @brief Timer for the OLED refresh rate
@@ -87,7 +87,7 @@ private:
         DisplayManager *m_display_man_ptr;
 		// @brief Register DisplayManager with STM32G0InterruptManager
 		// @param parent_driver_ptr the instance to register
-		void initialise(DisplayManager *display_man_ptr)
+		void register_display_manager(DisplayManager *display_man_ptr)
 		{
 			m_display_man_ptr = display_man_ptr;
 			// register this internal handler class in stm32::isr::STM32G0InterruptManager
