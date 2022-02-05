@@ -71,7 +71,7 @@ private:
     ssd1306::Font5x7 m_font;
 
     // @brief Manages the SSD1306 Display chip
-    ssd1306::Display m_oled;
+    ssd1306::Driver m_oled;
     
     // @brief Timer for the OLED refresh rate
     std::unique_ptr<TIM_TypeDef> m_refresh_timer;
