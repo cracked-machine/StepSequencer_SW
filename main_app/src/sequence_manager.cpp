@@ -68,7 +68,7 @@ std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceMan
 SequenceManager::SequenceManager(
     TIM_TypeDef* sequencer_tempo_timer, 
     TIM_TypeDef *sequencer_encoder_timer,
-    SPI_TypeDef *display_spi, 
+    ssd1306::DriverSerialInterface display_spi_interface, 
     TIM_TypeDef *display_refresh_timer,
     I2C_TypeDef *ad5587_keypad_i2c,
     TIM_TypeDef *ad5587_keypad_debounce_timer,
@@ -77,7 +77,7 @@ SequenceManager::SequenceManager(
     
     :   m_sequencer_tempo_timer(sequencer_tempo_timer), 
         m_sequencer_encoder_timer(sequencer_encoder_timer),
-        m_ssd1306_display_spi(bass_station::DisplayManager(display_spi, display_refresh_timer)),
+        m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface, display_refresh_timer)),
         m_ad5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, ad5587_keypad_debounce_timer)),
         m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
         m_led_manager(bass_station::LedManager(tlc5955_led_spi))

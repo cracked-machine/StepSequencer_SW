@@ -25,8 +25,8 @@
 namespace bass_station 
 {
 
-DisplayManager::DisplayManager(SPI_TypeDef * spi, TIM_TypeDef *timer) 
-: m_oled(ssd1306::Driver(spi, ssd1306::Driver::SPIDMA::enabled)),
+DisplayManager::DisplayManager(ssd1306::DriverSerialInterface display_spi_interface, TIM_TypeDef *timer) 
+: m_oled(ssd1306::Driver(display_spi_interface, ssd1306::Driver::SPIDMA::enabled)),
   m_refresh_timer(timer)
 {
     // init SSD1306 IC display driver

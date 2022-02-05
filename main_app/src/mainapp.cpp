@@ -48,7 +48,7 @@ void mainapp()
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
 	// SPI peripheral for display manager serial communication
-	SPI_TypeDef *display_spi = SPI1;
+	ssd1306::DriverSerialInterface ssd1306_spi_interface(SPI1, SPI1_DC_GPIO_Port, SPI1_DC_Pin, SPI1_RESET_GPIO_Port, SPI1_RESET_Pin);
 
 	// Timer peripheral for display manager refresh rate control
 	TIM_TypeDef *display_refresh_timer = TIM15;
@@ -69,7 +69,7 @@ void mainapp()
 	static bass_station::SequenceManager sequencer(
 		sequencer_tempo_timer, 
 		sequencer_encoder_timer,
-		display_spi, 
+		ssd1306_spi_interface, 
 		display_refresh_timer, 
 		ad5587_keypad_i2c, 
 		ad5587_debounce_timer,
