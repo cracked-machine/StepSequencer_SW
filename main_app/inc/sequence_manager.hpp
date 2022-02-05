@@ -62,11 +62,11 @@ private:
     NoteSwitchMapping m_previous_enabled_note{NoteSwitchMapping::e0};
 
     // The default sequence data
-    static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > key_data;
+    static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > sequence_data;
 
-    /// @brief Map holding the 32-step sequence pattern (Sequencer::key_data)
-    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()> m_sequence_map = 
-        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, key_data.size()>{{key_data}};
+    /// @brief Map holding the 32-step sequence pattern (Sequencer::sequence_data)
+    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, sequence_data.size()> m_sequence_map = 
+        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, sequence_data.size()>{{sequence_data}};
 
     /// @brief The timer for tempo of the sequencer
     std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;

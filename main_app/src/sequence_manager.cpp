@@ -26,7 +26,7 @@ namespace bass_station
 {
 
 // The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
-std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceManager::key_data = {{
+std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceManager::sequence_data = {{
     {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::OFF, NoteSwitchMapping::c0, default_colour, 0,   4,  16)},
     {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::OFF, NoteSwitchMapping::c0_sharp, default_colour, 1,   0,  17)},
     {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::OFF, NoteSwitchMapping::d0, default_colour, 2,   5,  18)},
