@@ -54,8 +54,9 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
         m_keypad_driver.KP_GPIO::C8 | m_keypad_driver.KP_GPIO::C9);
 
     // start the debounce timer for the keypad
+#if not defined(X86_UNIT_TESTING_ONLY)
     LL_TIM_EnableCounter(m_debounce_timer.get());        
-
+#endif
 }
 
 void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, 32U> &sequence_map)
@@ -74,6 +75,7 @@ void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Dr
         else
         {
             // only update the key if debounce conditions are met
+#if not defined(X86_UNIT_TESTING_ONLY)
             uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
             if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
             {
@@ -105,7 +107,7 @@ void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Dr
                 }
             }
             m_last_debounce_count_ms = timer_count_ms;
-
+#endif
             // store the index position of the user selected step for next key interrupt
             last_user_selected_key_idx = step->m_array_index;
         }

@@ -48,14 +48,15 @@ SequenceManager::SequenceManager(
 
     // enable the timer with a starting "tempo"
     m_sequencer_encoder_timer->CNT = 128;
+#if not defined(X86_UNIT_TESTING_ONLY)
     LL_TIM_EnableCounter(m_sequencer_encoder_timer.get());
-    
+
     // setup this class as timer callback
     // SequenceManager needs to be enabled first, because ISR has higher priority (0)
     m_sequencer_tempo_timer_isr_handler.initialise(this);
     LL_TIM_EnableCounter(m_sequencer_tempo_timer.get());
 	LL_TIM_EnableIT_UPDATE(m_sequencer_tempo_timer.get());
-
+#endif
     // Start the display refresh timer interrupts *after* the sequencer tempo timer interrupts
     m_ssd1306_display_spi.start_isr();
 }
@@ -73,8 +74,9 @@ void SequenceManager::tempo_timer_isr()
     increment_and_execute_sequence_step();
 
     // reset the UIF bit to re-enable interrupts
+#if not defined(X86_UNIT_TESTING_ONLY)
     LL_TIM_ClearFlag_UPDATE(m_sequencer_tempo_timer.get());
-
+#endif
 }
 
 void SequenceManager::update_display_and_tempo()
@@ -99,12 +101,13 @@ void SequenceManager::update_display_and_tempo()
     {
         // lookup the step position using the index of the last user selected key
         Step last_selected_step = m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second;
-        Note last_selected_step_note = last_selected_step.m_note;
+        [[maybe_unused]] Note last_selected_step_note = last_selected_step.m_note ;
         
         // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
         std::string direction{""};
         if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
         {
+#if not defined(X86_UNIT_TESTING_ONLY)
             if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
             {
                 direction += "up  ";
@@ -117,6 +120,7 @@ void SequenceManager::update_display_and_tempo()
                 m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
                     static_cast<Note>(last_selected_step_note - 1);                
             }
+#endif
         }
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FOUR, direction);
         m_last_encoder_value = m_sequencer_encoder_timer->CNT;

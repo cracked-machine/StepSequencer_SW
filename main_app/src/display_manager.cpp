@@ -38,8 +38,10 @@ DisplayManager::DisplayManager(ssd1306::DriverSerialInterface &display_spi_inter
 void DisplayManager::start_isr()
 {
     // enable the display resolution timer
+#if not defined(X86_UNIT_TESTING_ONLY)
     LL_TIM_EnableCounter(m_refresh_timer.get());
     LL_TIM_EnableIT_UPDATE(m_refresh_timer.get());
+#endif
 }
 
 void DisplayManager::set_display_line(DisplayLine line, std::string &msg)

@@ -23,9 +23,6 @@
 
 #include "mainapp.hpp"
 #include <display_manager.hpp>
-// #include <ssd1306.hpp>
-
-// Owns LedManager part
 #include <sequence_manager.hpp>
 #include <timer_manager.hpp>
 #include <adp5587.hpp>

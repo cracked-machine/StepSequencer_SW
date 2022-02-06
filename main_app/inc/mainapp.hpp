@@ -8,6 +8,12 @@
 #ifndef MAINAPP_HPP_
 #define MAINAPP_HPP_
 
+#if defined(X86_UNIT_TESTING_ONLY)
+	// only used when unit testing on x86
+    #include <mock_cmsis.hpp>
+	#include <iostream>
+#endif
+
 #ifdef __cplusplus
 	extern "C"
 	{
