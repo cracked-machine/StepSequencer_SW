@@ -44,6 +44,7 @@ add_subdirectory(cpp_tlc5955)               # led driver
 add_subdirectory(cpp_ssd1306)               # oled driver
 add_subdirectory(cpp_adp5587)               # keyscan/io expander driver
 add_subdirectory(cpp_adg2188)               # xpoint switch driver
+add_subdirectory(cpp_midi_stm32)
 
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
