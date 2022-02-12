@@ -16,3 +16,6 @@
 [submodule "stm32_interrupt_managers"]
 	path = stm32_interrupt_managers
 	url = https://github.com/cracked-machine/stm32_interrupt_managers
+[submodule "cpp_midi_stm32"]
+	path = cpp_midi_stm32
+	url = https://github.com/cracked-machine/cpp_midi_stm32
