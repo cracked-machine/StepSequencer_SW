@@ -22,7 +22,6 @@
 
 
 #include "mainapp.hpp"
-#include <display_manager.hpp>
 #include <sequence_manager.hpp>
 #include <timer_manager.hpp>
 #include <adp5587.hpp>
@@ -80,6 +79,12 @@ void mainapp()
 		LL_IOP_GRP1_PERIPH_GPIOB,
 		LL_APB1_GRP1_PERIPH_SPI2);
 
+	[[maybe_unused]] midi_stm32::DeviceInterface midi_usart_interface(
+		USART5,
+		stm32::isr::STM32G0InterruptManager::InterruptType::usart5,
+		TIM7,
+		stm32::isr::STM32G0InterruptManager::InterruptType::tim7
+	);
 	
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
@@ -90,7 +95,8 @@ void mainapp()
 		ad5587_keypad_i2c, 
 		ad5587_debounce_timer,
 		adg2188_control_sw_i2c, 
-		tlc5955_spi_interface);
+		tlc5955_spi_interface,
+		midi_usart_interface);
 
 	while(true)
 	{

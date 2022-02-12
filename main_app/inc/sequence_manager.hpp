@@ -29,6 +29,7 @@
 #include <keypad_manager.hpp>
 #include <static_map.hpp>
 #include <display_manager.hpp>
+#include <midi_stm32.hpp>
 
 namespace bass_station
 {
@@ -47,6 +48,7 @@ public:
     /// @param ad5587_keypad_debounce_timer  The KeypadManager debouce timer
     /// @param adg2188_control_sw_i2c The crosspoint switch I2C interface for controlling the synth notes
     /// @param led_spi_interface The LedManager SPI interface
+    /// @param midi_usart_interface The MIDI USART interface
     SequenceManager(
         TIM_TypeDef *sequencer_tempo_timer, 
         TIM_TypeDef *sequencer_encoder_timer,
@@ -55,7 +57,8 @@ public:
         I2C_TypeDef *ad5587_keypad_i2c,
         TIM_TypeDef *ad5587_keypad_debounce_timer,
         I2C_TypeDef *adg2188_control_sw_i2c,
-        tlc5955::DriverSerialInterface &led_spi_interface);
+        tlc5955::DriverSerialInterface &led_spi_interface,
+        midi_stm32::DeviceInterface &midi_usart_interface);
 
 private:
 
@@ -67,7 +70,7 @@ private:
     };
 
     // @brief The current mode (and its default)
-    Mode m_current_mode {Mode::NOTE_SELECT};
+    Mode m_current_mode {Mode::TEMPO_ADJUST};
 
     // @brief state variable for previous note
     NoteData *m_previous_enabled_note;
@@ -106,6 +109,8 @@ private:
 
     /// @brief Manages the TLC5955 chip
     bass_station::LedManager m_led_manager;
+
+    midi_stm32::Driver m_midi_driver;
 
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_step_position {0};
