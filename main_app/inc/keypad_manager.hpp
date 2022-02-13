@@ -49,7 +49,7 @@ public:
     /// @param key_events_list 
     void get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list);
     
-    /// @brief poll the ADP5587 keyscanner for the latest key event data
+    /// @brief poll (blocking) the ADP5587 keyscanner for the latest key event data
     /// and update the m_sequence map
     void process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
 
