@@ -30,6 +30,8 @@ namespace bass_station
 {
 
 // This class manages the SSD1306 driver for the 128x64 pixel OLED display
+// 1) update the display using a timer ISR callback (setup using the start_isr() function)
+// 2) manually call the update_oled() function to redraw the screen
 class DisplayManager
 {
 public:
@@ -57,6 +59,10 @@ public:
     // @param msg The text to write
     void set_display_line(DisplayLine line, std::string &msg);
 
+
+    // @brief redraw the display
+    void update_oled();
+
 private:
 
     // set some default values
@@ -76,11 +82,6 @@ private:
     // @brief Timer for the OLED refresh rate
     std::unique_ptr<TIM_TypeDef> m_refresh_timer;
 
-
-
-    // @brief update the display with m_display_line1 to m_display_line6
-    void update_oled();
-
 	struct TimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         // @brief the parent driver class
@@ -91,7 +92,7 @@ private:
 		{
 			m_display_man_ptr = display_man_ptr;
 			// register this internal handler class in stm32::isr::STM32G0InterruptManager
-			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim15, this);
+			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim16, this);
 		}        
         // @brief The callback used by STM32G0InterruptManager
 		virtual void ISR()
