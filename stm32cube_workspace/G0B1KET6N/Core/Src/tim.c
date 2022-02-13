@@ -87,6 +87,36 @@ void MX_TIM1_Init(void)
   /* USER CODE END TIM1_Init 2 */
 
 }
+/* TIM3 init function */
+void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  TIM_InitStruct.Prescaler = 24;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 65535;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM3, &TIM_InitStruct);
+  LL_TIM_EnableARRPreload(TIM3);
+  LL_TIM_SetClockSource(TIM3, LL_TIM_CLOCKSOURCE_INTERNAL);
+  LL_TIM_SetTriggerOutput(TIM3, LL_TIM_TRGO_RESET);
+  LL_TIM_DisableMasterSlaveMode(TIM3);
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
 /* TIM4 init function */
 void MX_TIM4_Init(void)
 {
@@ -158,9 +188,9 @@ void MX_TIM7_Init(void)
   NVIC_EnableIRQ(TIM7_LPTIM2_IRQn);
 
   /* USER CODE BEGIN TIM7_Init 1 */
-
+  // MIDI heartbeat
   /* USER CODE END TIM7_Init 1 */
-  TIM_InitStruct.Prescaler = 24;
+  TIM_InitStruct.Prescaler = 19;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 65535;
   LL_TIM_Init(TIM7, &TIM_InitStruct);
@@ -186,7 +216,7 @@ void MX_TIM14_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM14);
 
   /* TIM14 interrupt Init */
-  NVIC_SetPriority(TIM14_IRQn, 0);
+  NVIC_SetPriority(TIM14_IRQn, 1);
   NVIC_EnableIRQ(TIM14_IRQn);
 
   /* USER CODE BEGIN TIM14_Init 1 */
@@ -208,7 +238,7 @@ void MX_TIM15_Init(void)
 {
 
   /* USER CODE BEGIN TIM15_Init 0 */
-  // Display Manager timer
+  // Sequence Manager (tempo) timer
   /* USER CODE END TIM15_Init 0 */
 
   LL_TIM_InitTypeDef TIM_InitStruct = {0};
@@ -223,7 +253,7 @@ void MX_TIM15_Init(void)
   /* USER CODE BEGIN TIM15_Init 1 */
 
   /* USER CODE END TIM15_Init 1 */
-  TIM_InitStruct.Prescaler = 2048;
+  TIM_InitStruct.Prescaler = 128;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 65535;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
@@ -243,7 +273,7 @@ void MX_TIM16_Init(void)
 {
 
   /* USER CODE BEGIN TIM16_Init 0 */
-  // Sequence Manager timer
+  // Display Manager timer
   /* USER CODE END TIM16_Init 0 */
 
   LL_TIM_InitTypeDef TIM_InitStruct = {0};
@@ -252,13 +282,13 @@ void MX_TIM16_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM16);
 
   /* TIM16 interrupt Init */
-  NVIC_SetPriority(TIM16_FDCAN_IT0_IRQn, 0);
+  NVIC_SetPriority(TIM16_FDCAN_IT0_IRQn, 1);
   NVIC_EnableIRQ(TIM16_FDCAN_IT0_IRQn);
 
   /* USER CODE BEGIN TIM16_Init 1 */
 
   /* USER CODE END TIM16_Init 1 */
-  TIM_InitStruct.Prescaler = 128;
+  TIM_InitStruct.Prescaler = 2048;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 65535;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;

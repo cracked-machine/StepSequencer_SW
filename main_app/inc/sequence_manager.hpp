@@ -60,6 +60,8 @@ public:
         tlc5955::DriverSerialInterface &led_spi_interface,
         midi_stm32::DeviceInterface &midi_usart_interface);
 
+        void start_loop();
+
 private:
 
     // @brief List of operation modes for the sequencer
@@ -94,6 +96,7 @@ private:
 
     /// @brief The timer for tempo of the sequencer
     std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;
+    std::pair<std::unique_ptr<TIM_TypeDef>, stm32::isr::STM32G0InterruptManager::InterruptType> m_tempo_timer;
 
     /// @brief The timer used for rotary encoder
     std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
@@ -131,7 +134,7 @@ private:
 		{
 			m_seq_man_ptr = seq_man_ptr;
 			// register pointer to this handler class in stm32::isr::STM32G0InterruptManager
-			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim16, this);
+			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim15, this);
 		}        
         /// @brief The callback used by STM32G0InterruptManager
 		virtual void ISR()

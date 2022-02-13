@@ -61,34 +61,42 @@ SequenceManager::SequenceManager(
         LL_TIM_EnableIT_UPDATE(m_sequencer_tempo_timer.get());
     #endif
     
-    m_midi_driver.send_realtime_start_msg();
-
     // Start the display refresh timer interrupts *after* the sequencer tempo timer interrupts
-    m_ssd1306_display_spi.start_isr();
+    // m_ssd1306_display_spi.start_isr();
 
+    // interrupts are now enabled!
+}
+
+void SequenceManager::start_loop()
+{
+    m_midi_driver.send_realtime_start_msg();
     
+    while(true)
+    {
+        // probably needs its own timer callback as this will become less responsive at slower tempos
+        update_display_and_tempo();
 
-    // interrupts are enabled!
+        // redraw the display contents
+        m_ssd1306_display_spi.update_oled();
+
+        // get latest key events from adp5587 (the sequencer pattern buttons)
+        m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
+       
+    }
 }
 
 void SequenceManager::tempo_timer_isr()
 {
-    // probably needs its own timer callback as this will become less responsive at slower tempos
-    update_display_and_tempo();
-
-    // get latest key events from adp5587
-    m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
-
-
-    // update the LED and synth control switch for the next sequence position
-    increment_and_execute_sequence_step();
+    // update the next pattern LED and synth note
+    increment_and_execute_sequence_step(); 
 
     // reset the UIF bit to re-enable interrupts
     #if not defined(X86_UNIT_TESTING_ONLY)
         LL_TIM_ClearFlag_UPDATE(m_sequencer_tempo_timer.get());
     #endif
 
-    // m_midi_driver.send_realtime_clock_msg();
+    // send the heartbeat clock signal to the MIDI OUT port
+    m_midi_driver.send_realtime_clock_msg();
 }
 
 void SequenceManager::update_display_and_tempo()

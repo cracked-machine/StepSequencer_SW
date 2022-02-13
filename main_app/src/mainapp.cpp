@@ -38,7 +38,7 @@ void mainapp()
 	stm32::TimerManager::initialise(TIM14);
 
 	// Timer peripheral for sequencer manager tempo control
-	TIM_TypeDef *sequencer_tempo_timer = TIM16;
+	TIM_TypeDef *sequencer_tempo_timer = TIM15;
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
@@ -52,7 +52,7 @@ void mainapp()
 		SPI1_RESET_Pin);
 
 	// Timer peripheral for display manager refresh rate control
-	TIM_TypeDef *display_refresh_timer = TIM15;
+	TIM_TypeDef *display_refresh_timer = TIM16;
 
 	// I2C peripheral for keypad manager serial communication
 	I2C_TypeDef *ad5587_keypad_i2c = I2C3;
@@ -86,6 +86,12 @@ void mainapp()
 		stm32::isr::STM32G0InterruptManager::InterruptType::tim7
 	);
 	
+	std::pair<std::unique_ptr<TIM_TypeDef>, stm32::isr::STM32G0InterruptManager::InterruptType> tempo_timer 
+	{
+		TIM15,
+		stm32::isr::STM32G0InterruptManager::InterruptType::tim15
+	};
+
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
 		sequencer_tempo_timer, 
@@ -98,10 +104,8 @@ void mainapp()
 		tlc5955_spi_interface,
 		midi_usart_interface);
 
-	while(true)
-	{
-		// main loop; do nothing here
-	}
+	sequencer.start_loop();
+	// we should never get here	
 }
 
 #ifdef __cplusplus

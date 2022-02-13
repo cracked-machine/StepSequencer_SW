@@ -62,7 +62,7 @@ void MX_USART5_UART_Init(void)
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USART5 interrupt Init */
-  NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 0);
+  NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 1);
   NVIC_EnableIRQ(USART3_4_5_6_LPUART1_IRQn);
 
   /* USER CODE BEGIN USART5_Init 1 */
