@@ -82,8 +82,8 @@ void mainapp()
 	[[maybe_unused]] midi_stm32::DeviceInterface midi_usart_interface(
 		USART5,
 		stm32::isr::STM32G0InterruptManager::InterruptType::usart5,
-		TIM7,
-		stm32::isr::STM32G0InterruptManager::InterruptType::tim7
+		TIM3,
+		stm32::isr::STM32G0InterruptManager::InterruptType::tim3
 	);
 
 	// initialise the sequencer

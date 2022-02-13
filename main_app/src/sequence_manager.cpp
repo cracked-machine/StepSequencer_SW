@@ -96,7 +96,7 @@ void SequenceManager::tempo_timer_isr()
     #endif
 
     // send the heartbeat clock signal to the MIDI OUT port
-    m_midi_driver.send_realtime_clock_msg();
+    // m_midi_driver.send_realtime_clock_msg();
 }
 
 void SequenceManager::update_display_and_tempo()
