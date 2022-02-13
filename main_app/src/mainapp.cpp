@@ -38,7 +38,7 @@ void mainapp()
 	stm32::TimerManager::initialise(TIM14);
 
 	// Timer peripheral for sequencer manager tempo control
-	TIM_TypeDef *sequencer_tempo_timer = TIM15;
+	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM15, stm32::isr::STM32G0InterruptManager::InterruptType::tim15};
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
@@ -85,16 +85,10 @@ void mainapp()
 		TIM7,
 		stm32::isr::STM32G0InterruptManager::InterruptType::tim7
 	);
-	
-	std::pair<std::unique_ptr<TIM_TypeDef>, stm32::isr::STM32G0InterruptManager::InterruptType> tempo_timer 
-	{
-		TIM15,
-		stm32::isr::STM32G0InterruptManager::InterruptType::tim15
-	};
 
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
-		sequencer_tempo_timer, 
+		sequencer_tempo_timer_pair,
 		sequencer_encoder_timer,
 		ssd1306_spi_interface, 
 		display_refresh_timer, 

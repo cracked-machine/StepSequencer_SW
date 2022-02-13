@@ -26,7 +26,7 @@ namespace bass_station
 {
 
 SequenceManager::SequenceManager(
-    TIM_TypeDef* sequencer_tempo_timer, 
+    tempo_timer_pair_t &tempo_timer_pair,
     TIM_TypeDef *sequencer_encoder_timer,
     ssd1306::DriverSerialInterface &display_spi_interface, 
     TIM_TypeDef *display_refresh_timer,
@@ -36,7 +36,7 @@ SequenceManager::SequenceManager(
     tlc5955::DriverSerialInterface &led_spi_interface,
     midi_stm32::DeviceInterface &midi_usart_interface) 
     
-    :   m_sequencer_tempo_timer(sequencer_tempo_timer), 
+    :   m_tempo_timer_pair(tempo_timer_pair),
         m_sequencer_encoder_timer(sequencer_encoder_timer),
         m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface, display_refresh_timer)),
         m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, ad5587_keypad_debounce_timer)),
@@ -57,8 +57,8 @@ SequenceManager::SequenceManager(
         // setup this class as timer callback
         // SequenceManager needs to be enabled first, because ISR has higher priority (0)
         m_sequencer_tempo_timer_isr_handler.initialise(this);
-        LL_TIM_EnableCounter(m_sequencer_tempo_timer.get());
-        LL_TIM_EnableIT_UPDATE(m_sequencer_tempo_timer.get());
+        LL_TIM_EnableCounter(m_tempo_timer_pair.first);
+        LL_TIM_EnableIT_UPDATE(m_tempo_timer_pair.first);
     #endif
     
     // Start the display refresh timer interrupts *after* the sequencer tempo timer interrupts
@@ -92,7 +92,7 @@ void SequenceManager::tempo_timer_isr()
 
     // reset the UIF bit to re-enable interrupts
     #if not defined(X86_UNIT_TESTING_ONLY)
-        LL_TIM_ClearFlag_UPDATE(m_sequencer_tempo_timer.get());
+        LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
     #endif
 
     // send the heartbeat clock signal to the MIDI OUT port
@@ -108,15 +108,15 @@ void SequenceManager::update_display_and_tempo()
     
     // update the display with the encoder count value (using the PSC as a shadow value if Mode::NOTE_SELECT)
     std::string encoder_pos{"Tempo: "};
-    encoder_pos += std::to_string(m_sequencer_tempo_timer->PSC) + "   ";
+    encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);          
 
     if (m_current_mode == Mode::TEMPO_ADJUST)
     {
         // update the sequencer tempo (prescaler) 
         // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
-        m_sequencer_tempo_timer->PSC = m_sequencer_encoder_timer->CNT;  
-        // m_midi_driver.set_tempo_bpm(m_sequencer_tempo_timer->PSC);  
+        m_tempo_timer_pair.first->PSC = m_sequencer_encoder_timer->CNT;  
+        // m_midi_driver.set_tempo_bpm(m_tempo_timer_pair.first->PSC);  
     }
     else if (m_current_mode == Mode::NOTE_SELECT)
     {

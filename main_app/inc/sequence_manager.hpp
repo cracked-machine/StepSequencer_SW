@@ -34,13 +34,15 @@
 namespace bass_station
 {
 
+using tempo_timer_pair_t = std::pair<TIM_TypeDef*, stm32::isr::STM32G0InterruptManager::InterruptType>;
+
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
 {
 public:
 
     /// @brief Construct a new Sequence Manager
-    /// @param sequencer_tempo_timer The SequenceManager timer for looping the sequence pattern
+    /// @param sequencer_tempo_timer_pair The SequenceManager tempo timer (and its InterruptType) for keeping tempo
     /// @param sequencer_encoder_timer The SequenceManager rotary encoder interface
     /// @param display_spi The DisplayManager SPI interface
     /// @param display_refresh_timer The DisplayManager refresh rate timer
@@ -50,7 +52,7 @@ public:
     /// @param led_spi_interface The LedManager SPI interface
     /// @param midi_usart_interface The MIDI USART interface
     SequenceManager(
-        TIM_TypeDef *sequencer_tempo_timer, 
+        tempo_timer_pair_t &tempo_timer_pair,
         TIM_TypeDef *sequencer_encoder_timer,
         ssd1306::DriverSerialInterface &display_spi, 
         TIM_TypeDef *display_refresh_timer,
@@ -95,8 +97,7 @@ private:
         noarch::containers::StaticMap< Note, NoteData, m_note_switch_data.size()>{{ m_note_switch_data }};
 
     /// @brief The timer for tempo of the sequencer
-    std::unique_ptr<TIM_TypeDef> m_sequencer_tempo_timer;
-    std::pair<std::unique_ptr<TIM_TypeDef>, stm32::isr::STM32G0InterruptManager::InterruptType> m_tempo_timer;
+    tempo_timer_pair_t m_tempo_timer_pair;
 
     /// @brief The timer used for rotary encoder
     std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
@@ -122,7 +123,7 @@ private:
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
-    /// @brief Registers ISR callback with STM32G0InterruptManage
+    /// @brief Registers Tempo Timer ISR callback with STM32G0InterruptManage
     struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
 	{
         /// @brief the parent driver class
@@ -134,7 +135,7 @@ private:
 		{
 			m_seq_man_ptr = seq_man_ptr;
 			// register pointer to this handler class in stm32::isr::STM32G0InterruptManager
-			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim15, this);
+			stm32::isr::STM32G0InterruptManager::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
 		}        
         /// @brief The callback used by STM32G0InterruptManager
 		virtual void ISR()
