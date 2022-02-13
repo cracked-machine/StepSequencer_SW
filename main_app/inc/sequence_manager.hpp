@@ -154,7 +154,8 @@ private:
 
     /// @brief Runs the note/step sequence
     /// @param run_demo_only 
-    void increment_and_execute_sequence_step(bool run_demo_only = false);
+    void execute_next_sequence_step(bool run_demo_only = false);
+
 };
 
 

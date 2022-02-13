@@ -35,10 +35,18 @@ extern "C"
 void mainapp()
 {	
 	// initialise the timer used for system wide microsecond timeout
-	stm32::TimerManager::initialise(TIM14);
+	stm32::TimerManager::initialise(TIM6);
+
+	// The USART and Timer used to send the MIDI heartbeat
+	[[maybe_unused]] midi_stm32::DeviceInterface midi_usart_interface(
+		USART5,
+		stm32::isr::STM32G0InterruptManager::InterruptType::usart5,
+		TIM3,
+		stm32::isr::STM32G0InterruptManager::InterruptType::tim3
+	);
 
 	// Timer peripheral for sequencer manager tempo control
-	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM15, stm32::isr::STM32G0InterruptManager::InterruptType::tim15};
+	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM2, stm32::isr::STM32G0InterruptManager::InterruptType::tim2};
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
@@ -79,12 +87,7 @@ void mainapp()
 		LL_IOP_GRP1_PERIPH_GPIOB,
 		LL_APB1_GRP1_PERIPH_SPI2);
 
-	[[maybe_unused]] midi_stm32::DeviceInterface midi_usart_interface(
-		USART5,
-		stm32::isr::STM32G0InterruptManager::InterruptType::usart5,
-		TIM3,
-		stm32::isr::STM32G0InterruptManager::InterruptType::tim3
-	);
+
 
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(

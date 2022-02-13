@@ -107,10 +107,11 @@ int main(void)
   MX_I2C3_Init();
   MX_I2C2_Init();
   MX_TIM16_Init();
-  MX_TIM15_Init();
   MX_TIM1_Init();
   MX_USART5_UART_Init();
   MX_TIM3_Init();
+  MX_TIM6_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 #ifdef USE_RTT
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
@@ -174,7 +175,6 @@ void SystemClock_Config(void)
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
   LL_SetSystemCoreClock(64000000);
   LL_RCC_SetTIMClockSource(LL_RCC_TIM1_CLKSOURCE_PCLK1);
-  LL_RCC_SetTIMClockSource(LL_RCC_TIM15_CLKSOURCE_PCLK1);
   LL_RCC_SetI2CClockSource(LL_RCC_I2C2_CLKSOURCE_PCLK1);
 }
 

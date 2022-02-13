@@ -57,8 +57,13 @@ SequenceManager::SequenceManager(
         // setup this class as timer callback
         // SequenceManager needs to be enabled first, because ISR has higher priority (0)
         m_sequencer_tempo_timer_isr_handler.initialise(this);
+        
         LL_TIM_EnableCounter(m_tempo_timer_pair.first);
         LL_TIM_EnableIT_UPDATE(m_tempo_timer_pair.first);
+        // LL_TIM_EnableIT_TRIG(m_tempo_timer_pair.first);
+        // LL_TIM_CC_EnableChannel(m_tempo_timer_pair.first, LL_TIM_CHANNEL_CH1);
+        // LL_TIM_EnableIT_CC1(m_tempo_timer_pair.first);
+
     #endif
     
     // Start the display refresh timer interrupts *after* the sequencer tempo timer interrupts
@@ -69,6 +74,7 @@ SequenceManager::SequenceManager(
 
 void SequenceManager::start_loop()
 {
+    // start connected MIDI device now and start timer to send heartbeat 
     m_midi_driver.send_realtime_start_msg();
     
     while(true)
@@ -81,23 +87,31 @@ void SequenceManager::start_loop()
 
         // get latest key events from adp5587 (the sequencer pattern buttons)
         m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
-       
+   
+        // update the next pattern LED and synth note
+        execute_next_sequence_step(); 
     }
 }
 
 void SequenceManager::tempo_timer_isr()
 {
-    // update the next pattern LED and synth note
-    increment_and_execute_sequence_step(); 
 
+    
     // reset the UIF bit to re-enable interrupts
     #if not defined(X86_UNIT_TESTING_ONLY)
         LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
+        // LL_TIM_ClearFlag_TRIG(m_tempo_timer_pair.first);
+        // LL_TIM_ClearFlag_CC1(m_tempo_timer_pair.first);
     #endif
 
     // send the heartbeat clock signal to the MIDI OUT port
     // m_midi_driver.send_realtime_clock_msg();
+
+    // increment the step position in the pattern
+    (m_step_position >= m_sequencer_key_mapping.size() -1) ? m_step_position = 0: m_step_position++;
+ 
 }
+
 
 void SequenceManager::update_display_and_tempo()
 {
@@ -161,7 +175,7 @@ void SequenceManager::update_display_and_tempo()
     }     
 }
 
-void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
+void SequenceManager::execute_next_sequence_step(bool run_demo_only)
 {
     if (run_demo_only)
     {
@@ -234,8 +248,7 @@ void SequenceManager::increment_and_execute_sequence_step(bool run_demo_only)
         current_step.m_colour = previous_colour;
         current_step.m_key_state = previous_key_state;
 
-        // increment the current step position
-        (m_step_position >= m_sequencer_key_mapping.size() -1) ? m_step_position = 0: m_step_position++;
+        
     }
 }
 
@@ -270,7 +283,7 @@ std::array< std::pair< Note, NoteData>, 25> SequenceManager::m_note_switch_data 
 
 // The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
 std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceManager::m_sequence_data = {{
-    {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::OFF, Note::c0, default_colour,         0,   4,  0)},
+    {adp5587::Driver::KeyPadMappings::A0_ON, Step(KeyState::ON, Note::c0, default_colour,         0,   4,  0)},
     {adp5587::Driver::KeyPadMappings::A1_ON, Step(KeyState::OFF, Note::c0_sharp, default_colour,   1,   0,  1)},
     {adp5587::Driver::KeyPadMappings::A2_ON, Step(KeyState::OFF, Note::d0, default_colour,         2,   5,  2)},
     {adp5587::Driver::KeyPadMappings::A3_ON, Step(KeyState::OFF, Note::d0_sharp, default_colour,   3,   1,  3)},
@@ -279,7 +292,7 @@ std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceMan
     {adp5587::Driver::KeyPadMappings::A6_ON, Step(KeyState::OFF, Note::f0_sharp, default_colour,   6,   3,  6)},
     {adp5587::Driver::KeyPadMappings::A7_ON, Step(KeyState::OFF, Note::g0, default_colour,         7,   7,  7)},
 
-    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::OFF, Note::e1, default_colour,       8,   11, 8)},
+    {adp5587::Driver::KeyPadMappings::B0_ON, Step(KeyState::ON, Note::e1, default_colour,       8,   11, 8)},
     {adp5587::Driver::KeyPadMappings::B1_ON, Step(KeyState::OFF, Note::c1, default_colour,         9,   15, 9)},
     {adp5587::Driver::KeyPadMappings::B2_ON, Step(KeyState::OFF, Note::c0, default_colour,         10,  10, 10)},
     {adp5587::Driver::KeyPadMappings::B3_ON, Step(KeyState::OFF, Note::c1, default_colour,         11,  14, 11)},
@@ -297,7 +310,7 @@ std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > SequenceMan
     {adp5587::Driver::KeyPadMappings::C6_ON, Step(KeyState::OFF, Note::a2_sharp, default_colour,   6,   0,  22)},
     {adp5587::Driver::KeyPadMappings::C7_ON, Step(KeyState::OFF, Note::b2, default_colour,         7,   4,  23)},  
 
-    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::OFF, Note::c2, default_colour,         8,   8,  24)},
+    {adp5587::Driver::KeyPadMappings::D0_ON, Step(KeyState::ON, Note::c2, default_colour,         8,   8,  24)},
     {adp5587::Driver::KeyPadMappings::D1_ON, Step(KeyState::OFF, Note::c1, default_colour,         9,   12, 25)},
     {adp5587::Driver::KeyPadMappings::D2_ON, Step(KeyState::OFF, Note::c0, default_colour,         10,  9,  26)},
     {adp5587::Driver::KeyPadMappings::D3_ON, Step(KeyState::OFF, Note::c1, default_colour,         11,  13, 27)},
