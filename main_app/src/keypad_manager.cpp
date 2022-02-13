@@ -75,39 +75,39 @@ void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Dr
         else
         {
             // only update the key if debounce conditions are met
-#if not defined(X86_UNIT_TESTING_ONLY)
-            uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
-            if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
-            {
-                if (step->m_key_state == KeyState::ON)
+            #if not defined(X86_UNIT_TESTING_ONLY)
+                uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+                if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
                 {
-                    if (step->m_colour == default_colour)
+                    if (step->m_key_state == KeyState::ON)
                     {
-                        // the key was ON but not highlighted, user selected it so lets highlight it
-                        step->m_colour = user_select_colour;
+                        if (step->m_colour == default_colour)
+                        {
+                            // the key was ON but not highlighted, user selected it so lets highlight it
+                            step->m_colour = user_select_colour;
+                        }
+                        else
+                        {
+                            // the key was ON and already highlighted, user selected it so lets switch it off completely
+                            step->m_colour = default_colour;
+                            step->m_key_state = KeyState::OFF;
+                        }
                     }
                     else
                     {
-                        // the key was ON and already highlighted, user selected it so lets switch it off completely
-                        step->m_colour = default_colour;
-                        step->m_key_state = KeyState::OFF;
+                        // the key was OFF, user selected it so lets highlight it and switch it on!
+                        step->m_colour = user_select_colour;
+                        step->m_key_state = KeyState::ON;
+                    }
+                
+                    // de-highlight the previously highlighted key...unless we just selected the same key again, then skip
+                    if (last_user_selected_key_idx != step->m_array_index)
+                    {
+                        sequence_map.data.at(last_user_selected_key_idx).second.m_colour = default_colour;
                     }
                 }
-                else
-                {
-                    // the key was OFF, user selected it so lets highlight it and switch it on!
-                    step->m_colour = user_select_colour;
-                    step->m_key_state = KeyState::ON;
-                }
-            
-                // de-highlight the previously highlighted key...unless we just selected the same key again, then skip
-                if (last_user_selected_key_idx != step->m_array_index)
-                {
-                    sequence_map.data.at(last_user_selected_key_idx).second.m_colour = default_colour;
-                }
-            }
-            m_last_debounce_count_ms = timer_count_ms;
-#endif
+                m_last_debounce_count_ms = timer_count_ms;
+            #endif
             // store the index position of the user selected step for next key interrupt
             last_user_selected_key_idx = step->m_array_index;
         }
