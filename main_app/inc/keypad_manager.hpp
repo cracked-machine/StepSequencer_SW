@@ -77,10 +77,10 @@ private:
     uint32_t m_last_debounce_count_ms{0};
 
     /// @brief The allowable delay between pressing keys on the sequence keypad
-    const uint32_t m_debounce_threshold_ms{250};    
+    const uint32_t m_debounce_threshold_ms{400};    
 
-    static constexpr uint8_t StartButtonID = static_cast<int>(adp5587::Driver::GPIKeyMappings::C8) | static_cast<int>(adp5587::Driver::GPIKeyMappings::ON);
-    static constexpr uint8_t StopButtonID = static_cast<int>(adp5587::Driver::GPIKeyMappings::C7) | static_cast<int>(adp5587::Driver::GPIKeyMappings::ON);
+    static constexpr uint8_t StartButtonID = static_cast<uint8_t>(adp5587::Driver::GPIKeyMappings::C8 | adp5587::Driver::GPIKeyMappings::ON);
+    static constexpr uint8_t StopButtonID = static_cast<uint8_t>(adp5587::Driver::GPIKeyMappings::C7 | adp5587::Driver::GPIKeyMappings::ON);
 };
 
 } // namespace bass_station
