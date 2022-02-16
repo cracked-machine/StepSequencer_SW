@@ -156,6 +156,9 @@ private:
     /// @param run_demo_only 
     void execute_next_sequence_step(bool run_demo_only = false);
 
+    UserKeyStates m_midi_state{UserKeyStates::RUNNING};
+    UserKeyStates m_sequencer_state{UserKeyStates::RUNNING};
+
 };
 
 

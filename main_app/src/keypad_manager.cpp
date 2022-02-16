@@ -41,16 +41,16 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
         (m_keypad_driver.KP_GPIO::C0 | m_keypad_driver.KP_GPIO::C1 | m_keypad_driver.KP_GPIO::C2 | m_keypad_driver.KP_GPIO::C3),
         0x00);
 
-    // 3) Select the two columns for GPIO interrupts
+    // 3) Enable interrupts on GPIO inputs
     m_keypad_driver.gpio_interrupt_select(
         0x00,
         0x00,
         m_keypad_driver.KP_GPIO::C8 | m_keypad_driver.KP_GPIO::C9);
     
-    // 4) Select the two columns for inclusion in the key event FIFO registers
+    // 4) set GPIO inputs for inclusion in the key event FIFO registers
     m_keypad_driver.gpio_fifo_select(
         0x00,
-        0x00,
+        m_keypad_driver.KP_GPIO::C4 | m_keypad_driver.KP_GPIO::C5 | m_keypad_driver.KP_GPIO::C6 | m_keypad_driver.KP_GPIO::C7,
         m_keypad_driver.KP_GPIO::C8 | m_keypad_driver.KP_GPIO::C9);
 
     // start the debounce timer for the keypad
@@ -59,8 +59,9 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
 #endif
 }
 
-void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, 32U> &sequence_map)
+UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, 32U> &sequence_map)
 {
+    UserKeyStates running_status {UserKeyStates::IDLE};
 
     // get the key events FIFO list from the ADP5587 driver 
     std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
@@ -69,16 +70,27 @@ void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Dr
     // process each key event in turn (if any)
     for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
     {
-        // find the key event that matches the sequence step
-        Step *step = sequence_map.find_key(key_event);
-        if(step == nullptr) { /* no match found in map */ }
-        else
+        // only update the key if debounce conditions are met
+        uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+        if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
         {
-            // only update the key if debounce conditions are met
-            #if not defined(X86_UNIT_TESTING_ONLY)
-                uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
-                if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
-                {
+            switch(static_cast<int>(key_event))
+            {
+                case StartButtonID:
+                    running_status = UserKeyStates::RUNNING;
+                break;
+                case StopButtonID:
+                    running_status = UserKeyStates::STOPPED;
+                break;
+            }
+
+            // find the key event that matches the sequence step
+            Step *step = sequence_map.find_key(key_event);
+            if(step == nullptr) { /* no match found in map */ }
+            else
+            {
+                #if not defined(X86_UNIT_TESTING_ONLY)
+
                     if (step->m_key_state == KeyState::ON)
                     {
                         if (step->m_colour == default_colour)
@@ -105,13 +117,18 @@ void KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Dr
                     {
                         sequence_map.data.at(last_user_selected_key_idx).second.m_colour = default_colour;
                     }
-                }
-                m_last_debounce_count_ms = timer_count_ms;
-            #endif
-            // store the index position of the user selected step for next key interrupt
-            last_user_selected_key_idx = step->m_array_index;
+
+                #endif
+                
+                // store the index position of the user selected step for next key interrupt
+                last_user_selected_key_idx = step->m_array_index;
+            }
+            m_last_debounce_count_ms = timer_count_ms;  
         }
+        
     }
+
+    return running_status;
 }
 
 void KeypadManager::get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list)

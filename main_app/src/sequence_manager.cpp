@@ -86,10 +86,44 @@ void SequenceManager::start_loop()
         m_ssd1306_display_spi.update_oled();
 
         // get latest key events from adp5587 (the sequencer pattern buttons)
-        m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
+        // UserKeyStates previous_state = m_running_state;
+        UserKeyStates new_state = m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
+        
+        // update the midi running state/heartbeat 
+        switch(new_state)
+        {
+            case UserKeyStates::RUNNING:
+                m_midi_driver.send_realtime_start_msg();
+                m_midi_state = UserKeyStates::RUNNING;  
+                m_sequencer_state = UserKeyStates::RUNNING;  
+                break;
+            case UserKeyStates::STOPPED:
+                m_midi_driver.send_realtime_stop_msg();
+                m_midi_state = UserKeyStates::STOPPED;
+                m_sequencer_state = UserKeyStates::STOPPED;  
+                break;
+            case UserKeyStates::IDLE:
+                // execute_next_sequence_step(); 
+                break;
+        }
+    
+        // update the sequencer running state/tempo timer
+        switch(m_sequencer_state)
+        {
+            case UserKeyStates::RUNNING:
+                LL_TIM_EnableCounter(m_tempo_timer_pair.first);
+                LL_TIM_EnableIT_UPDATE(m_tempo_timer_pair.first);
+                execute_next_sequence_step();
+                break;
+            default:
+                LL_TIM_DisableCounter(m_tempo_timer_pair.first);
+                LL_TIM_DisableIT_UPDATE(m_tempo_timer_pair.first);            
+                break;
+        }
+    
+
    
-        // update the next pattern LED and synth note
-        execute_next_sequence_step(); 
+
     }
 }
 

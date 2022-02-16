@@ -32,8 +32,17 @@
 //  UpperRow    131/3   141/13  151/23  161/33  171/43  181/53  191/63  201/73  132/4   142/14  152/24  162/34  172/44  182/54  192/64  202/74
 //  LowerRow    129/1   139/11  149/21  159/31  169/41  179/51  189/61  199/71  130/2   140/12  150/22  160/32  170/42  180/52  190/62  200/72
 
+
 namespace bass_station
 {
+
+enum class UserKeyStates
+{
+    STOPPED,
+    RUNNING,
+    IDLE,
+};
+
 
 /// @brief This is really just a wrapper for the ADP5587 driver at the moment
 /// @todo Some of the SequenceManager functionality should be moved into here at some point...
@@ -49,9 +58,10 @@ public:
     /// @param key_events_list 
     void get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list);
     
-    /// @brief poll (blocking) the ADP5587 keyscanner for the latest key event data
-    /// and update the m_sequence map
-    void process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
+    /// @brief Update step_sequence map param with latest Keypad events and return the latest UserKey press.
+    // @param step_sequence The map object containing current pattern data
+    // @return UserKeyStates Latest UserKey press
+    UserKeyStates process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
 
     // store the index of the last key selected by the user. We can use this index to lookup the position in the StaticMap later on.
     uint8_t last_user_selected_key_idx{0};
@@ -67,7 +77,10 @@ private:
     uint32_t m_last_debounce_count_ms{0};
 
     /// @brief The allowable delay between pressing keys on the sequence keypad
-    const uint32_t m_debounce_threshold_ms{200};    
+    const uint32_t m_debounce_threshold_ms{250};    
+
+    static constexpr uint8_t StartButtonID = static_cast<int>(adp5587::Driver::GPIKeyMappings::C8) | static_cast<int>(adp5587::Driver::GPIKeyMappings::ON);
+    static constexpr uint8_t StopButtonID = static_cast<int>(adp5587::Driver::GPIKeyMappings::C7) | static_cast<int>(adp5587::Driver::GPIKeyMappings::ON);
 };
 
 } // namespace bass_station
