@@ -98,6 +98,7 @@ private:
 
     /// @brief The timer for tempo of the sequencer
     tempo_timer_pair_t m_tempo_timer_pair;
+    float m_tempo_timer_freq_hz {0};
 
     /// @brief The timer used for rotary encoder
     std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
@@ -117,7 +118,7 @@ private:
     midi_stm32::Driver m_midi_driver;
 
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
-    uint8_t m_step_position {0};
+    uint8_t m_pattern_cursor {0};
 
     /// @brief This determines the positional order in which the cursor sweeps the sequence
     // This begins on the upper row and ends on the lower row, sweeping left to right

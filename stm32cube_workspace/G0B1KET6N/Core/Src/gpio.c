@@ -47,6 +47,7 @@ void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOD);
 
   /**/
   LL_GPIO_SetOutputPin(TLC5955_SPI2_LAT_GPIO_Port, TLC5955_SPI2_LAT_Pin);
@@ -129,7 +130,7 @@ void MX_GPIO_Init(void)
   LL_GPIO_SetPinMode(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_MODE_INPUT);
 
   /* EXTI interrupt init*/
-  NVIC_SetPriority(EXTI4_15_IRQn, 1);
+  NVIC_SetPriority(EXTI4_15_IRQn, 0);
   NVIC_EnableIRQ(EXTI4_15_IRQn);
 
 }

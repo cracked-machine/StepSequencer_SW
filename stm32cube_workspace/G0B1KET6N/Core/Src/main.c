@@ -101,17 +101,14 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_SPI1_Init();
-  MX_TIM14_Init();
-  MX_TIM4_Init();
   MX_TIM17_Init();
   MX_I2C3_Init();
   MX_I2C2_Init();
-  MX_TIM16_Init();
   MX_TIM1_Init();
   MX_USART5_UART_Init();
   MX_TIM3_Init();
   MX_TIM6_Init();
-  MX_TIM2_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 #ifdef USE_RTT
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);

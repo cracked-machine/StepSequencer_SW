@@ -39,8 +39,11 @@ void DisplayManager::start_isr()
 {
     // enable the display resolution timer
 #if not defined(X86_UNIT_TESTING_ONLY)
-    LL_TIM_EnableCounter(m_refresh_timer.get());
-    LL_TIM_EnableIT_UPDATE(m_refresh_timer.get());
+    if (m_refresh_timer != nullptr)
+    {
+        LL_TIM_EnableCounter(m_refresh_timer.get());
+        LL_TIM_EnableIT_UPDATE(m_refresh_timer.get());
+    }
 #endif
 }
 

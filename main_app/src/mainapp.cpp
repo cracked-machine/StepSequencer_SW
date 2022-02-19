@@ -40,13 +40,11 @@ void mainapp()
 	// The USART and Timer used to send the MIDI heartbeat
 	[[maybe_unused]] midi_stm32::DeviceInterface midi_usart_interface(
 		USART5,
-		stm32::isr::STM32G0InterruptManager::InterruptType::usart5,
-		TIM3,
-		stm32::isr::STM32G0InterruptManager::InterruptType::tim3
+		stm32::isr::STM32G0InterruptManager::InterruptType::usart5
 	);
 
 	// Timer peripheral for sequencer manager tempo control
-	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM2, stm32::isr::STM32G0InterruptManager::InterruptType::tim2};
+	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM3, stm32::isr::STM32G0InterruptManager::InterruptType::tim3};
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
@@ -60,7 +58,7 @@ void mainapp()
 		SPI1_RESET_Pin);
 
 	// Timer peripheral for display manager refresh rate control
-	TIM_TypeDef *display_refresh_timer = TIM16;
+	TIM_TypeDef *display_refresh_timer = nullptr;
 
 	// I2C peripheral for keypad manager serial communication
 	I2C_TypeDef *ad5587_keypad_i2c = I2C3;
@@ -80,7 +78,7 @@ void mainapp()
 		TLC5955_SPI2_MOSI_Pin, 
 		TLC5955_SPI2_SCK_GPIO_Port, 
 		TLC5955_SPI2_SCK_Pin,
-		TIM4,
+		TIM16,
 		LL_TIM_CHANNEL_CH1,
 		LL_SYSCFG_I2C_FASTMODEPLUS_PB7,
 		LL_SYSCFG_I2C_FASTMODEPLUS_PB8,
