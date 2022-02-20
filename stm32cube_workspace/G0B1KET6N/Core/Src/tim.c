@@ -165,10 +165,6 @@ void MX_TIM16_Init(void)
   /* Peripheral clock enable */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM16);
 
-  /* TIM16 interrupt Init */
-  NVIC_SetPriority(TIM16_FDCAN_IT0_IRQn, 1);
-  NVIC_EnableIRQ(TIM16_FDCAN_IT0_IRQn);
-
   /* USER CODE BEGIN TIM16_Init 1 */
 
   /* USER CODE END TIM16_Init 1 */
