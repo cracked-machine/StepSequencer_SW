@@ -27,7 +27,7 @@ namespace bass_station
 {
 
 KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_timer) 
-: m_keypad_driver(adp5587::Driver(i2c_handle)), m_debounce_timer(debounce_timer)
+: m_keypad_driver(adp5587::Driver<stm32::isr::InterruptTypeStm32g0>(i2c_handle)), m_debounce_timer(debounce_timer)
 {
     
     // 1) Enable keypad interrupts
@@ -59,16 +59,16 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
 #endif
 }
 
-UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, 32U> &sequence_map)
+UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, 32U> &sequence_map)
 {
     UserKeyStates running_status {UserKeyStates::IDLE};
 
     // get the key events FIFO list from the ADP5587 driver 
-    std::array<adp5587::Driver::KeyPadMappings, 10U> key_events_list;
+    std::array<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, 10U> key_events_list;
     get_key_events(key_events_list);
     
     // process each key event in turn (if any)
-    for (adp5587::Driver::KeyPadMappings key_event : key_events_list)
+    for (adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings key_event : key_events_list)
     {
         // only update the key if debounce conditions are met
         uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
@@ -131,7 +131,7 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
     return running_status;
 }
 
-void KeypadManager::get_key_events(std::array<adp5587::Driver::KeyPadMappings, 10> &key_events_list)
+void KeypadManager::get_key_events(std::array<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, 10> &key_events_list)
 {
     m_keypad_driver.get_key_events(key_events_list);
 }

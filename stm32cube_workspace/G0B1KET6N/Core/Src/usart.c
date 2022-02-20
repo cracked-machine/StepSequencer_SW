@@ -61,10 +61,6 @@ void MX_USART5_UART_Init(void)
   GPIO_InitStruct.Alternate = LL_GPIO_AF_8;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /* USART5 interrupt Init */
-  NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 1);
-  NVIC_EnableIRQ(USART3_4_5_6_LPUART1_IRQn);
-
   /* USER CODE BEGIN USART5_Init 1 */
 
   /* USER CODE END USART5_Init 1 */

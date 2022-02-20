@@ -38,27 +38,25 @@ void mainapp()
 	stm32::TimerManager::initialise(TIM6);
 
 	// The USART and Timer used to send the MIDI heartbeat
-	[[maybe_unused]] midi_stm32::DeviceInterface midi_usart_interface(
+	midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> midi_usart_interface(
 		USART5,
-		stm32::isr::STM32G0InterruptManager::InterruptType::usart5
+		stm32::isr::InterruptTypeStm32g0::usart5
 	);
 
 	// Timer peripheral for sequencer manager tempo control
-	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM3, stm32::isr::STM32G0InterruptManager::InterruptType::tim3};
+	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM3, stm32::isr::InterruptTypeStm32g0::tim3};
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
 	// SPI peripheral for SSD1306 display driver serial communication
-	ssd1306::DriverSerialInterface ssd1306_spi_interface(
+	ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> ssd1306_spi_interface(
 		SPI1, 
 		SPI1_DC_GPIO_Port, 
 		SPI1_DC_Pin, 
 		SPI1_RESET_GPIO_Port, 
-		SPI1_RESET_Pin);
-
-	// Timer peripheral for display manager refresh rate control
-	TIM_TypeDef *display_refresh_timer = nullptr;
+		SPI1_RESET_Pin,
+		stm32::isr::InterruptTypeStm32g0::dma1_ch2);
 
 	// I2C peripheral for keypad manager serial communication
 	I2C_TypeDef *ad5587_keypad_i2c = I2C3;
@@ -92,7 +90,6 @@ void mainapp()
 		sequencer_tempo_timer_pair,
 		sequencer_encoder_timer,
 		ssd1306_spi_interface, 
-		display_refresh_timer, 
 		ad5587_keypad_i2c, 
 		ad5587_debounce_timer,
 		adg2188_control_sw_i2c, 
@@ -100,7 +97,7 @@ void mainapp()
 		midi_usart_interface);
 
 	sequencer.start_loop();
-	// we should never get here	
+	// we should never get past here	
 }
 
 #ifdef __cplusplus

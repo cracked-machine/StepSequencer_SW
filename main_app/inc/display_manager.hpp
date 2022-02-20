@@ -23,25 +23,21 @@
 #ifndef __DISPLAY_MANAGER_HPP__
 #define __DISPLAY_MANAGER_HPP__
 
-#include <stm32g0_interrupt_manager.hpp>
+#include <isr_manager_stm32g0.hpp>
 #include <ssd1306.hpp>
 
 namespace bass_station
 {
 
 // This class manages the SSD1306 driver for the 128x64 pixel OLED display
-// 1) update the display using a timer ISR callback (setup using the start_isr() function)
-// 2) manually call the update_oled() function to redraw the screen
+// DisplayManager::update_oled() function (redraws the screen) should be called from the main loop
 class DisplayManager
 {
 public:
 
     // @brief Construct a new Display Manager object
     // @param timer Used for refresh rate of the display
-    DisplayManager(ssd1306::DriverSerialInterface &display_spi_interface, TIM_TypeDef *timer);
-    
-    // @brief Allow delayed start of the timer interrupt
-    void start_isr();
+    DisplayManager(ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface);
     
     // @brief Abstract representation of a line of the display
     enum class DisplayLine
@@ -77,35 +73,8 @@ private:
     ssd1306::Font5x7 m_font;
 
     // @brief SSD1306 OLED driver
-    ssd1306::Driver m_oled;
-    
-    // @brief Timer for the OLED refresh rate
-    std::unique_ptr<TIM_TypeDef> m_refresh_timer;
+    ssd1306::Driver<stm32::isr::InterruptTypeStm32g0> m_oled;
 
-	struct TimerIntHandler : public stm32::isr::STM32G0InterruptManager
-	{
-        // @brief the parent driver class
-        DisplayManager *m_display_man_ptr;
-		// @brief Register DisplayManager with STM32G0InterruptManager
-		// @param parent_driver_ptr the instance to register
-		void register_display_manager(DisplayManager *display_man_ptr)
-		{
-			m_display_man_ptr = display_man_ptr;
-			// register this internal handler class in stm32::isr::STM32G0InterruptManager
-			stm32::isr::STM32G0InterruptManager::register_handler(stm32::isr::STM32G0InterruptManager::InterruptType::tim16, this);
-		}        
-        // @brief The callback used by STM32G0InterruptManager
-		virtual void ISR()
-		{
-            m_display_man_ptr->display_timer_isr();
-		}        
-	};
-
-	// @brief TimerIntHandler instance
-    TimerIntHandler m_display_timer_isr_handler;
-
-    // @brief timer callback called by TimerIntHandler
-    void display_timer_isr();
 };
 
 } // namespace bass_station

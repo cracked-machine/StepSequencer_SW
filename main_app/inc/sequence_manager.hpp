@@ -34,7 +34,8 @@
 namespace bass_station
 {
 
-using tempo_timer_pair_t = std::pair<TIM_TypeDef*, stm32::isr::STM32G0InterruptManager::InterruptType>;
+
+using tempo_timer_pair_t = std::pair<TIM_TypeDef*, stm32::isr::InterruptTypeStm32g0>;
 
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
@@ -42,10 +43,9 @@ class SequenceManager
 public:
 
     /// @brief Construct a new Sequence Manager
-    /// @param sequencer_tempo_timer_pair The SequenceManager tempo timer (and its InterruptType) for keeping tempo
+    /// @param sequencer_tempo_timer_pair The SequenceManager tempo timer (and its InterruptTypeStm32g0) for keeping tempo
     /// @param sequencer_encoder_timer The SequenceManager rotary encoder interface
     /// @param display_spi The DisplayManager SPI interface
-    /// @param display_refresh_timer The DisplayManager refresh rate timer
     /// @param ad5587_keypad_i2c The KeypadManager I2C interface        
     /// @param ad5587_keypad_debounce_timer  The KeypadManager debouce timer
     /// @param adg2188_control_sw_i2c The crosspoint switch I2C interface for controlling the synth notes
@@ -54,13 +54,12 @@ public:
     SequenceManager(
         tempo_timer_pair_t &tempo_timer_pair,
         TIM_TypeDef *sequencer_encoder_timer,
-        ssd1306::DriverSerialInterface &display_spi, 
-        TIM_TypeDef *display_refresh_timer,
+        ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi, 
         I2C_TypeDef *ad5587_keypad_i2c,
         TIM_TypeDef *ad5587_keypad_debounce_timer,
         I2C_TypeDef *adg2188_control_sw_i2c,
         tlc5955::DriverSerialInterface &led_spi_interface,
-        midi_stm32::DeviceInterface &midi_usart_interface);
+        midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> &midi_usart_interface);
 
         void start_loop();
 
@@ -83,11 +82,11 @@ private:
     uint16_t m_last_encoder_value;
 
     // @brief  The 32-step sequence data
-    static std::array< std::pair< adp5587::Driver::KeyPadMappings, Step >, 32 > m_sequence_data;
+    static std::array< std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step >, 32 > m_sequence_data;
 
     /// @brief Map holding the sequence data associated to its ADP5587 HW button index
-    noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, m_sequence_data.size()> m_sequence_map = 
-        noarch::containers::StaticMap<adp5587::Driver::KeyPadMappings, Step, m_sequence_data.size()>{{m_sequence_data}};
+    noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, m_sequence_data.size()> m_sequence_map = 
+        noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, m_sequence_data.size()>{{m_sequence_data}};
 
     // @brief The 25-key note data of the BassStation keyboard
     static std::array< std::pair< Note, NoteData >, 25> m_note_switch_data;
@@ -115,7 +114,7 @@ private:
     /// @brief Manages the TLC5955 chip
     bass_station::LedManager m_led_manager;
 
-    midi_stm32::Driver m_midi_driver;
+    midi_stm32::Driver<stm32::isr::InterruptTypeStm32g0> m_midi_driver;
 
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_pattern_cursor {0};
@@ -125,20 +124,20 @@ private:
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
     /// @brief Registers Tempo Timer ISR callback with STM32G0InterruptManage
-    struct TempoTimerIntHandler : public stm32::isr::STM32G0InterruptManager
+    struct TempoTimerIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
 	{
         /// @brief the parent driver class
         SequenceManager *m_seq_man_ptr;
 
-		/// @brief initialise and register this handler instance with STM32G0InterruptManager
+		/// @brief initialise and register this handler instance with InterruptManagerStm32g0
 		// @param parent_driver_ptr the instance to register
 		void initialise(SequenceManager *seq_man_ptr)
 		{
 			m_seq_man_ptr = seq_man_ptr;
-			// register pointer to this handler class in stm32::isr::STM32G0InterruptManager
-			stm32::isr::STM32G0InterruptManager::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
+			// register pointer to this handler class in stm32::isr::InterruptManagerStm32g0
+			stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
 		}        
-        /// @brief The callback used by STM32G0InterruptManager
+        // @brief Definition of InterruptManagerStm32Base::ISR. This is called by stm32::isr::InterruptManagerStm32Base<sINTERRUPT_TYPE> specialization 
 		virtual void ISR()
 		{
             m_seq_man_ptr->tempo_timer_isr();

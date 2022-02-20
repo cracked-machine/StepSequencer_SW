@@ -25,26 +25,12 @@
 namespace bass_station 
 {
 
-DisplayManager::DisplayManager(ssd1306::DriverSerialInterface &display_spi_interface, TIM_TypeDef *timer) 
-: m_oled(ssd1306::Driver(display_spi_interface, ssd1306::Driver::SPIDMA::enabled)),
-  m_refresh_timer(timer)
+DisplayManager::DisplayManager(ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface) 
+: m_oled(ssd1306::Driver<stm32::isr::InterruptTypeStm32g0>(display_spi_interface, ssd1306::Driver<stm32::isr::InterruptTypeStm32g0>::SPIDMA::enabled))
 {
     // init SSD1306 IC display driver
 	m_oled.power_on_sequence();
-    // init the display refresh timer callback
-    m_display_timer_isr_handler.register_display_manager(this);
-}
-
-void DisplayManager::start_isr()
-{
-    // enable the display resolution timer
-#if not defined(X86_UNIT_TESTING_ONLY)
-    if (m_refresh_timer != nullptr)
-    {
-        LL_TIM_EnableCounter(m_refresh_timer.get());
-        LL_TIM_EnableIT_UPDATE(m_refresh_timer.get());
-    }
-#endif
+    
 }
 
 void DisplayManager::set_display_line(DisplayLine line, std::string &msg)
@@ -83,9 +69,5 @@ void DisplayManager::update_oled()
     m_oled.write(m_display_line6, m_font, 0, 50, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
 }
 
-void DisplayManager::display_timer_isr()
-{
-    update_oled();
-}
 
 } // namespace bass_station 
