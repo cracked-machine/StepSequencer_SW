@@ -76,15 +76,14 @@ void SequenceManager::start_loop()
         // redraw the display contents
         m_ssd1306_display_spi.update_oled();
 
-
-        // get latest key events from adp5587 (the sequencer pattern buttons)
-        // UserKeyStates previous_state = m_running_state;
+        // get latest key events from adp5587 (the sequencer pattern button presses (m_sequence_map) and the user start/stop buttons (return))
         UserKeyStates new_state = m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
-
+        
         // update the midi running state/heartbeat 
         switch(new_state)
         {
             case UserKeyStates::RUNNING:
+                
                 // reset the sequence pattern position when we press play
                 m_pattern_cursor = 0;
                 m_midi_driver.reset_midi_pulse_cnt();
@@ -97,6 +96,7 @@ void SequenceManager::start_loop()
                 m_sequencer_state = UserKeyStates::RUNNING;  
                 break;
             case UserKeyStates::STOPPED:
+     
                 // Tell the MIDI slave device to pause
                 m_midi_driver.send_realtime_stop_msg();
                 LL_TIM_DisableIT_UPDATE(m_tempo_timer_pair.first);  

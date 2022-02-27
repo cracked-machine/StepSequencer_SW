@@ -61,7 +61,12 @@ public:
     /// @brief Update step_sequence map param with latest Keypad events and return the latest UserKey press.
     // @param step_sequence The map object containing current pattern data
     // @return UserKeyStates Latest UserKey press
-    UserKeyStates process_key_events(noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
+    UserKeyStates process_key_events(
+        noarch::containers::StaticMap<
+            adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, 
+            bass_station::Step, 
+            32U
+        > &step_sequence);
 
     // store the index of the last key selected by the user. We can use this index to lookup the position in the StaticMap later on.
     uint8_t last_user_selected_key_idx{0};
@@ -73,11 +78,12 @@ private:
     /// @brief The timer used to test m_debounce_threshold
     std::unique_ptr<TIM_TypeDef> m_debounce_timer;
 
-    /// @brief Store the last timer count for debounce
-    uint32_t m_last_debounce_count_ms{0};
-
     /// @brief The allowable delay between pressing keys on the sequence keypad
-    const uint32_t m_debounce_threshold_ms{400};    
+    /// Increasing this value will decrease bounce but also responsiveness
+    const uint32_t m_pattern_debounce_threshold_ms{350};    
+    /// @brief Store the last timer count for debounce
+    uint32_t m_last_pattern_debounce_count_ms{0};
+
 
     static constexpr uint8_t StartButtonID = static_cast<uint8_t>(adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::C8 | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::ON);
     static constexpr uint8_t StopButtonID = static_cast<uint8_t>(adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::C7 | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::ON);

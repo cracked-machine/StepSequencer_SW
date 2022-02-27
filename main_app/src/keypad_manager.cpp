@@ -70,20 +70,17 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
     // process each key event in turn (if any)
     for (adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings key_event : key_events_list)
     {
-        // only update the key if debounce conditions are met
-        uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
-        if ((timer_count_ms - m_last_debounce_count_ms > m_debounce_threshold_ms) && (timer_count_ms > m_last_debounce_count_ms))
-        {
-            switch(static_cast<int>(key_event))
-            {
-                case StartButtonID:
-                    running_status = UserKeyStates::RUNNING;
-                break;
-                case StopButtonID:
-                    running_status = UserKeyStates::STOPPED;
-                break;
-            }
+        // Bounce not important for stop button where we want max responsiveness. 
+        // Also allows start button "glitch" effect where pattern can be restarted multiple times by holding down the button :)
+        if (static_cast<int>(key_event) == StopButtonID) { running_status = UserKeyStates::STOPPED; }
+        if (static_cast<int>(key_event) == StartButtonID) { running_status = UserKeyStates::RUNNING; }
 
+        // strict debounce control on the pattern step button presses. 
+        // if threshold is too short the button will toggle states before user releases the button (annoying)
+        // if threshold is too long the button will not be responsive enough.
+        uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+        if (timer_count_ms - m_last_pattern_debounce_count_ms > m_pattern_debounce_threshold_ms) 
+        {
             // find the key event that matches the sequence step
             Step *step = sequence_map.find_key(key_event);
             if(step == nullptr) { /* no match found in map */ }
@@ -123,7 +120,7 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
                 // store the index position of the user selected step for next key interrupt
                 last_user_selected_key_idx = step->m_array_index;
             }
-            m_last_debounce_count_ms = timer_count_ms;  
+            m_last_pattern_debounce_count_ms = timer_count_ms;  
         }
         
     }
