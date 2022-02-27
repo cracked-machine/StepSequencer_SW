@@ -47,7 +47,6 @@ void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOD);
 
   /**/
   LL_GPIO_SetOutputPin(TLC5955_SPI2_LAT_GPIO_Port, TLC5955_SPI2_LAT_Pin);
@@ -117,7 +116,17 @@ void MX_GPIO_Init(void)
   LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA, LL_EXTI_CONFIG_LINE5);
 
   /**/
+  LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA, LL_EXTI_CONFIG_LINE10);
+
+  /**/
   EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_5;
+  EXTI_InitStruct.LineCommand = ENABLE;
+  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
+  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
+  LL_EXTI_Init(&EXTI_InitStruct);
+
+  /**/
+  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_10;
   EXTI_InitStruct.LineCommand = ENABLE;
   EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
   EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
@@ -127,7 +136,13 @@ void MX_GPIO_Init(void)
   LL_GPIO_SetPinPull(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_PULL_UP);
 
   /**/
+  LL_GPIO_SetPinPull(ROTENC_SW_EXTI_GPIO_Port, ROTENC_SW_EXTI_Pin, LL_GPIO_PULL_UP);
+
+  /**/
   LL_GPIO_SetPinMode(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_MODE_INPUT);
+
+  /**/
+  LL_GPIO_SetPinMode(ROTENC_SW_EXTI_GPIO_Port, ROTENC_SW_EXTI_Pin, LL_GPIO_MODE_INPUT);
 
   /* EXTI interrupt init*/
   NVIC_SetPriority(EXTI4_15_IRQn, 0);

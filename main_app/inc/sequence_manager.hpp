@@ -44,7 +44,7 @@ public:
     /// @param sequencer_encoder_timer The SequenceManager rotary encoder interface
     /// @param display_spi The DisplayManager SPI interface
     /// @param ad5587_keypad_i2c The KeypadManager I2C interface        
-    /// @param ad5587_keypad_debounce_timer  The KeypadManager debouce timer
+    /// @param debounce_timer  General purpose debounce timer
     /// @param adg2188_control_sw_i2c The crosspoint switch I2C interface for controlling the synth notes
     /// @param led_spi_interface The LedManager SPI interface
     /// @param midi_usart_interface The MIDI USART interface
@@ -53,7 +53,7 @@ public:
         TIM_TypeDef *sequencer_encoder_timer,
         ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi, 
         I2C_TypeDef *ad5587_keypad_i2c,
-        TIM_TypeDef *ad5587_keypad_debounce_timer,
+        TIM_TypeDef *debounce_timer,
         I2C_TypeDef *adg2188_control_sw_i2c,
         tlc5955::DriverSerialInterface &led_spi_interface,
         midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> &midi_usart_interface);
@@ -116,6 +116,18 @@ private:
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_pattern_cursor {0};
 
+    /// @brief Save this value so we can return to TEMPO_MODE with the expected tempo
+    uint16_t m_saved_tempo_setting {0};
+
+    /// @brief The timer for mode button debounce
+    std::unique_ptr<TIM_TypeDef> m_debounce_timer;
+
+    /// @brief The allowable delay between pressing keys on the sequence keypad
+    /// Increasing this value will decrease bounce but also responsiveness
+    const uint32_t m_mode_debounce_threshold_ms{350};    
+    /// @brief Store the last timer count for debounce
+    uint32_t m_last_mode_debounce_count_ms{0};    
+
     /// @brief Update the display and tempo timer
     void update_display_and_tempo();
 
@@ -157,29 +169,29 @@ private:
     void tempo_timer_isr();
 
     /// @brief Registers EXTI ISR handler class with InterruptManager for STM32G0
-	// struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
-	// {
-    //     // @brief the parent driver class
-    //     SequenceManager *m_parent_driver_ptr;
-	// 	// @brief initialise and register this handler instance with IsrManagerStm32g0
-	// 	// @param parent_driver_ptr the instance to register
-	// 	void register_driver(SequenceManager *parent_driver_ptr)
-	// 	{
-	// 		m_parent_driver_ptr = parent_driver_ptr;
-	// 		// register pointer to this handler class in stm32::isr::IsrManagerStm32g0
-	// 		stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>::register_handler(stm32::isr::InterruptTypeStm32g0::exti5 , this);
-	// 	}        
-    //     // @brief The callback used by IsrManagerStm32g0
-	// 	virtual void ISR()
-	// 	{
-    //         m_parent_driver_ptr->rotary_sw_exti_isr();
-	// 	}        
-	// };
-	// // @brief handler object
-    // RotarySwExtIntHandler m_rotary_sw_exti_handler;
+	struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
+	{
+        // @brief the parent driver class
+        SequenceManager *m_parent_driver_ptr;
+		// @brief initialise and register this handler instance with IsrManagerStm32g0
+		// @param parent_driver_ptr the instance to register
+		void register_driver(SequenceManager *parent_driver_ptr)
+		{
+			m_parent_driver_ptr = parent_driver_ptr;
+			// register pointer to this handler class in stm32::isr::IsrManagerStm32g0
+			stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>::register_handler(stm32::isr::InterruptTypeStm32g0::exti10 , this);
+		}        
+        // @brief The callback used by IsrManagerStm32g0
+		virtual void ISR()
+		{
+            m_parent_driver_ptr->rotary_sw_exti_isr();
+		}        
+	};
+	// @brief handler object
+    RotarySwExtIntHandler m_rotary_sw_exti_handler;
 
-    // /// @brief SequenceManager callback for exti15 interrupt
-    // void rotary_sw_exti_isr();
+    /// @brief SequenceManager callback for exti15 interrupt
+    void rotary_sw_exti_isr();
 
 };
 

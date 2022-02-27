@@ -62,7 +62,7 @@ void mainapp()
 	I2C_TypeDef *ad5587_keypad_i2c = I2C3;
 
 	// keypad debounce timer
-	TIM_TypeDef *ad5587_debounce_timer = TIM17;
+	TIM_TypeDef *general_purpose_debounce_timer = TIM17;
 
 	// I2C periperhal for synth output control switch serial communication
 	I2C_TypeDef *adg2188_control_sw_i2c = I2C2;
@@ -91,7 +91,7 @@ void mainapp()
 		sequencer_encoder_timer,
 		ssd1306_spi_interface, 
 		ad5587_keypad_i2c, 
-		ad5587_debounce_timer,
+		general_purpose_debounce_timer,
 		adg2188_control_sw_i2c, 
 		tlc5955_spi_interface,
 		midi_usart_interface);

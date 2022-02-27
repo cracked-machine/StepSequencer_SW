@@ -30,7 +30,7 @@ SequenceManager::SequenceManager(
     TIM_TypeDef *sequencer_encoder_timer,
     ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface, 
     I2C_TypeDef *ad5587_keypad_i2c,
-    TIM_TypeDef *ad5587_keypad_debounce_timer,
+    TIM_TypeDef *debounce_timer,
     I2C_TypeDef *adg2188_control_sw_i2c,
     tlc5955::DriverSerialInterface &led_spi_interface,
     midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> &midi_usart_interface) 
@@ -38,10 +38,11 @@ SequenceManager::SequenceManager(
     :   m_tempo_timer_pair(tempo_timer_pair),
         m_sequencer_encoder_timer(sequencer_encoder_timer),
         m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface)),
-        m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, ad5587_keypad_debounce_timer)),
+        m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, debounce_timer)),
         m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
         m_led_manager(bass_station::LedManager(led_spi_interface)),
-        m_midi_driver(midi_usart_interface)
+        m_midi_driver(midi_usart_interface),
+        m_debounce_timer(debounce_timer)
 {
 
     // send configuration data to TLC5955
@@ -50,12 +51,14 @@ SequenceManager::SequenceManager(
     // enable the timer with a starting "tempo"
     m_sequencer_encoder_timer->CNT = 16;
 
-
     #if not defined(X86_UNIT_TESTING_ONLY)
         LL_TIM_EnableCounter(m_sequencer_encoder_timer.get());
 
-        // setup this class as timer callback
+        // setup this class as timer ISR handler
         m_sequencer_tempo_timer_isr_handler.initialise(this);
+
+        // setup this class as EXTI ISR handler
+        m_rotary_sw_exti_handler.register_driver(this);
 
         LL_TIM_EnableIT_UPDATE(m_tempo_timer_pair.first);  
         LL_TIM_EnableCounter(m_tempo_timer_pair.first);        
@@ -146,17 +149,27 @@ void SequenceManager::tempo_timer_isr()
     #endif
 }
 
-// void SequenceManager::rotary_sw_exti_isr()
-// {
-//     if (LL_EXTI_IsActiveFallingFlag_0_31(LL_EXTI_LINE_5) != RESET)
-//     {
-//         if (LL_GPIO_IsInputPinSet(GPIOB, LL_GPIO_PIN_15))
-//         {
+void SequenceManager::rotary_sw_exti_isr()
+{
+    uint32_t timer_count_ms = LL_TIM_GetCounter(TIM17);
+    if (timer_count_ms - m_last_mode_debounce_count_ms > m_mode_debounce_threshold_ms) 
+    {
+        if (m_current_mode == bass_station::SequenceManager::Mode::NOTE_SELECT) 
+        { 
+            m_current_mode = bass_station::SequenceManager::Mode::TEMPO_ADJUST; 
+            // restore the saved tempo value now we return to TEMPO_ADJUST mode
+            m_sequencer_encoder_timer->CNT = m_saved_tempo_setting;
+            
+        }
+        else { 
+            m_current_mode = bass_station::SequenceManager::Mode::NOTE_SELECT; 
+            // save the current tempo value whilst we are in NOTE_SELECT mode
+            m_saved_tempo_setting = m_sequencer_encoder_timer->CNT;
+        }
+    }    
+    m_last_mode_debounce_count_ms = timer_count_ms; 
 
-//         }
-//         LL_EXTI_ClearFallingFlag_0_31(LL_EXTI_LINE_5);        
-//     }
-// }
+}
 
 
 void SequenceManager::update_display_and_tempo()
@@ -168,9 +181,16 @@ void SequenceManager::update_display_and_tempo()
         // update the sequencer tempo (prescaler) 
         // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
         m_tempo_timer_pair.first->PSC =  m_sequencer_encoder_timer->CNT;
+        std::string mode_string{""};
+        mode_string += "TEMPO MODE";
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);        
     }
     else if (m_current_mode == Mode::NOTE_SELECT)
     {
+        std::string mode_string{""};
+        mode_string += "NOTE MODE ";
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);   
+
         // lookup the step position using the index of the last user selected key
         Step last_selected_step = m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second;
         [[maybe_unused]] Note last_selected_step_note = last_selected_step.m_note ;
@@ -221,6 +241,7 @@ void SequenceManager::update_display_and_tempo()
     encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);        
 
+    
     // volatile uint8_t tempo_timer_hz = 64000000 / (m_tempo_timer_pair.first->PSC * m_tempo_timer_pair.first->ARR);
     // volatile uint16_t tempo_timer_bpm = tempo_timer_hz * 60 / 10;
     // std::string tempo_string{""};

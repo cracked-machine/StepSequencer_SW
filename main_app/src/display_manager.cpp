@@ -61,6 +61,7 @@ void DisplayManager::set_display_line(DisplayLine line, std::string &msg)
 
 void DisplayManager::update_oled()
 {
+    
 	m_oled.write(m_display_line1, m_font, 0, 0, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
     m_oled.write(m_display_line2, m_font, 0, 10, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
     m_oled.write(m_display_line3, m_font, 0, 20, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);

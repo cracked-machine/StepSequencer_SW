@@ -74,7 +74,7 @@ private:
     // @brief The ADP5587 keypad driver 
     adp5587::Driver<stm32::isr::InterruptTypeStm32g0> m_keypad_driver;
 
-    /// @brief The timer used to test m_debounce_threshold
+    /// @brief The timer for pattern key debounce
     std::unique_ptr<TIM_TypeDef> m_debounce_timer;
 
     /// @brief The allowable delay between pressing keys on the sequence keypad
