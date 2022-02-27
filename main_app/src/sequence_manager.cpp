@@ -146,6 +146,18 @@ void SequenceManager::tempo_timer_isr()
     #endif
 }
 
+// void SequenceManager::rotary_sw_exti_isr()
+// {
+//     if (LL_EXTI_IsActiveFallingFlag_0_31(LL_EXTI_LINE_5) != RESET)
+//     {
+//         if (LL_GPIO_IsInputPinSet(GPIOB, LL_GPIO_PIN_15))
+//         {
+
+//         }
+//         LL_EXTI_ClearFallingFlag_0_31(LL_EXTI_LINE_5);        
+//     }
+// }
+
 
 void SequenceManager::update_display_and_tempo()
 {

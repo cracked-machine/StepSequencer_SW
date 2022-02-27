@@ -109,6 +109,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM6_Init();
   MX_TIM16_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 #ifdef USE_RTT
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);

@@ -121,6 +121,63 @@ void MX_TIM3_Init(void)
   /* USER CODE END TIM3_Init 2 */
 
 }
+/* TIM4 init function */
+void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+  LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+  /* Peripheral clock enable */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
+
+  /* TIM4 interrupt Init */
+  NVIC_SetPriority(TIM3_TIM4_IRQn, 1);
+  NVIC_EnableIRQ(TIM3_TIM4_IRQn);
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  TIM_InitStruct.Prescaler = 1;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 512;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM4, &TIM_InitStruct);
+  LL_TIM_EnableARRPreload(TIM4);
+  LL_TIM_SetClockSource(TIM4, LL_TIM_CLOCKSOURCE_INTERNAL);
+  LL_TIM_OC_EnablePreload(TIM4, LL_TIM_CHANNEL_CH1);
+  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM2;
+  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.CompareValue = 256;
+  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
+  LL_TIM_OC_EnableFast(TIM4, LL_TIM_CHANNEL_CH1);
+  LL_TIM_SetTriggerOutput(TIM4, LL_TIM_TRGO_RESET);
+  LL_TIM_DisableMasterSlaveMode(TIM4);
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
+    /**TIM4 GPIO Configuration
+    PB6     ------> TIM4_CH1
+    */
+  GPIO_InitStruct.Pin = TLC5955_SPI2_GSCLK_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_9;
+  LL_GPIO_Init(TLC5955_SPI2_GSCLK_GPIO_Port, &GPIO_InitStruct);
+
+  LL_SYSCFG_EnableFastModePlus(LL_SYSCFG_I2C_FASTMODEPLUS_PB6);
+
+}
 /* TIM6 init function */
 void MX_TIM6_Init(void)
 {
@@ -202,13 +259,13 @@ void MX_TIM16_Init(void)
     /**TIM16 GPIO Configuration
     PD0     ------> TIM16_CH1
     */
-  GPIO_InitStruct.Pin = TLC5955_SPI2_GSCLK_Pin;
+  GPIO_InitStruct.Pin = TLC5955_SPI2_GSCLK2_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_2;
-  LL_GPIO_Init(TLC5955_SPI2_GSCLK_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(TLC5955_SPI2_GSCLK2_GPIO_Port, &GPIO_InitStruct);
 
 }
 /* TIM17 init function */

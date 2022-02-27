@@ -23,11 +23,8 @@
 #ifndef __SEQUENCE_MANAGER_HPP__
 #define __SEQUENCE_MANAGER_HPP__
 
-#include <array>
-
 #include <led_manager.hpp>
 #include <keypad_manager.hpp>
-#include <static_map.hpp>
 #include <display_manager.hpp>
 #include <midi_stm32.hpp>
 
@@ -119,11 +116,21 @@ private:
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_pattern_cursor {0};
 
+    /// @brief Update the display and tempo timer
+    void update_display_and_tempo();
+
+    /// @brief Runs the note/step sequence
+    /// @param run_demo_only 
+    void execute_next_sequence_step(bool run_demo_only = false);
+
+    UserKeyStates m_midi_state{UserKeyStates::RUNNING};
+    UserKeyStates m_sequencer_state{UserKeyStates::RUNNING};    
+
     /// @brief This determines the positional order in which the cursor sweeps the sequence
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
-    /// @brief Registers Tempo Timer ISR callback with STM32G0InterruptManage
+    /// @brief Registers Timer ISR handler class with InterruptManager for STM32G0
     struct TempoTimerIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
 	{
         /// @brief the parent driver class
@@ -146,18 +153,33 @@ private:
 	/// @brief TempoTimerIntHandler member
     TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler;
 
-    /// @brief SequenceManager callback, the main sequencer execution loop
+    /// @brief SequenceManager callback for timer interrupt
     void tempo_timer_isr();
 
-    /// @brief Update the display and tempo timer
-    void update_display_and_tempo();
+    /// @brief Registers EXTI ISR handler class with InterruptManager for STM32G0
+	// struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
+	// {
+    //     // @brief the parent driver class
+    //     SequenceManager *m_parent_driver_ptr;
+	// 	// @brief initialise and register this handler instance with IsrManagerStm32g0
+	// 	// @param parent_driver_ptr the instance to register
+	// 	void register_driver(SequenceManager *parent_driver_ptr)
+	// 	{
+	// 		m_parent_driver_ptr = parent_driver_ptr;
+	// 		// register pointer to this handler class in stm32::isr::IsrManagerStm32g0
+	// 		stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>::register_handler(stm32::isr::InterruptTypeStm32g0::exti5 , this);
+	// 	}        
+    //     // @brief The callback used by IsrManagerStm32g0
+	// 	virtual void ISR()
+	// 	{
+    //         m_parent_driver_ptr->rotary_sw_exti_isr();
+	// 	}        
+	// };
+	// // @brief handler object
+    // RotarySwExtIntHandler m_rotary_sw_exti_handler;
 
-    /// @brief Runs the note/step sequence
-    /// @param run_demo_only 
-    void execute_next_sequence_step(bool run_demo_only = false);
-
-    UserKeyStates m_midi_state{UserKeyStates::RUNNING};
-    UserKeyStates m_sequencer_state{UserKeyStates::RUNNING};
+    // /// @brief SequenceManager callback for exti15 interrupt
+    // void rotary_sw_exti_isr();
 
 };
 

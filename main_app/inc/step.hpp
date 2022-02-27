@@ -23,7 +23,6 @@
 #ifndef __STEP_HPP__
 #define __STEP_HPP__
 
-#include <cstdint>
 #include <adp5587.hpp>
 #include <note.hpp>
 

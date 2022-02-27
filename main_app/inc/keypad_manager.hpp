@@ -24,7 +24,6 @@
 #define __KEYPAD_MANAGER_HPP__
 
 #include <adp5587.hpp>
-#include <adg2188.hpp>
 #include <step.hpp>
 
 // The ADP5587 HW maps the following values to the keys press/release events on the bass station sequencer
