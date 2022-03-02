@@ -52,10 +52,10 @@ void mainapp()
 	// SPI peripheral for SSD1306 display driver serial communication
 	ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> ssd1306_spi_interface(
 		SPI1, 
-		SPI1_DC_GPIO_Port, 
-		SPI1_DC_Pin, 
-		SPI1_RESET_GPIO_Port, 
-		SPI1_RESET_Pin,
+		GPIOA, 
+		LL_GPIO_PIN_0, 
+		GPIOA, 
+		LL_GPIO_PIN_3,
 		stm32::isr::InterruptTypeStm32g0::dma1_ch2);
 
 	// I2C peripheral for keypad manager serial communication
@@ -70,19 +70,18 @@ void mainapp()
 	// SPI peripheral for TLC5955 LED driver serial communication
 	tlc5955::DriverSerialInterface tlc5955_spi_interface(
 		SPI2, 
-		TLC5955_SPI2_LAT_GPIO_Port, 
-		TLC5955_SPI2_LAT_Pin, 
-		TLC5955_SPI2_MOSI_GPIO_Port, 
-		TLC5955_SPI2_MOSI_Pin, 
-		TLC5955_SPI2_SCK_GPIO_Port, 
-		TLC5955_SPI2_SCK_Pin,
+		GPIOB, 
+		LL_GPIO_PIN_9, 
+		GPIOB, 
+		LL_GPIO_PIN_7, 
+		GPIOB, 
+		LL_GPIO_PIN_8,
 		TIM4,
 		LL_TIM_CHANNEL_CH1,
 		LL_SYSCFG_I2C_FASTMODEPLUS_PB7,
 		LL_SYSCFG_I2C_FASTMODEPLUS_PB8,
 		LL_IOP_GRP1_PERIPH_GPIOB,
 		LL_APB1_GRP1_PERIPH_SPI2);
-
 
 
 	// initialise the sequencer

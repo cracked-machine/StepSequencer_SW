@@ -26,6 +26,15 @@
 #include <adp5587.hpp>
 #include <step.hpp>
 
+#if defined(X86_UNIT_TESTING_ONLY)
+	// only used when unit testing on x86
+	#include <mock_cmsis.hpp>
+#else
+    #include <timer_manager.hpp>	
+#endif
+
+
+
 // The ADP5587 HW maps the following values to the keys press/release events on the bass station sequencer
 //              1       2       3       4       5       6       7       8       9       10      11      12      13      14      15      16
 //  UpperRow    131/3   141/13  151/23  161/33  171/43  181/53  191/63  201/73  132/4   142/14  152/24  162/34  172/44  182/54  192/64  202/74
