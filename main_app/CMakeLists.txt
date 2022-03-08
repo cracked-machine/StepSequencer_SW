@@ -7,4 +7,6 @@ target_sources(${BUILD_NAME} PRIVATE
     src/step.cpp
 )
 
-target_include_directories(${BUILD_NAME} PRIVATE inc)
+target_include_directories(${BUILD_NAME} PRIVATE 
+    inc
+)

@@ -46,6 +46,8 @@ add_subdirectory(cpp_adp5587)               # keyscan/io expander driver
 add_subdirectory(cpp_adg2188)               # xpoint switch driver
 add_subdirectory(cpp_midi_stm32)
 
+
+
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
     if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -54,12 +56,19 @@ if(TARGET_TYPE STREQUAL ARM)
         add_compile_definitions(USE_RTT)
     endif()
        
-    # build STM32 LL as static lib
+    # link in STM32CubeLL static lib
     add_subdirectory(stm32cube_workspace)
     target_link_libraries(${BUILD_NAME} PUBLIC STM32CubeLL)
     target_include_directories(${BUILD_NAME} PUBLIC
         "${PROJECT_BINARY_DIR}"
         "${PROJECT_SOURCE_DIR}/stm32cube_workspace")
+
+    # link in FF14b static lib
+    add_subdirectory(cpp_fatfs)
+    target_link_libraries(${BUILD_NAME} PUBLIC FF14b)
+    target_include_directories(${BUILD_NAME} PUBLIC
+    "${PROJECT_SOURCE_DIR}/cpp_fatfs/inc")
+
         
 # add the x86-specific sources for host build
 elseif(TARGET_TYPE STREQUAL GNU)

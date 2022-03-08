@@ -25,7 +25,7 @@
 #include <sequence_manager.hpp>
 #include <timer_manager.hpp>
 #include <adp5587.hpp>
-
+#include <ff.hpp>
 
 #ifdef __cplusplus
 extern "C"
@@ -34,6 +34,26 @@ extern "C"
 
 void mainapp()
 {	
+	fatfs::ff fatfs_handle;
+	fatfs::FATFS fs;
+	fatfs::FIL fil;
+	char sd_path[4];          /* uSD device logical drive path */
+	fatfs::FRESULT fres;
+	fres = fatfs_handle.f_mount(&fs, (fatfs::TCHAR const*)sd_path, 1); //1=mount now
+	fres = fatfs_handle.f_open(&fil, (fatfs::TCHAR const*)sd_path, 1);
+
+	std::array<char, 100> read_buff;
+	fatfs::UINT bytes_read {0};
+	fres = fatfs_handle.f_read(&fil, read_buff.data(), read_buff.size(), &bytes_read);
+	
+	std::array<char, 100> write_buff;
+	fatfs::UINT bytes_written {0};
+	fres = fatfs_handle.f_write(&fil, write_buff.data(), write_buff.size(), &bytes_written);
+
+	if (fres != fatfs::FRESULT::FR_OK) {
+		// something bad happened
+	}	
+
 	// initialise the timer used for system wide microsecond timeout
 	stm32::TimerManager::initialise(TIM6);
 

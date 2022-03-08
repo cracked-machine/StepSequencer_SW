@@ -19,3 +19,6 @@
 [submodule "cpp_midi_stm32"]
 	path = cpp_midi_stm32
 	url = https://github.com/cracked-machine/cpp_midi_stm32
+[submodule "cpp_fatfs"]
+	path = cpp_fatfs
+	url = https://github.com/cracked-machine/cpp_fatfs
