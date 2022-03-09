@@ -50,7 +50,7 @@
         "interface": "swd",
         //"serialNumber": "", //If you have more than one J-Link probe, add the serial number here.
         //"jlinkscript":"${workspaceRoot}/BSP/SEGGER/K66FN2M0_emPower/Setup/Kinetis_K66_Target.js",
-        "runToMain": true,
+        "runToEntryPoint": "main",
         "svdFile": "${workspaceRoot}/stm32cube_workspace/STM32G0B1.svd", 
         "rttConfig": {
           "enabled": true,
