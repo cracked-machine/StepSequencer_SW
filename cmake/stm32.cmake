@@ -42,6 +42,7 @@ enable_language(ASM)
 # Required to include STM32 LL framework
 add_compile_definitions(${TARGET} USE_FULL_LL_DRIVER)
 
+# used to include stm32g0xx.h dependency (and maybe stm32g0xx LL)
 add_compile_definitions(
     ${TARGET} STM32G0B1xx
 )
