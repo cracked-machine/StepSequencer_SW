@@ -43,27 +43,10 @@ add_subdirectory(stm32_interrupt_managers/rawptrs)
 add_subdirectory(cpp_tlc5955)               # led driver
 add_subdirectory(cpp_ssd1306)               # oled driver
 add_subdirectory(cpp_midi_stm32)
-
-# Link in adp5587 static lib (keyscan/io expander driver)
-add_subdirectory(cpp_adp5587)               
-target_link_libraries(${BUILD_NAME} PUBLIC adp5587)
-target_include_directories(${BUILD_NAME} PUBLIC
-    "${PROJECT_SOURCE_DIR}/cpp_adp5587/inc"
-)
-
-# link in adg2188 static lib (xpoint switch driver)
-add_subdirectory(cpp_adg2188)               
-target_link_libraries(${BUILD_NAME} PUBLIC adg2188)
-target_include_directories(${BUILD_NAME} PUBLIC
-    "${PROJECT_SOURCE_DIR}/cpp_adg2188/inc"
-)
-
-# link in FF14b static lib
+add_subdirectory(cpp_adp5587) # keyscan/io expander driver              
+add_subdirectory(cpp_adg2188) #xpoint switch driver              
 add_subdirectory(cpp_fatfs)
-target_link_libraries(${BUILD_NAME} PUBLIC FF14b)
-target_include_directories(${BUILD_NAME} PUBLIC
-    "${PROJECT_SOURCE_DIR}/cpp_fatfs/inc"
-)
+
 
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
