@@ -63,9 +63,6 @@ void mainapp()
 		stm32::isr::InterruptTypeStm32g0::usart5
 	);
 
-	// Timer peripheral for sequencer manager tempo control
-	bass_station::tempo_timer_pair_t sequencer_tempo_timer_pair {TIM3, stm32::isr::InterruptTypeStm32g0::tim3};
-
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
@@ -101,7 +98,7 @@ void mainapp()
 
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
-		sequencer_tempo_timer_pair,
+		std::make_pair(TIM3, stm32::isr::InterruptTypeStm32g0::tim3), // Timer peripheral for sequencer manager tempo control
 		sequencer_encoder_timer,
 		ssd1306_spi_interface, 
 		ad5587_keypad_i2c, 

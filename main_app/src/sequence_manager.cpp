@@ -26,7 +26,7 @@ namespace bass_station
 {
 
 SequenceManager::SequenceManager(
-    tempo_timer_pair_t &tempo_timer_pair,
+    std::pair<TIM_TypeDef*, stm32::isr::InterruptTypeStm32g0> tempo_timer_pair,
     TIM_TypeDef *sequencer_encoder_timer,
     ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface, 
     I2C_TypeDef *ad5587_keypad_i2c,

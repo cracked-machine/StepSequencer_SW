@@ -49,7 +49,7 @@ public:
     /// @param led_spi_interface The LedManager SPI interface
     /// @param midi_usart_interface The MIDI USART interface
     SequenceManager(
-        tempo_timer_pair_t &tempo_timer_pair,
+        tempo_timer_pair_t tempo_timer_pair,
         TIM_TypeDef *sequencer_encoder_timer,
         ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi, 
         I2C_TypeDef *ad5587_keypad_i2c,

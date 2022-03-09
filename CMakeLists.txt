@@ -48,6 +48,7 @@ add_subdirectory(cpp_adg2188) #xpoint switch driver
 add_subdirectory(cpp_fatfs)
 
 
+
 # add the stm32-specific sources for the embedded build
 if(TARGET_TYPE STREQUAL ARM)
     if(CMAKE_BUILD_TYPE STREQUAL Debug)
