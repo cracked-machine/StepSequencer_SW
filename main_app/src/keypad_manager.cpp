@@ -55,7 +55,8 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
 
     // start the debounce timer for the keypad
 #if not defined(X86_UNIT_TESTING_ONLY)
-    LL_TIM_EnableCounter(m_debounce_timer.get());        
+    m_debounce_timer.get()->CR1 = m_debounce_timer.get()->CR1 | TIM_CR1_CEN;
+    // LL_TIM_EnableCounter(m_debounce_timer.get());        
 #endif
 }
 
@@ -78,7 +79,7 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
         // strict debounce control on the pattern step button presses. 
         // if threshold is too short the button will toggle states before user releases the button (annoying)
         // if threshold is too long the button will not be responsive enough.
-        uint32_t timer_count_ms = LL_TIM_GetCounter(m_debounce_timer.get());
+        uint32_t timer_count_ms = m_debounce_timer.get()->CNT;
         if (timer_count_ms - m_last_pattern_debounce_count_ms > m_pattern_debounce_threshold_ms) 
         {
             // find the key event that matches the sequence step

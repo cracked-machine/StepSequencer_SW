@@ -52,7 +52,9 @@ SequenceManager::SequenceManager(
     m_sequencer_encoder_timer->CNT = 16;
 
     #if not defined(X86_UNIT_TESTING_ONLY)
-        LL_TIM_EnableCounter(m_sequencer_encoder_timer.get());
+
+        // enable the timer
+        m_sequencer_encoder_timer.get()->CR1 = m_sequencer_encoder_timer.get()->CR1 | TIM_CR1_CEN;;
 
         // setup this class as timer ISR handler
         m_sequencer_tempo_timer_isr_handler.initialise(this);
@@ -60,8 +62,9 @@ SequenceManager::SequenceManager(
         // setup this class as EXTI ISR handler
         m_rotary_sw_exti_handler.register_driver(this);
 
-        LL_TIM_EnableIT_UPDATE(m_tempo_timer_pair.first);  
-        LL_TIM_EnableCounter(m_tempo_timer_pair.first);        
+        // enable the timer with update interrupt
+        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+        m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
         
     #endif
 }
@@ -90,10 +93,13 @@ void SequenceManager::start_loop()
                 // reset the sequence pattern position when we press play
                 m_pattern_cursor = 0;
                 m_midi_driver.reset_midi_pulse_cnt();
+
                 // Tell the MIDI slave device to start from beginning
                 m_midi_driver.send_realtime_start_msg();
-                LL_TIM_EnableIT_UPDATE(m_tempo_timer_pair.first);  
-                LL_TIM_EnableCounter(m_tempo_timer_pair.first);    
+                
+                // enable the timer with update interrupt
+                m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+                m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;                
 
                 m_midi_state = UserKeyStates::RUNNING;  
                 m_sequencer_state = UserKeyStates::RUNNING;  
@@ -102,8 +108,11 @@ void SequenceManager::start_loop()
      
                 // Tell the MIDI slave device to pause
                 m_midi_driver.send_realtime_stop_msg();
-                LL_TIM_DisableIT_UPDATE(m_tempo_timer_pair.first);  
-                LL_TIM_DisableCounter(m_tempo_timer_pair.first);                    
+
+                // disable the timer with update interrupt
+                m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
+                m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;  
+   
 
                 m_midi_state = UserKeyStates::STOPPED;
                 m_sequencer_state = UserKeyStates::STOPPED;  
@@ -145,13 +154,14 @@ void SequenceManager::tempo_timer_isr()
 
     // reset the UIF bit to re-enable interrupts
     #if not defined(X86_UNIT_TESTING_ONLY)
-        LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
+        m_tempo_timer_pair.first->SR = m_tempo_timer_pair.first->SR & ~TIM_SR_UIF;
+        // LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
     #endif
 }
 
 void SequenceManager::rotary_sw_exti_isr()
 {
-    uint32_t timer_count_ms = LL_TIM_GetCounter(TIM17);
+    uint32_t timer_count_ms = m_debounce_timer.get()->CNT;
     if (timer_count_ms - m_last_mode_debounce_count_ms > m_mode_debounce_threshold_ms) 
     {
         if (m_current_mode == bass_station::SequenceManager::Mode::NOTE_SELECT) 
@@ -200,7 +210,8 @@ void SequenceManager::update_display_and_tempo()
         if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
         {
             #if not defined(X86_UNIT_TESTING_ONLY)
-                if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
+                if (m_sequencer_encoder_timer.get()->CR1 & TIM_CR1_DIR)
+                // if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
                 {
                     direction += "up  ";
                     m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
