@@ -72,10 +72,8 @@ void mainapp()
 	// SPI peripheral for SSD1306 display driver serial communication
 	ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> ssd1306_spi_interface(
 		SPI1, 
-		GPIOA, 
-		LL_GPIO_PIN_0, 
-		GPIOA, 
-		LL_GPIO_PIN_3,
+		std::make_pair(GPIOA, GPIO_BSRR_BS0), 	// PA0 - DC
+		std::make_pair(GPIOA, GPIO_BSRR_BS3), 	// PA3 - Reset
 		stm32::isr::InterruptTypeStm32g0::dma1_ch2);
 
 	// I2C peripheral for keypad manager serial communication
@@ -87,19 +85,17 @@ void mainapp()
 	// I2C periperhal for synth output control switch serial communication
 	I2C_TypeDef *adg2188_control_sw_i2c = I2C2;
 
+	// std::pair<GPIO_TypeDef*, uint16_t> test (GPIOB, GPIO_BSRR_BS9);
+
 	// SPI peripheral for TLC5955 LED driver serial communication
 	tlc5955::DriverSerialInterface tlc5955_spi_interface(
 		SPI2, 
-		GPIOB, 
-		GPIO_BSRR_BS9, 
-		GPIOB, 
-		GPIO_BSRR_BS7, 
-		GPIOB, 
-		GPIO_BSRR_BS8,
-		TIM4,
-		TIM_CCER_CC1E,
-		RCC_IOPENR_GPIOBEN, // for enabling GPIOB clock
-		RCC_APBENR1_SPI2EN  // for enabling SPI2 clock
+		std::make_pair(GPIOB, GPIO_BSRR_BS9), 	// latch port+pin
+		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi port+pin 
+		std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck port+pin
+		std::make_pair(TIM4, TIM_CCER_CC1E),	// gsclk timer+channel
+		RCC_IOPENR_GPIOBEN, 					// for enabling GPIOB clock
+		RCC_APBENR1_SPI2EN  					// for enabling SPI2 clock
 	);
 
 
