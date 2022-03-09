@@ -91,15 +91,16 @@ void mainapp()
 	tlc5955::DriverSerialInterface tlc5955_spi_interface(
 		SPI2, 
 		GPIOB, 
-		LL_GPIO_PIN_9, 
+		GPIO_BSRR_BS9, 
 		GPIOB, 
-		LL_GPIO_PIN_7, 
+		GPIO_BSRR_BS7, 
 		GPIOB, 
-		LL_GPIO_PIN_8,
+		GPIO_BSRR_BS8,
 		TIM4,
 		TIM_CCER_CC1E,
-		LL_IOP_GRP1_PERIPH_GPIOB,
-		LL_APB1_GRP1_PERIPH_SPI2);
+		RCC_IOPENR_GPIOBEN, // for enabling GPIOB clock
+		RCC_APBENR1_SPI2EN  // for enabling SPI2 clock
+	);
 
 
 	// initialise the sequencer
