@@ -34,7 +34,17 @@ extern "C"
 
 void mainapp()
 {	
-	bass_station::FileManager fm;
+
+    fatfs::DriverInterfaceSPI fatfs_spi_interface (
+        SPI2,
+        std::make_pair(GPIOB, GPIO_BSRR_BS9), 	// cs port+pin   - PB9
+		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi port+pin - PB7
+        std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso port+pin - PD3
+		std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck port+pin  - PB8
+        RCC_APBENR1_SPI2EN
+    );
+	
+	bass_station::FileManager spi_fm(fatfs_spi_interface);
 
 	// initialise the timer used for system wide microsecond timeout
 	stm32::TimerManager::initialise(TIM6);

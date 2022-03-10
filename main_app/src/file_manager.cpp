@@ -21,33 +21,47 @@
 // SOFTWARE.
 
 #include <file_manager.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+    #include <stm32g0xx_ll_gpio.h>
+#pragma GCC diagnostic pop
 
 namespace bass_station 
 {
-
-FileManager::FileManager()
+/// @brief Construct a new File Manager object
+/// @param dtype 
+/// @param fatfs_spi_interface 
+FileManager::FileManager(
+    fatfs::DriverInterfaceSPI &fatfs_spi_interface) 
+:   
+    m_diskio_mmc(fatfs_spi_interface)
 {
+
+    m_fat_handle.init(m_diskio_mmc);
+
     // Mount the file system. 1 = mount now
 	m_last_result = m_fat_handle.f_mount(&m_filesys, m_sd_path.data(), 1); 
-	while (m_last_result != fatfs::FRESULT::FR_OK);
+	// while (m_last_result != fatfs::FRESULT::FR_OK);
 
     // Open the file
     fatfs::FIL fil;
 	m_last_result = m_fat_handle.f_open(&fil, m_sd_path.data(), fatfs::Driver::FA_WRITE);
-    while (m_last_result != fatfs::FRESULT::FR_OK);
+    // while (m_last_result != fatfs::FRESULT::FR_OK);
 	
     // Read from the file
     std::array<char, 100> read_buff;
 	fatfs::UINT bytes_read {0};
 	m_last_result = m_fat_handle.f_read(&fil, read_buff.data(), read_buff.size(), &bytes_read);
-	while (m_last_result != fatfs::FRESULT::FR_OK);
+	// while (m_last_result != fatfs::FRESULT::FR_OK);
 
     // Write to the file
 	std::array<char, 100> write_buff;
 	fatfs::UINT bytes_written {0};
 	m_last_result = m_fat_handle.f_write(&fil, write_buff.data(), write_buff.size(), &bytes_written);
-    while (m_last_result != fatfs::FRESULT::FR_OK);
+    // while (m_last_result != fatfs::FRESULT::FR_OK);
     
 }
+
+
 
 } // namespace bass_station 

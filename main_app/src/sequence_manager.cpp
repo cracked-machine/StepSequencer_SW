@@ -22,6 +22,8 @@
 
 #include <sequence_manager.hpp>
 
+#define LED_MANAGER_ENABLED 1
+
 namespace bass_station
 {
 
@@ -46,7 +48,8 @@ SequenceManager::SequenceManager(
 {
 
     // send configuration data to TLC5955
-    m_led_manager.send_control_data();
+    if (LED_MANAGER_ENABLED)
+        m_led_manager.send_control_data();
 
     // enable the timer with a starting "tempo"
     m_sequencer_encoder_timer->CNT = 16;
@@ -327,7 +330,8 @@ void SequenceManager::execute_next_sequence_step(bool run_demo_only)
         current_step.m_key_state = KeyState::ON;
 
         // send the entire updated LED sequence to the TL5955 driver
-        m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
+        if (LED_MANAGER_ENABLED)
+            m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
         
         // restore the state of the current step (so it is cleared on the next iteration)
         current_step.m_colour = previous_colour;

@@ -24,6 +24,7 @@
 #define __FILE_MANAGER_HPP__
 
 #include <ff.hpp>
+#include <fatfs_spi_device.hpp>
 #include <array>
 
 namespace bass_station 
@@ -32,15 +33,18 @@ namespace bass_station
 class FileManager 
 {
 public:
-    FileManager();
+    FileManager(fatfs::DriverInterfaceSPI &fatfs_spi_interface);
 
 private:
-    fatfs::Driver m_fat_handle {fatfs::DiskioType::MMC};
+    fatfs::DiskioMMC m_diskio_mmc;
+    fatfs::Driver m_fat_handle;
     fatfs::FATFS m_filesys;
     fatfs::FRESULT m_last_result;
 
     // uSD device logical drive path
-    std::array<fatfs::TCHAR, 4> m_sd_path;          
+    std::array<fatfs::TCHAR, 4> m_sd_path;     
+
+    void spi_init();     
 };
 
 } // namespace bass_station 
