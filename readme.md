@@ -34,9 +34,13 @@ The key press event IDs from the ADP5587 IC are stored in an enumeration - [adp5
 
 In order to map these IDs to the steps in the sequencer pattern, an associative array is used. Note there are 32 steps in the pattern, one for each physical button on the HW sequencer.
 
-Since `std::map` uses dynamic allocation, a custom statically allocated map was created. This uses a `std::array` of `std::pairs`. The first item in the pair is the map _key_, the second item in the pair is the map _value_.
+Since `std::map` uses dynamic allocation, a custom statically allocated map was created. This uses a `std::array` of `std::pairs`. The first item in the pair is the map _key_, the second item in the pair is the map _value_. 
+
+Here `KeyPadMappings` is the map _key_ and `Step` is the map _value_.
 
 Each `Step` object has a `KeyState` (on/off), a RDG `LedColour` and a `Note` (any note between C0-C2).
+
+Therefore, when the ADP5587 key press event FIFO is examined, the associated `Step` object _value_ can quickly be found (via the [StaticMap::find_key](https://github.com/cracked-machine/embedded_utils/blob/f95b03fb64793b577ebdf62d6b0850f746a08d62/inc/static_map.hpp#L48) function) using KeyPadMapping as the _key_.  This is not only convenient but also efficiently avoids using a huge switch statement in the user code.
 ![](doc/SequenceManager-m_sequence_map.png)
 
 ### Mapping notes to crosspoint switch poles
