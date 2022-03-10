@@ -25,7 +25,7 @@
 #include <sequence_manager.hpp>
 #include <timer_manager.hpp>
 #include <adp5587.hpp>
-#include <ff.hpp>
+#include <diskio.hpp>
 
 #ifdef __cplusplus
 extern "C"
@@ -34,7 +34,8 @@ extern "C"
 
 void mainapp()
 {	
-	fatfs::ff fatfs_handle;
+	fatfs::DiskioMMC diskio;
+	fatfs::Driver fatfs_handle(diskio);
 	fatfs::FATFS fs;
 	fatfs::FIL fil;
 	char sd_path[4];          /* uSD device logical drive path */
