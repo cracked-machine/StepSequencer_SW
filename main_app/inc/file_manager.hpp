@@ -37,7 +37,7 @@ public:
 private:
 
     fatfs::DiskIO_MMC_SPI m_diskio_mmc_spi;
-    fatfs::DriverSPI m_fat_handle;
+    fatfs::DriverSPI m_fat_spi_driver;
     fatfs::FATFS m_filesys;
     fatfs::FRESULT m_last_result;
 

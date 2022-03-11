@@ -33,32 +33,31 @@ namespace bass_station
 /// @param fatfs_spi_interface 
 FileManager::FileManager(
     fatfs::DiskioProtocolSPI &fatfs_spi_interface) 
-:   
+:   // init the mmc diskio layer with the STM32 SPI definitions (SPI_TypeDef/GPIOs)
     m_diskio_mmc_spi(fatfs_spi_interface),
-    m_fat_handle(m_diskio_mmc_spi)
+    // init the fatfs::Driver with the mmc/spi diskio layer
+    m_fat_spi_driver(m_diskio_mmc_spi)
 {
 
-    
-
     // Mount the file system. 1 = mount now
-	m_last_result = m_fat_handle.f_mount(&m_filesys, m_sd_path.data(), 1); 
+	m_last_result = m_fat_spi_driver.f_mount(&m_filesys, m_sd_path.data(), 1); 
 	// while (m_last_result != fatfs::FRESULT::FR_OK);
 
     // Open the file
     fatfs::FIL fil;
-	m_last_result = m_fat_handle.f_open(&fil, m_sd_path.data(), fatfs::FA_WRITE);
+	m_last_result = m_fat_spi_driver.f_open(&fil, m_sd_path.data(), fatfs::FA_WRITE);
     // while (m_last_result != fatfs::FRESULT::FR_OK);
 	
     // Read from the file
     std::array<char, 100> read_buff;
 	fatfs::UINT bytes_read {0};
-	m_last_result = m_fat_handle.f_read(&fil, read_buff.data(), read_buff.size(), &bytes_read);
+	m_last_result = m_fat_spi_driver.f_read(&fil, read_buff.data(), read_buff.size(), &bytes_read);
 	// while (m_last_result != fatfs::FRESULT::FR_OK);
 
     // Write to the file
 	std::array<char, 100> write_buff;
 	fatfs::UINT bytes_written {0};
-	m_last_result = m_fat_handle.f_write(&fil, write_buff.data(), write_buff.size(), &bytes_written);
+	m_last_result = m_fat_spi_driver.f_write(&fil, write_buff.data(), write_buff.size(), &bytes_written);
     // while (m_last_result != fatfs::FRESULT::FR_OK);
     
 }
