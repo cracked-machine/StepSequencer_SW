@@ -71,10 +71,7 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
     // process each key event in turn (if any)
     for (adp5587::Driver<STM32G0_ISR>::KeyPadMappings key_event : key_events_list)
     {
-        // Bounce not important for stop button where we want max responsiveness. 
-        // Also allows start button "glitch" effect where pattern can be restarted multiple times by holding down the button :)
-        if (static_cast<int>(key_event) == StopButtonID) { running_status = UserKeyStates::STOPPED; }
-        if (static_cast<int>(key_event) == StartButtonID) { running_status = UserKeyStates::RUNNING; }
+
 
         // strict debounce control on the pattern step button presses. 
         // if threshold is too short the button will toggle states before user releases the button (annoying)
@@ -82,6 +79,11 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
         uint32_t timer_count_ms = m_debounce_timer.get()->CNT;
         if (timer_count_ms - m_last_pattern_debounce_count_ms > m_pattern_debounce_threshold_ms) 
         {
+
+            // update the running status of the overall sequencer if start/stop buttons pressed
+            if (static_cast<int>(key_event) == StopButtonID) { running_status = UserKeyStates::STOPPED; }
+            if (static_cast<int>(key_event) == StartButtonID) { running_status = UserKeyStates::RUNNING; }
+
             // find the key event that matches the sequence step
             Step *step = sequence_map.find_key(key_event);
             if(step == nullptr) { /* no match found in map */ }

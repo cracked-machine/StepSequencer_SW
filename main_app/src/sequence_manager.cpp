@@ -106,29 +106,53 @@ void SequenceManager::main_loop()
         {
             case UserKeyStates::RUNNING:
                 
-                // reset the sequence pattern position when we press play
-                m_pattern_cursor = 0;
-                m_midi_driver.reset_midi_pulse_cnt();
+                // either justed booted or user reset the position with stop button
+                if (m_pattern_cursor == 0)
+                {
+                    // reset the 1/12 MIDI heartbeat count 
+                    m_midi_driver.reset_midi_pulse_cnt();
 
-                // Tell the MIDI slave device to start from beginning
-                m_midi_driver.send_realtime_start_msg();
+                    // tell MIDI slave device to start its pattern from beginning (restart)
+                    m_midi_driver.send_realtime_start_msg();
+
+                    // enable the timer with update interrupt
+                    m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+                    m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;                
+
+                    m_midi_state = UserKeyStates::RUNNING;  
+                    m_sequencer_state = UserKeyStates::RUNNING;                      
+                }
+                else  // resume/continue
+                {
+                    // NOTE: to avoid MIDI/Sequencer sync issues, we don't reset the 1/12 MIDI heartbeat count on continue/resume
+
+                    // tell MIDI slave device to continue its pattern from where it was stopped (resume)
+                    m_midi_driver.send_realtime_continue_msg();  
+
+                    // enable the timer with update interrupt
+                    m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+                    m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;                
+
+                    m_midi_state = UserKeyStates::RUNNING;  
+                    m_sequencer_state = UserKeyStates::RUNNING;  
+
+                }
                 
-                // enable the timer with update interrupt
-                m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-                m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;                
-
-                m_midi_state = UserKeyStates::RUNNING;  
-                m_sequencer_state = UserKeyStates::RUNNING;  
-
                 break;
             case UserKeyStates::STOPPED:
-     
-                // Tell the MIDI slave device to pause
-                m_midi_driver.send_realtime_stop_msg();
-
                 // disable the timer with update interrupt
                 m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
-                m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;  
+                m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;
+
+                // Tell the MIDI slave device to pause
+                m_midi_driver.send_realtime_stop_msg();
+                
+                // if already stopped reset pattern position
+                if (m_sequencer_state == UserKeyStates::STOPPED)
+                {
+                    m_pattern_cursor = 0;
+                }
+  
    
                 m_midi_state = UserKeyStates::STOPPED;
                 m_sequencer_state = UserKeyStates::STOPPED;  
