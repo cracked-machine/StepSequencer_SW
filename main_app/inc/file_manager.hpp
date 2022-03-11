@@ -24,7 +24,6 @@
 #define __FILE_MANAGER_HPP__
 
 #include <ff.hpp>
-#include <fatfs_spi_device.hpp>
 #include <array>
 
 namespace bass_station 
@@ -37,7 +36,7 @@ public:
 
 private:
     fatfs::DiskioMMC m_diskio_mmc;
-    fatfs::Driver m_fat_handle;
+    fatfs::DriverSPI m_fat_handle;
     fatfs::FATFS m_filesys;
     fatfs::FRESULT m_last_result;
 

@@ -34,10 +34,11 @@ namespace bass_station
 FileManager::FileManager(
     fatfs::DriverInterfaceSPI &fatfs_spi_interface) 
 :   
-    m_diskio_mmc(fatfs_spi_interface)
+    m_diskio_mmc(fatfs_spi_interface),
+    m_fat_handle(m_diskio_mmc)
 {
 
-    m_fat_handle.init(m_diskio_mmc);
+    // m_fat_handle.init(m_diskio_mmc);
 
     // Mount the file system. 1 = mount now
 	m_last_result = m_fat_handle.f_mount(&m_filesys, m_sd_path.data(), 1); 
@@ -45,7 +46,7 @@ FileManager::FileManager(
 
     // Open the file
     fatfs::FIL fil;
-	m_last_result = m_fat_handle.f_open(&fil, m_sd_path.data(), fatfs::Driver::FA_WRITE);
+	m_last_result = m_fat_handle.f_open(&fil, m_sd_path.data(), fatfs::FA_WRITE);
     // while (m_last_result != fatfs::FRESULT::FR_OK);
 	
     // Read from the file
