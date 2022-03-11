@@ -37,7 +37,7 @@ public:
 
     // @brief Construct a new Display Manager object
     // @param timer Used for refresh rate of the display
-    DisplayManager(ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface);
+    DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface);
     
     // @brief Abstract representation of a line of the display
     enum class DisplayLine
@@ -73,7 +73,7 @@ private:
     ssd1306::Font5x7 m_font;
 
     // @brief SSD1306 OLED driver
-    ssd1306::Driver<stm32::isr::InterruptTypeStm32g0> m_oled;
+    ssd1306::Driver<STM32G0_ISR> m_oled;
 
 };
 

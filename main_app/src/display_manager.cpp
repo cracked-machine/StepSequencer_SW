@@ -25,8 +25,8 @@
 namespace bass_station 
 {
 
-DisplayManager::DisplayManager(ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface) 
-: m_oled(ssd1306::Driver<stm32::isr::InterruptTypeStm32g0>(display_spi_interface, ssd1306::Driver<stm32::isr::InterruptTypeStm32g0>::SPIDMA::enabled))
+DisplayManager::DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface) 
+: m_oled(ssd1306::Driver<STM32G0_ISR>(display_spi_interface, ssd1306::Driver<STM32G0_ISR>::SPIDMA::enabled))
 {
     // init SSD1306 IC display driver
 	m_oled.power_on_sequence();

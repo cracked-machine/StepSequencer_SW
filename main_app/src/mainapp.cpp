@@ -32,9 +32,15 @@ extern "C"
 {
 #endif
 
+
+
 void mainapp()
 {	
 
+	// initialise the timer used for system wide microsecond timeout
+	stm32::TimerManager::initialise(TIM6);
+
+	// setup fatfs support for uSDCard
     fatfs::DriverInterfaceSPI fatfs_spi_interface (
         SPI2,
         std::make_pair(GPIOB, GPIO_BSRR_BS9), 	// cs port+pin   - PB9
@@ -46,24 +52,17 @@ void mainapp()
 	
 	bass_station::FileManager spi_fm(fatfs_spi_interface);
 
-	// initialise the timer used for system wide microsecond timeout
-	stm32::TimerManager::initialise(TIM6);
 
-	// The USART and Timer used to send the MIDI heartbeat
-	midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> midi_usart_interface(
-		USART5,
-		stm32::isr::InterruptTypeStm32g0::usart5
-	);
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
 	// SPI peripheral for SSD1306 display driver serial communication
-	ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> ssd1306_spi_interface(
+	ssd1306::DriverSerialInterface<STM32G0_ISR> ssd1306_spi_interface(
 		SPI1, 
 		std::make_pair(GPIOA, GPIO_BSRR_BS0), 	// PA0 - DC
 		std::make_pair(GPIOA, GPIO_BSRR_BS3), 	// PA3 - Reset
-		stm32::isr::InterruptTypeStm32g0::dma1_ch2);
+		STM32G0_ISR::dma1_ch2);
 
 	// I2C peripheral for keypad manager serial communication
 	I2C_TypeDef *ad5587_keypad_i2c = I2C3;
@@ -87,10 +86,16 @@ void mainapp()
 		RCC_APBENR1_SPI2EN  					// for enabling SPI2 clock
 	);
 
+	// The USART and Timer used to send the MIDI heartbeat
+	midi_stm32::DeviceInterface<STM32G0_ISR> midi_usart_interface(
+		USART5,
+		STM32G0_ISR::usart5
+	);	
+
 
 	// initialise the sequencer
 	static bass_station::SequenceManager sequencer(
-		std::make_pair(TIM3, stm32::isr::InterruptTypeStm32g0::tim3), // Timer peripheral for sequencer manager tempo control
+		std::make_pair(TIM3, STM32G0_ISR::tim3), // Timer peripheral for sequencer manager tempo control
 		sequencer_encoder_timer,
 		ssd1306_spi_interface, 
 		ad5587_keypad_i2c, 
@@ -99,7 +104,7 @@ void mainapp()
 		tlc5955_spi_interface,
 		midi_usart_interface);
 
-	sequencer.start_loop();
+	sequencer.main_loop();
 	// we should never get past here	
 }
 

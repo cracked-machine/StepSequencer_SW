@@ -38,7 +38,7 @@ FileManager::FileManager(
     m_fat_handle(m_diskio_mmc)
 {
 
-    // m_fat_handle.init(m_diskio_mmc);
+    
 
     // Mount the file system. 1 = mount now
 	m_last_result = m_fat_handle.f_mount(&m_filesys, m_sd_path.data(), 1); 

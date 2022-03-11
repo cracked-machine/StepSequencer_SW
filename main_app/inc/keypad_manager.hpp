@@ -64,14 +64,14 @@ public:
 
     /// @brief Get the key events object
     /// @param key_events_list 
-    void get_key_events(std::array<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, 10> &key_events_list);
+    void get_key_events(std::array<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, 10> &key_events_list);
     
     /// @brief Update step_sequence map param with latest Keypad events and return the latest UserKey press.
     // @param step_sequence The map object containing current pattern data
     // @return UserKeyStates Latest UserKey press
     UserKeyStates process_key_events(
         noarch::containers::StaticMap<
-            adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, 
+            adp5587::Driver<STM32G0_ISR>::KeyPadMappings, 
             bass_station::Step, 
             32U
         > &step_sequence);
@@ -81,7 +81,7 @@ public:
 
 private:
     // @brief The ADP5587 keypad driver 
-    adp5587::Driver<stm32::isr::InterruptTypeStm32g0> m_keypad_driver;
+    adp5587::Driver<STM32G0_ISR> m_keypad_driver;
 
     /// @brief The timer for pattern key debounce
     std::unique_ptr<TIM_TypeDef> m_debounce_timer;
@@ -93,8 +93,8 @@ private:
     uint32_t m_last_pattern_debounce_count_ms{0};
 
 
-    static constexpr uint8_t StartButtonID = static_cast<uint8_t>(adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::C8 | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::ON);
-    static constexpr uint8_t StopButtonID = static_cast<uint8_t>(adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::C7 | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::GPIKeyMappings::ON);
+    static constexpr uint8_t StartButtonID = static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C8 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
+    static constexpr uint8_t StopButtonID = static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C7 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
 };
 
 } // namespace bass_station

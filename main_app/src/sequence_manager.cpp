@@ -22,20 +22,21 @@
 
 #include <sequence_manager.hpp>
 
-#define LED_MANAGER_ENABLED 1
+
+#define SEQUENCER_AUTOSTART_ON_BOOT 0
 
 namespace bass_station
 {
 
 SequenceManager::SequenceManager(
-    std::pair<TIM_TypeDef*, stm32::isr::InterruptTypeStm32g0> tempo_timer_pair,
+    std::pair<TIM_TypeDef*, STM32G0_ISR> tempo_timer_pair,
     TIM_TypeDef *sequencer_encoder_timer,
-    ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi_interface, 
+    ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface, 
     I2C_TypeDef *ad5587_keypad_i2c,
     TIM_TypeDef *debounce_timer,
     I2C_TypeDef *adg2188_control_sw_i2c,
     tlc5955::DriverSerialInterface &led_spi_interface,
-    midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> &midi_usart_interface) 
+    midi_stm32::DeviceInterface<STM32G0_ISR> &midi_usart_interface) 
     
     :   m_tempo_timer_pair(tempo_timer_pair),
         m_sequencer_encoder_timer(sequencer_encoder_timer),
@@ -47,36 +48,48 @@ SequenceManager::SequenceManager(
         m_debounce_timer(debounce_timer)
 {
 
-    // send configuration data to TLC5955
-    if (LED_MANAGER_ENABLED)
-        m_led_manager.send_control_data();
+    // Send configuration data to TLC5955. The first of two steps. 
+    // Second step is sending data in execute_next_sequence_step()
+    m_led_manager.send_control_data();
 
-    // enable the timer with a starting "tempo"
-    m_sequencer_encoder_timer->CNT = 16;
 
     #if not defined(X86_UNIT_TESTING_ONLY)
 
-        // enable the timer
-        m_sequencer_encoder_timer.get()->CR1 = m_sequencer_encoder_timer.get()->CR1 | TIM_CR1_CEN;;
+        // set the rotary encoder to a default value or "tempo"
+        m_sequencer_encoder_timer->CNT = 16;
+        // enable the rotary encoder (timer)
+        m_sequencer_encoder_timer.get()->CR1 = m_sequencer_encoder_timer.get()->CR1 | TIM_CR1_CEN;
+        // setup rotary encoder switch callback (rotary_sw_exti_isr()) to allow mode change (bass_station::SequenceManager::Mode)
+        m_rotary_sw_exti_handler.init_rotary_encoder_callback(this);
 
-        // setup this class as timer ISR handler
-        m_sequencer_tempo_timer_isr_handler.initialise(this);
+        // setup tempo timer callback to allow pattern sequence update
+        m_sequencer_tempo_timer_isr_handler.init_tempo_timer_callback(this);
 
-        // setup this class as EXTI ISR handler
-        m_rotary_sw_exti_handler.register_driver(this);
-
-        // enable the timer with update interrupt
-        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-        m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+        // send the initial LED sequence to the TL5955 driver (this is normally called repeatedly in execute_next_sequence_step())
+        m_led_manager.send_both_rows_greyscale_data(m_sequence_map);        
         
     #endif
 }
 
-void SequenceManager::start_loop()
+void SequenceManager::main_loop()
 {
-    // start connected MIDI device now and start timer to send heartbeat 
-    m_midi_driver.send_realtime_start_msg();
     
+    #if SEQUENCER_AUTOSTART_ON_BOOT
+        
+        // enable the tempo timer with update interrupt
+        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+        m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+
+        m_midi_state = UserKeyStates::RUNNING;
+        m_sequencer_state = UserKeyStates::RUNNING; 
+
+        // start the midi device early so that it synchronizes correctly
+        m_midi_driver.send_realtime_start_msg();
+
+    #endif
+    
+    /// @brief main program infinite loop
+    /// @return never 
     while(true)
     {
         // probably needs its own timer callback as this will become less responsive at slower tempos
@@ -106,6 +119,7 @@ void SequenceManager::start_loop()
 
                 m_midi_state = UserKeyStates::RUNNING;  
                 m_sequencer_state = UserKeyStates::RUNNING;  
+
                 break;
             case UserKeyStates::STOPPED:
      
@@ -116,25 +130,17 @@ void SequenceManager::start_loop()
                 m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
                 m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;  
    
-
                 m_midi_state = UserKeyStates::STOPPED;
                 m_sequencer_state = UserKeyStates::STOPPED;  
+
                 break;
             case UserKeyStates::IDLE:
-                // execute_next_sequence_step(); 
+                // do nothing
                 break;
         }        
 
-    
-        // update the sequencer running state/tempo timer
-        switch(m_sequencer_state)
-        {
-            case UserKeyStates::RUNNING:
-                execute_next_sequence_step();
-                break;
-            default:      
-                break;
-        }
+        // update the pattern LEDs and trigger synth key/note if running
+        execute_next_sequence_step(); 
     }
 }
 
@@ -263,30 +269,27 @@ void SequenceManager::update_display_and_tempo()
     // m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, tempo_string);     
 }
 
-void SequenceManager::execute_next_sequence_step(bool run_demo_only)
+void SequenceManager::execute_next_sequence_step()
 {
-    if (run_demo_only)
-    {
-        // this is kinda broken but it does something colourful
-        m_led_manager.update_ladder_demo(m_sequence_map, 0xFFFF, 100);
-    }   
-    else
-    {
-        // get the Step object for the current sequence position
-        Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_pattern_cursor)).second;
 
-        // save the colour and state of the current step so it can be restored later
-        LedColour previous_colour = current_step.m_colour;
-        KeyState previous_key_state = current_step.m_key_state;
-        
-        if (current_step.m_key_state == KeyState::ON)
+    // get the current sequence position Step object from the map
+    // and save its current colour/state so it can be restored later
+    Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_pattern_cursor)).second;
+    LedColour previous_colour = current_step.m_colour;
+    KeyState previous_key_state = current_step.m_key_state;
+    
+    // find the note for the enabled step so we can trigger the key/note on the synth
+    if (current_step.m_key_state == KeyState::ON)
+    {
+        // update LED colour to show the sequencer IS at this position in the pattern
+        current_step.m_colour = beat_colour_on;
+
+        NoteData *found_note_data = m_note_switch_map.find_key(current_step.m_note);
+
+        // turn on/off the note sound from the previous step but only if sequencer is running
+        if (m_sequencer_state == UserKeyStates::RUNNING)
         {
-            NoteData *found_note_data = m_note_switch_map.find_key(current_step.m_note);
-
-            // update LED colour
-            current_step.m_colour = beat_colour_on;
-            
-            // turn off the note sound from the previous step
+            // first, turn off the synth key/note that we enabled on the previous pattern step
             if (m_previous_enabled_note != nullptr)
             {
                 m_synth_control_switch.write_switch(
@@ -295,50 +298,51 @@ void SequenceManager::execute_next_sequence_step(bool run_demo_only)
                     adg2188::Driver::Latch::set); 
             }
 
+            // second, turn on the synth key/note for the current step
             if (current_step.m_note != Note::none)
             {
-
                 if (found_note_data != nullptr)
                 {
-                    // turn on the note sound for the current step
                     m_synth_control_switch.write_switch(
                         adg2188::Driver::Throw::close, 
                         found_note_data->m_sw,
                         adg2188::Driver::Latch::set);                            
                 }
                 
-            }    
-            // retain the note we enabled this iteration so we can turn it off in the next iteration
-            m_previous_enabled_note = found_note_data;                
+            }                
         }
-        else
-        {
-            // update the LED colour
-            current_step.m_colour = beat_colour_off;
 
-            // turn off the note sound from the previous step
-            if (m_previous_enabled_note != nullptr)
-            {
-                m_synth_control_switch.write_switch(
-                    adg2188::Driver::Throw::open, 
-                    m_previous_enabled_note->m_sw,
-                    adg2188::Driver::Latch::set); 
-            }
-        }    
-
-        // enable the current step in the sequence
-        current_step.m_key_state = KeyState::ON;
-
-        // send the entire updated LED sequence to the TL5955 driver
-        if (LED_MANAGER_ENABLED)
-            m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
-        
-        // restore the state of the current step (so it is cleared on the next iteration)
-        current_step.m_colour = previous_colour;
-        current_step.m_key_state = previous_key_state;
-
-        
+        // retain the synth key/note we enabled for this Step 
+        // so we can turn it off when we get to the next Step
+        m_previous_enabled_note = found_note_data;                
     }
+    else // the current pattern Step is disabled. Disable the previous LED and synth key/note
+    {
+        // update LED colour to show the sequencer is NOT at this position in the pattern anymore
+        current_step.m_colour = beat_colour_off;
+
+        // turn off the note sound from the previous step
+        if (m_previous_enabled_note != nullptr)
+        {
+            m_synth_control_switch.write_switch(
+                adg2188::Driver::Throw::open, 
+                m_previous_enabled_note->m_sw,
+                adg2188::Driver::Latch::set); 
+        }
+    }    
+
+    // finally enable the current step in the sequence
+    current_step.m_key_state = KeyState::ON;
+
+    // send the updated LED sequence map to the TL5955 driver
+    m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
+    
+    // restore the state of the current step (so it is cleared on the next iteration)
+    current_step.m_colour = previous_colour;
+    current_step.m_key_state = previous_key_state;
+
+    
+
 }
 
 // @brief The keyboard notes of the BassStation and their associated control switch pole
@@ -371,42 +375,42 @@ std::array< std::pair< Note, NoteData>, 25> SequenceManager::m_note_switch_data 
 }};
 
 // The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
-std::array< std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step >, 32 > SequenceManager::m_sequence_data = {{
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A0_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON,  Note::c0, default_colour,         0,   4,  0)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A1_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::c0_sharp, default_colour,   1,   0,  1)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A2_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::d0, default_colour,         2,   5,  2)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A3_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::d0_sharp, default_colour,   3,   1,  3)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A4_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::e0, default_colour,         4,   2,  4)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A5_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f0, default_colour,         5,   6,  5)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A6_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f0_sharp, default_colour,   6,   3,  6)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::A7_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g0, default_colour,         7,   7,  7)},
+std::array< std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step >, 32 > SequenceManager::m_sequence_data = {{
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON,  Note::c0, default_colour,         0,   4,  0)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A1_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::c0_sharp, default_colour,   1,   0,  1)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A2_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::d0, default_colour,         2,   5,  2)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A3_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::d0_sharp, default_colour,   3,   1,  3)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A4_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::e0, default_colour,         4,   2,  4)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A5_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f0, default_colour,         5,   6,  5)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A6_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f0_sharp, default_colour,   6,   3,  6)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g0, default_colour,         7,   7,  7)},
 
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B0_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::e1, default_colour,       8,   11, 8)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B1_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         9,   15, 9)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B2_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         10,  10, 10)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B3_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         11,  14, 11)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B4_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c2, default_colour,         12,  13, 12)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B5_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         13,  9,  13)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B6_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         14,  12, 14)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::B7_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         15,  8,  15)}, 
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::e1, default_colour,       8,   11, 8)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B1_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         9,   15, 9)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B2_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         10,  10, 10)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B3_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         11,  14, 11)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B4_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c2, default_colour,         12,  13, 12)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B5_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         13,  9,  13)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B6_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         14,  12, 14)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         15,  8,  15)}, 
 
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C0_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::e0, default_colour,         0,   7,  16)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C1_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f1, default_colour,         1,   3,  17)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C2_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f1_sharp, default_colour,   2,   6,  18)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C3_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g1, default_colour,         3,   2,  19)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C4_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g1_sharp, default_colour,   4,   1,  20)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C5_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::a2, default_colour,         5,   5,  21)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C6_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::a2_sharp, default_colour,   6,   0,  22)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::C7_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::OFF, Note::b2, default_colour,         7,   4,  23)},  
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::e0, default_colour,         0,   7,  16)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C1_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f1, default_colour,         1,   3,  17)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C2_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f1_sharp, default_colour,   2,   6,  18)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C3_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g1, default_colour,         3,   2,  19)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C4_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g1_sharp, default_colour,   4,   1,  20)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C5_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::a2, default_colour,         5,   5,  21)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C6_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::a2_sharp, default_colour,   6,   0,  22)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::b2, default_colour,         7,   4,  23)},  
 
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D0_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c2, default_colour,         8,   8,  24)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D1_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         9,   12, 25)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D2_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         10,  9,  26)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D3_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         11,  13, 27)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D4_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c2, default_colour,         12,  14, 28)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D5_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         13,  10, 29)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D6_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         14,  15, 30)},
-    {adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::D7_OFF | adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         15,  11, 31)},       
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c2, default_colour,         8,   8,  24)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D1_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         9,   12, 25)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D2_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         10,  9,  26)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D3_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         11,  13, 27)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D4_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c2, default_colour,         12,  14, 28)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D5_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         13,  10, 29)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D6_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         14,  15, 30)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         15,  11, 31)},       
 }};    
 
 

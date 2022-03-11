@@ -32,7 +32,7 @@ namespace bass_station
 {
 
 
-using tempo_timer_pair_t = std::pair<TIM_TypeDef*, stm32::isr::InterruptTypeStm32g0>;
+using tempo_timer_pair_t = std::pair<TIM_TypeDef*, STM32G0_ISR>;
 
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
@@ -51,14 +51,15 @@ public:
     SequenceManager(
         tempo_timer_pair_t tempo_timer_pair,
         TIM_TypeDef *sequencer_encoder_timer,
-        ssd1306::DriverSerialInterface<stm32::isr::InterruptTypeStm32g0> &display_spi, 
+        ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi, 
         I2C_TypeDef *ad5587_keypad_i2c,
         TIM_TypeDef *debounce_timer,
         I2C_TypeDef *adg2188_control_sw_i2c,
         tlc5955::DriverSerialInterface &led_spi_interface,
-        midi_stm32::DeviceInterface<stm32::isr::InterruptTypeStm32g0> &midi_usart_interface);
+        midi_stm32::DeviceInterface<STM32G0_ISR> &midi_usart_interface);
 
-        void start_loop();
+        /// @brief Start the main sequencer loop. Called from mainapp.cpp 
+        void main_loop();
 
 private:
 
@@ -79,11 +80,11 @@ private:
     uint16_t m_last_encoder_value;
 
     // @brief  The 32-step sequence data
-    static std::array< std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step >, 32 > m_sequence_data;
+    static std::array< std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step >, 32 > m_sequence_data;
 
     /// @brief Map holding the sequence data associated to its ADP5587 HW button index
-    noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, m_sequence_data.size()> m_sequence_map = 
-        noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, m_sequence_data.size()>{{m_sequence_data}};
+    noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, m_sequence_data.size()> m_sequence_map = 
+        noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, m_sequence_data.size()>{{m_sequence_data}};
 
     // @brief The 25-key note data of the BassStation keyboard
     static std::array< std::pair< Note, NoteData >, 25> m_note_switch_data;
@@ -111,10 +112,12 @@ private:
     /// @brief Manages the TLC5955 chip
     bass_station::LedManager m_led_manager;
 
-    midi_stm32::Driver<stm32::isr::InterruptTypeStm32g0> m_midi_driver;
+    midi_stm32::Driver<STM32G0_ISR> m_midi_driver;
 
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_pattern_cursor {0};
+
+    
 
     /// @brief Save this value so we can return to TEMPO_MODE with the expected tempo
     uint16_t m_saved_tempo_setting {0};
@@ -133,28 +136,28 @@ private:
 
     /// @brief Runs the note/step sequence
     /// @param run_demo_only 
-    void execute_next_sequence_step(bool run_demo_only = false);
+    void execute_next_sequence_step();
 
-    UserKeyStates m_midi_state{UserKeyStates::RUNNING};
-    UserKeyStates m_sequencer_state{UserKeyStates::RUNNING};    
+    UserKeyStates m_midi_state{UserKeyStates::STOPPED};
+    UserKeyStates m_sequencer_state{UserKeyStates::STOPPED};    
 
     /// @brief This determines the positional order in which the cursor sweeps the sequence
     // This begins on the upper row and ends on the lower row, sweeping left to right
     std::array<uint8_t, 32> m_sequencer_key_mapping {16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
     /// @brief Registers Timer ISR handler class with InterruptManager for STM32G0
-    struct TempoTimerIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
+    struct TempoTimerIntHandler : public stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>
 	{
         /// @brief the parent driver class
         SequenceManager *m_seq_man_ptr;
 
 		/// @brief initialise and register this handler instance with InterruptManagerStm32g0
 		// @param parent_driver_ptr the instance to register
-		void initialise(SequenceManager *seq_man_ptr)
+		void init_tempo_timer_callback(SequenceManager *seq_man_ptr)
 		{
 			m_seq_man_ptr = seq_man_ptr;
 			// register pointer to this handler class in stm32::isr::InterruptManagerStm32g0
-			stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
+			stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
 		}        
         // @brief Definition of InterruptManagerStm32Base::ISR. This is called by stm32::isr::InterruptManagerStm32Base<sINTERRUPT_TYPE> specialization 
 		virtual void ISR()
@@ -169,17 +172,17 @@ private:
     void tempo_timer_isr();
 
     /// @brief Registers EXTI ISR handler class with InterruptManager for STM32G0
-	struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>
+	struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>
 	{
         // @brief the parent driver class
         SequenceManager *m_parent_driver_ptr;
 		// @brief initialise and register this handler instance with IsrManagerStm32g0
 		// @param parent_driver_ptr the instance to register
-		void register_driver(SequenceManager *parent_driver_ptr)
+		void init_rotary_encoder_callback(SequenceManager *parent_driver_ptr)
 		{
 			m_parent_driver_ptr = parent_driver_ptr;
 			// register pointer to this handler class in stm32::isr::IsrManagerStm32g0
-			stm32::isr::InterruptManagerStm32Base<stm32::isr::InterruptTypeStm32g0>::register_handler(stm32::isr::InterruptTypeStm32g0::exti10 , this);
+			stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(STM32G0_ISR::exti10 , this);
 		}        
         // @brief The callback used by IsrManagerStm32g0
 		virtual void ISR()

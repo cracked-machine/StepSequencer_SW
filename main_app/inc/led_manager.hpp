@@ -59,14 +59,14 @@ public:
     // @tparam LED_NUMBER The size of the sequence array (always 32 in this version)
     // @param step_sequence The array of step objects that make up the full sequence
     template <std::size_t LED_NUMBER>
-    void send_both_rows_greyscale_data(noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, LED_NUMBER> &step_sequence);
+    void send_both_rows_greyscale_data(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &step_sequence);
     
     // @brief Run a simple demo that runs boths rows 0->15 then 15->0, for red, green and blue.
     // @param pwm_value The constrast for the iteration
     // @param delay_ms The delay between each iteration. Affects the speed of the demo
     template <std::size_t LED_NUMBER>
     void update_ladder_demo( 
-        noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, LED_NUMBER> &sequence_map, 
+        noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &sequence_map, 
         uint16_t pwm_value, 
         uint32_t delay_ms);   
 
@@ -89,7 +89,7 @@ private:
 };
 
 template <std::size_t LED_NUMBER>
-void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, LED_NUMBER> &sequence_map)
+void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &sequence_map)
 {
     // get the start, mid, end iterators for this input map
     auto start_pos = sequence_map.data.begin();
@@ -101,7 +101,7 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
 
     // set the TLC5955 register data for the upper row keys
     std::for_each(mid_pos, end_pos, [this, &sequence_map]
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             Step current_step = data_pair.second;
             if (current_step.m_key_state == KeyState::ON)
@@ -122,7 +122,7 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
 
     // set the TLC5955 register data for the lower row keys
     std::for_each(start_pos, mid_pos, [this, &sequence_map] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             Step current_step = data_pair.second;
             if (current_step.m_key_state == KeyState::ON)
@@ -142,14 +142,14 @@ void LedManager::send_both_rows_greyscale_data( noarch::containers::StaticMap<ad
 
 template <std::size_t LED_NUMBER>
 void LedManager::update_ladder_demo( 
-    noarch::containers::StaticMap<adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step, LED_NUMBER> &sequence_map, 
+    noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &sequence_map, 
     uint16_t pwm_value, 
     uint32_t delay_ms[[maybe_unused]])
 {
 
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
@@ -163,7 +163,7 @@ void LedManager::update_ladder_demo(
     );
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
@@ -177,7 +177,7 @@ void LedManager::update_ladder_demo(
     );
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
@@ -191,7 +191,7 @@ void LedManager::update_ladder_demo(
     );    
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
@@ -205,7 +205,7 @@ void LedManager::update_ladder_demo(
     );
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
@@ -219,7 +219,7 @@ void LedManager::update_ladder_demo(
     );    
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
@@ -233,7 +233,7 @@ void LedManager::update_ladder_demo(
     );    
 
     std::for_each(sequence_map.data.begin(), sequence_map.data.end(), [=, this] 
-        (std::pair< adp5587::Driver<stm32::isr::InterruptTypeStm32g0>::KeyPadMappings, Step > &data_pair)
+        (std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step > &data_pair)
         {
             // set the LED colours and positions
             send_one_led_greyscale_data_at(
