@@ -140,6 +140,7 @@ void SequenceManager::main_loop()
                 
                 break;
             case UserKeyStates::STOPPED:
+                
                 // disable the timer with update interrupt
                 m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
                 m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;
@@ -147,13 +148,16 @@ void SequenceManager::main_loop()
                 // Tell the MIDI slave device to pause
                 m_midi_driver.send_realtime_stop_msg();
                 
-                // if already stopped reset pattern position
+                // silence any synth key/notes that are still sounding
+                m_synth_control_switch.clear_all();
+
+                // before state update, if sequencer state is already stopped reset pattern position
                 if (m_sequencer_state == UserKeyStates::STOPPED)
                 {
                     m_pattern_cursor = 0;
                 }
   
-   
+                // now update the states
                 m_midi_state = UserKeyStates::STOPPED;
                 m_sequencer_state = UserKeyStates::STOPPED;  
 
