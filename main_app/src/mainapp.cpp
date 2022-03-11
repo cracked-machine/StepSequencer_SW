@@ -41,7 +41,7 @@ void mainapp()
 	stm32::TimerManager::initialise(TIM6);
 
 	// setup fatfs support for uSDCard
-    fatfs::DriverInterfaceSPI fatfs_spi_interface (
+    fatfs::DiskioProtocolSPI fatfs_spi_interface (
         SPI2,
         std::make_pair(GPIOB, GPIO_BSRR_BS9), 	// cs port+pin   - PB9
 		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi port+pin - PB7

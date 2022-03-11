@@ -32,10 +32,11 @@ namespace bass_station
 class FileManager 
 {
 public:
-    FileManager(fatfs::DriverInterfaceSPI &fatfs_spi_interface);
+    FileManager(fatfs::DiskioProtocolSPI &fatfs_spi_interface);
 
 private:
-    fatfs::DiskioMMC m_diskio_mmc;
+
+    fatfs::DiskIO_MMC_SPI m_diskio_mmc_spi;
     fatfs::DriverSPI m_fat_handle;
     fatfs::FATFS m_filesys;
     fatfs::FRESULT m_last_result;
@@ -43,7 +44,7 @@ private:
     // uSD device logical drive path
     std::array<fatfs::TCHAR, 4> m_sd_path;     
 
-    void spi_init();     
+    
 };
 
 } // namespace bass_station 

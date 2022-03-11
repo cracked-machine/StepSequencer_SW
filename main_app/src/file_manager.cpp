@@ -32,10 +32,10 @@ namespace bass_station
 /// @param dtype 
 /// @param fatfs_spi_interface 
 FileManager::FileManager(
-    fatfs::DriverInterfaceSPI &fatfs_spi_interface) 
+    fatfs::DiskioProtocolSPI &fatfs_spi_interface) 
 :   
-    m_diskio_mmc(fatfs_spi_interface),
-    m_fat_handle(m_diskio_mmc)
+    m_diskio_mmc_spi(fatfs_spi_interface),
+    m_fat_handle(m_diskio_mmc_spi)
 {
 
     
