@@ -43,10 +43,10 @@ void mainapp()
 	// setup fatfs support for uSDCard
     fatfs::DiskioProtocolSPI fatfs_spi_interface (
         SPI2,
-        std::make_pair(GPIOB, GPIO_BSRR_BS9), 	// cs port+pin   - PB9
-		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi port+pin - PB7
-        std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso port+pin - PD3
-		std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck port+pin  - PB8
+        std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck  - PB8
+		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi - PB7
+        std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso - PD3
+		std::make_pair(GPIOD, GPIO_BSRR_BS2), 	// cs  	- PD2
         RCC_APBENR1_SPI2EN
     );
 	
