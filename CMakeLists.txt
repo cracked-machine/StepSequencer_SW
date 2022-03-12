@@ -46,7 +46,7 @@ add_subdirectory(cpp_midi_stm32)
 add_subdirectory(cpp_adp5587) # keyscan/io expander driver              
 add_subdirectory(cpp_adg2188) #xpoint switch driver      
 
-add_compile_definitions(ENABLE_MMC_SPI)
+# add_compile_definitions(ENABLE_MMC_SPI)
 # add_compile_definitions(ENABLE_MMC_SDIO)
 add_subdirectory(cpp_fatfs)
 
