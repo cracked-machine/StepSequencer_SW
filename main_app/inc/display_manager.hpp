@@ -26,6 +26,11 @@
 #include <isr_manager_stm32g0.hpp>
 #include <ssd1306.hpp>
 
+#define USE_STD_STRING
+#ifdef USE_STD_STRING
+#include <string>
+#endif
+
 namespace bass_station
 {
 
@@ -53,14 +58,19 @@ public:
     // @brief Set a message to a specific line display (assumes Font5x7 size)
     // @param line The line to write to 
     // @param msg The text to write
+    #ifdef USE_STD_STRING
     void set_display_line(DisplayLine line, std::string &msg);
-
+    #else 
+    template<std::size_t MSG_SIZE>
+    void set_display_line(DisplayLine line, noarch::containers::StaticString<MSG_SIZE> &msg);   
+    #endif
 
     // @brief redraw the display
     void update_oled();
 
 private:
 
+    #ifdef USE_STD_STRING
     // set some default values
     std::string m_display_line1{"line1"};
     std::string m_display_line2{"line2"};
@@ -68,6 +78,14 @@ private:
     std::string m_display_line4{"line4"};
     std::string m_display_line5{"line5"};
     std::string m_display_line6{"line6"};
+    #else
+    noarch::containers::StaticString<20> m_display_line1{"line1"};
+    noarch::containers::StaticString<20> m_display_line2{"line2"};
+    noarch::containers::StaticString<20> m_display_line3{"line3"};
+    noarch::containers::StaticString<20> m_display_line4{"line4"};
+    noarch::containers::StaticString<20> m_display_line5{"line5"};
+    noarch::containers::StaticString<20> m_display_line6{"line6"};    
+    #endif
 
     // @brief The font character map used
     ssd1306::Font5x7 m_font;
@@ -76,6 +94,34 @@ private:
     ssd1306::Driver<STM32G0_ISR> m_oled;
 
 };
+
+#ifndef USE_STD_STRING
+template<std::size_t MSG_SIZE>
+void DisplayManager::set_display_line(DisplayLine line, noarch::containers::StaticString<MSG_SIZE> &msg)
+{
+    switch(line)
+    {
+        case DisplayLine::LINE_ONE:
+            m_display_line1 = msg;
+            break;
+        case DisplayLine::LINE_TWO:
+            m_display_line2 = msg;
+            break;
+        case DisplayLine::LINE_THREE:
+            m_display_line3 = msg;
+            break;        
+        case DisplayLine::LINE_FOUR:
+            m_display_line4 = msg;
+            break;
+        case DisplayLine::LINE_FIVE:
+            m_display_line5 = msg;
+            break;        
+        case DisplayLine::LINE_SIX:
+            m_display_line6 = msg;
+            break;        
+    }
+}
+#endif // #ifdef USE_STD_STRING
 
 } // namespace bass_station
 

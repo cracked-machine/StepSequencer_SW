@@ -21,18 +21,20 @@
 // SOFTWARE.
 
 #include <display_manager.hpp>
-
+#include <static_string.hpp>
 namespace bass_station 
 {
 
 DisplayManager::DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface) 
 : m_oled(ssd1306::Driver<STM32G0_ISR>(display_spi_interface, ssd1306::Driver<STM32G0_ISR>::SPIDMA::enabled))
 {
+    noarch::containers::StaticString<5> s("TEST");
     // init SSD1306 IC display driver
 	m_oled.power_on_sequence();
     
 }
 
+#ifdef USE_STD_STRING
 void DisplayManager::set_display_line(DisplayLine line, std::string &msg)
 {
     switch(line)
@@ -55,9 +57,11 @@ void DisplayManager::set_display_line(DisplayLine line, std::string &msg)
         case DisplayLine::LINE_SIX:
             m_display_line6 = msg;
             break;        
-    }
-    
+    }    
 }
+#endif // #ifdef USE_STD_STRING
+
+
 
 void DisplayManager::update_oled()
 {

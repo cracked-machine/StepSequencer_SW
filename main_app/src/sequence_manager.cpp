@@ -228,14 +228,22 @@ void SequenceManager::update_display_and_tempo()
         // update the sequencer tempo (prescaler) 
         // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
         m_tempo_timer_pair.first->PSC =  m_sequencer_encoder_timer->CNT;
-        std::string mode_string{""};
-        mode_string += "TEMPO MODE";
+        #ifdef USE_STD_STRING
+            std::string mode_string{""};
+            mode_string += "TEMPO MODE";
+        #else
+            noarch::containers::StaticString<20> mode_string("TEMPO MODE");
+        #endif
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);        
     }
     else if (m_current_mode == Mode::NOTE_SELECT)
     {
-        std::string mode_string{""};
-        mode_string += "NOTE MODE ";
+        #ifdef USE_STD_STRING
+            std::string mode_string{""};
+            mode_string += "NOTE MODE ";
+        #else
+            noarch::containers::StaticString<20> mode_string("NOTE MODE ");
+        #endif
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);   
 
         // lookup the step position using the index of the last user selected key
@@ -243,20 +251,32 @@ void SequenceManager::update_display_and_tempo()
         [[maybe_unused]] Note last_selected_step_note = last_selected_step.m_note ;
         
         // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
-        std::string direction{""};
+        #ifdef USE_STD_STRING
+            std::string direction{""};
+        #else    
+            noarch::containers::StaticString<20> direction("");
+        #endif
         if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
         {
             #if not defined(X86_UNIT_TESTING_ONLY)
                 if (m_sequencer_encoder_timer.get()->CR1 & TIM_CR1_DIR)
                 // if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
                 {
-                    direction += "up  ";
+                    #ifdef USE_STD_STRING
+                        direction += "up  ";
+                    #else
+                        direction.set("up  ");
+                    #endif
                     m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
                         static_cast<Note>(last_selected_step_note + 1);
                 }
                 else
                 {
-                    direction += "down";
+                    #ifdef USE_STD_STRING
+                        direction += "DOWN";
+                    #else
+                        direction.set("down");
+                    #endif
                     m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
                         static_cast<Note>(last_selected_step_note - 1);                
                 }
@@ -271,22 +291,38 @@ void SequenceManager::update_display_and_tempo()
 
     if (lookup_note_data != nullptr)
     {
+        #ifdef USE_STD_STRING
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, lookup_note_data->m_note_string);
+        #endif
     }
     else
     {
-        std::string nullptr_text{"---"};
+        #ifdef USE_STD_STRING
+            std::string nullptr_text{"---"};
+        #else
+            noarch::containers::StaticString<20> nullptr_text("---");
+        #endif
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, nullptr_text);
     }     
 
     // update the display with the sequencer position index
-    std::string beat_pos{"Position: "};
-    beat_pos += std::to_string(m_pattern_cursor) + ' ';
+    #ifdef USE_STD_STRING
+        std::string beat_pos{"Position: "};
+        beat_pos += std::to_string(m_pattern_cursor) + ' ';
+    #else
+        noarch::containers::StaticString<20> beat_pos("Position: ");
+    #endif
+
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
     
     // update the display with the encoder count value (using the PSC as a shadow value if Mode::NOTE_SELECT)
-    std::string encoder_pos{"Tempo: "};
-    encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
+    #ifdef USE_STD_STRING
+        std::string encoder_pos{"Tempo: "};
+        encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
+    #else
+        noarch::containers::StaticString<20> encoder_pos("Tempo: ");
+    #endif
+     
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);        
 
     
