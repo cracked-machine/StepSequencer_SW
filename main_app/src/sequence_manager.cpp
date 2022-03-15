@@ -232,7 +232,7 @@ void SequenceManager::update_display_and_tempo()
             std::string mode_string{""};
             mode_string += "TEMPO MODE";
         #else
-            noarch::containers::StaticString<20> mode_string("TEMPO MODE");
+            noarch::containers::StaticString<20> mode_string("TEMPO MODE         ");
         #endif
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);        
     }
@@ -242,7 +242,7 @@ void SequenceManager::update_display_and_tempo()
             std::string mode_string{""};
             mode_string += "NOTE MODE ";
         #else
-            noarch::containers::StaticString<20> mode_string("NOTE MODE ");
+            noarch::containers::StaticString<20> mode_string("NOTE MODE          ");
         #endif
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);   
 
@@ -254,7 +254,7 @@ void SequenceManager::update_display_and_tempo()
         #ifdef USE_STD_STRING
             std::string direction{""};
         #else    
-            noarch::containers::StaticString<20> direction("");
+            noarch::containers::StaticString<20> direction("                   ");
         #endif
         if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
         {
@@ -293,6 +293,8 @@ void SequenceManager::update_display_and_tempo()
     {
         #ifdef USE_STD_STRING
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, lookup_note_data->m_note_string);
+        #else
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, lookup_note_data->m_note_static_string);
         #endif
     }
     else
@@ -300,7 +302,7 @@ void SequenceManager::update_display_and_tempo()
         #ifdef USE_STD_STRING
             std::string nullptr_text{"---"};
         #else
-            noarch::containers::StaticString<20> nullptr_text("---");
+            noarch::containers::StaticString<20> nullptr_text("---                ");
         #endif
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, nullptr_text);
     }     
@@ -310,7 +312,7 @@ void SequenceManager::update_display_and_tempo()
         std::string beat_pos{"Position: "};
         beat_pos += std::to_string(m_pattern_cursor) + ' ';
     #else
-        noarch::containers::StaticString<20> beat_pos("Position: ");
+        noarch::containers::StaticString<20> beat_pos("Position:          ");
     #endif
 
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
@@ -320,7 +322,7 @@ void SequenceManager::update_display_and_tempo()
         std::string encoder_pos{"Tempo: "};
         encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
     #else
-        noarch::containers::StaticString<20> encoder_pos("Tempo: ");
+        noarch::containers::StaticString<20> encoder_pos("Tempo:             ");
     #endif
      
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);        
@@ -411,31 +413,31 @@ void SequenceManager::execute_next_sequence_step()
 
 // @brief The keyboard notes of the BassStation and their associated control switch pole
 std::array< std::pair< Note, NoteData>, 25> SequenceManager::m_note_switch_data = {{
-    { Note::c0,       NoteData("C0 ", adg2188::Driver::Pole::x4_to_y0) },
-    { Note::c0_sharp, NoteData("C0#", adg2188::Driver::Pole::x5_to_y0) },
-    { Note::d0,       NoteData("D0 ", adg2188::Driver::Pole::x6_to_y0) },
-    { Note::d0_sharp, NoteData("D0#", adg2188::Driver::Pole::x7_to_y0) },
-    { Note::e0,       NoteData("E0 ", adg2188::Driver::Pole::x0_to_y2) },
-    { Note::f0,       NoteData("F0 ", adg2188::Driver::Pole::x1_to_y2) },
-    { Note::f0_sharp, NoteData("F0#", adg2188::Driver::Pole::x2_to_y2) },
-    { Note::g0,       NoteData("G0 ", adg2188::Driver::Pole::x3_to_y2) },
-    { Note::g0_sharp, NoteData("G0#", adg2188::Driver::Pole::x4_to_y2) },
-    { Note::a1,       NoteData("A1 ", adg2188::Driver::Pole::x5_to_y2) },
-    { Note::a1_sharp, NoteData("A1#", adg2188::Driver::Pole::x6_to_y2) },
-    { Note::b1,       NoteData("B1 ", adg2188::Driver::Pole::x7_to_y2) },
-    { Note::c1,       NoteData("C1 ", adg2188::Driver::Pole::x0_to_y4) },  // Middle C
-    { Note::c1_sharp, NoteData("C1#", adg2188::Driver::Pole::x1_to_y4) },
-    { Note::d1,       NoteData("D1 ", adg2188::Driver::Pole::x2_to_y4) },
-    { Note::d1_sharp, NoteData("D1#", adg2188::Driver::Pole::x3_to_y4) },
-    { Note::e1,       NoteData("E1 ", adg2188::Driver::Pole::x4_to_y4) },
-    { Note::f1,       NoteData("F1 ", adg2188::Driver::Pole::x5_to_y4) },
-    { Note::f1_sharp, NoteData("F1#", adg2188::Driver::Pole::x6_to_y4) },
-    { Note::g1,       NoteData("G1 ", adg2188::Driver::Pole::x7_to_y4) },
-    { Note::g1_sharp, NoteData("G1#", adg2188::Driver::Pole::x0_to_y6) },
-    { Note::a2,       NoteData("A2 ", adg2188::Driver::Pole::x1_to_y6) },
-    { Note::a2_sharp, NoteData("A2#", adg2188::Driver::Pole::x2_to_y6) },
-    { Note::b2,       NoteData("B2 ", adg2188::Driver::Pole::x3_to_y6) },
-    { Note::c2,       NoteData("C2 ", adg2188::Driver::Pole::x4_to_y6) }
+    { Note::c0,       NoteData("C0 ","C0 ", adg2188::Driver::Pole::x4_to_y0) },
+    { Note::c0_sharp, NoteData("C0#","C0#", adg2188::Driver::Pole::x5_to_y0) },
+    { Note::d0,       NoteData("D0 ","D0 ", adg2188::Driver::Pole::x6_to_y0) },
+    { Note::d0_sharp, NoteData("D0#","D0#", adg2188::Driver::Pole::x7_to_y0) },
+    { Note::e0,       NoteData("E0 ","E0 ", adg2188::Driver::Pole::x0_to_y2) },
+    { Note::f0,       NoteData("F0 ","F0 ", adg2188::Driver::Pole::x1_to_y2) },
+    { Note::f0_sharp, NoteData("F0#","F0#", adg2188::Driver::Pole::x2_to_y2) },
+    { Note::g0,       NoteData("G0 ","G0 ", adg2188::Driver::Pole::x3_to_y2) },
+    { Note::g0_sharp, NoteData("G0#","G0#", adg2188::Driver::Pole::x4_to_y2) },
+    { Note::a1,       NoteData("A1 ","A1 ", adg2188::Driver::Pole::x5_to_y2) },
+    { Note::a1_sharp, NoteData("A1#","A1#", adg2188::Driver::Pole::x6_to_y2) },
+    { Note::b1,       NoteData("B1 ","B1 ", adg2188::Driver::Pole::x7_to_y2) },
+    { Note::c1,       NoteData("C1 ","C1 ", adg2188::Driver::Pole::x0_to_y4) },  // Middle C
+    { Note::c1_sharp, NoteData("C1#","C1#", adg2188::Driver::Pole::x1_to_y4) },
+    { Note::d1,       NoteData("D1 ","D1 ", adg2188::Driver::Pole::x2_to_y4) },
+    { Note::d1_sharp, NoteData("D1#","D1#", adg2188::Driver::Pole::x3_to_y4) },
+    { Note::e1,       NoteData("E1 ","E1 ", adg2188::Driver::Pole::x4_to_y4) },
+    { Note::f1,       NoteData("F1 ","F1 ", adg2188::Driver::Pole::x5_to_y4) },
+    { Note::f1_sharp, NoteData("F1#","F1#", adg2188::Driver::Pole::x6_to_y4) },
+    { Note::g1,       NoteData("G1 ","G1 ", adg2188::Driver::Pole::x7_to_y4) },
+    { Note::g1_sharp, NoteData("G1#","G1#", adg2188::Driver::Pole::x0_to_y6) },
+    { Note::a2,       NoteData("A2 ","A2 ", adg2188::Driver::Pole::x1_to_y6) },
+    { Note::a2_sharp, NoteData("A2#","A2#", adg2188::Driver::Pole::x2_to_y6) },
+    { Note::b2,       NoteData("B2 ","B2 ", adg2188::Driver::Pole::x3_to_y6) },
+    { Note::c2,       NoteData("C2 ","C2 ", adg2188::Driver::Pole::x4_to_y6) }
 }};
 
 // The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
