@@ -251,11 +251,7 @@ void SequenceManager::update_display_and_tempo()
         [[maybe_unused]] Note last_selected_step_note = last_selected_step.m_note ;
         
         // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
-        #ifdef USE_STD_STRING
-            std::string direction{""};
-        #else    
-            noarch::containers::StaticString<20> direction("                   ");
-        #endif
+
         if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
         {
             #if not defined(X86_UNIT_TESTING_ONLY)
@@ -263,9 +259,10 @@ void SequenceManager::update_display_and_tempo()
                 // if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
                 {
                     #ifdef USE_STD_STRING
-                        direction += "up  ";
+                        m_display_direction += "up  ";
                     #else
-                        direction.set("up  ");
+                        
+                        m_display_direction.concat(0, "up  ");
                     #endif
                     m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
                         static_cast<Note>(last_selected_step_note + 1);
@@ -273,16 +270,16 @@ void SequenceManager::update_display_and_tempo()
                 else
                 {
                     #ifdef USE_STD_STRING
-                        direction += "DOWN";
+                        m_display_direction += "DOWN";
                     #else
-                        direction.set("down");
+                        m_display_direction.concat(0, "down");
                     #endif
                     m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
                         static_cast<Note>(last_selected_step_note - 1);                
                 }
             #endif
         }
-        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FOUR, direction);
+        m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FOUR, m_display_direction);
         m_last_encoder_value = m_sequencer_encoder_timer->CNT;
     }
 
@@ -312,7 +309,9 @@ void SequenceManager::update_display_and_tempo()
         std::string beat_pos{"Position: "};
         beat_pos += std::to_string(m_pattern_cursor) + ' ';
     #else
-        noarch::containers::StaticString<20> beat_pos("Position:          ");
+        noarch::containers::StaticString<20> beat_pos;
+        beat_pos.concat(0, "Position:");
+        beat_pos.concat_int(9, m_pattern_cursor);
     #endif
 
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
@@ -322,7 +321,9 @@ void SequenceManager::update_display_and_tempo()
         std::string encoder_pos{"Tempo: "};
         encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
     #else
-        noarch::containers::StaticString<20> encoder_pos("Tempo:             ");
+        noarch::containers::StaticString<20> encoder_pos;
+        encoder_pos.concat(0, "Tempo:");
+        encoder_pos.concat_int(6, m_tempo_timer_pair.first->PSC);
     #endif
      
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);        

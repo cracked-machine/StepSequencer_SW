@@ -79,12 +79,12 @@ private:
     std::string m_display_line5{"line5"};
     std::string m_display_line6{"line6"};
     #else
-    noarch::containers::StaticString<20> m_display_line1{"line1              "};
-    noarch::containers::StaticString<20> m_display_line2{"line2              "};
-    noarch::containers::StaticString<20> m_display_line3{"line3              "};
-    noarch::containers::StaticString<20> m_display_line4{"line4              "};
-    noarch::containers::StaticString<20> m_display_line5{"line5              "};
-    noarch::containers::StaticString<20> m_display_line6{"line6              "};    
+    noarch::containers::StaticString<20> m_display_line1;
+    noarch::containers::StaticString<20> m_display_line2;
+    noarch::containers::StaticString<20> m_display_line3;
+    noarch::containers::StaticString<20> m_display_line4;
+    noarch::containers::StaticString<20> m_display_line5;
+    noarch::containers::StaticString<20> m_display_line6;    
     #endif
 
     // @brief The font character map used
@@ -102,22 +102,22 @@ void DisplayManager::set_display_line(DisplayLine line, noarch::containers::Stat
     switch(line)
     {
         case DisplayLine::LINE_ONE:
-            m_display_line1.join(0, msg);
+            m_display_line1.concat(0, msg);
             break;
         case DisplayLine::LINE_TWO:
-            m_display_line2.join(0, msg);
+            m_display_line2.concat(0, msg);
             break;
         case DisplayLine::LINE_THREE:
-            m_display_line3.join(0, msg);
+            m_display_line3.concat(0, msg);
             break;        
         case DisplayLine::LINE_FOUR:
-            m_display_line4.join(0, msg);
+            m_display_line4.concat(0, msg);
             break;
         case DisplayLine::LINE_FIVE:
-            m_display_line5.join(0, msg);
+            m_display_line5.concat(0, msg);
             break;        
         case DisplayLine::LINE_SIX:
-            m_display_line6.join(0, msg);
+            m_display_line6.concat(0, msg);
             break;        
     }
 }

@@ -52,8 +52,6 @@ void mainapp()
 	
 	bass_station::FileManager spi_fm(fatfs_spi_interface);
 
-
-
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
