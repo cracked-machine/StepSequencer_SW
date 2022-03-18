@@ -26,10 +26,8 @@
 #include <isr_manager_stm32g0.hpp>
 #include <ssd1306.hpp>
 
-// #define USE_STD_STRING
-#ifdef USE_STD_STRING
-#include <string>
-#endif
+
+
 
 namespace bass_station
 {
