@@ -6,8 +6,6 @@ cmake_minimum_required(VERSION 3.13)
 # common variables
 set(CMAKE_C_STANDARD    17)
 set(CMAKE_CXX_STANDARD  20)
-set(DEBUG_LVL           "-g")
-set(OPTIM_LVL           "-O0")
 
 set(ARM_TRIPLET     "arm-none-eabi")
 set(X86_TRIPLET     "x86_64-linux-gnu")
