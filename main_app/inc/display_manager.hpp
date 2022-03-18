@@ -40,7 +40,7 @@ public:
 
     // @brief Construct a new Display Manager object
     // @param timer Used for refresh rate of the display
-    DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface);
+    explicit DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface);
     
     // @brief Abstract representation of a line of the display
     enum class DisplayLine

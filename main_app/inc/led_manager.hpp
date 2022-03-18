@@ -41,7 +41,7 @@ public:
     };
 
     // @brief Construct a new Sequencer Led Manager object
-    LedManager(tlc5955::DriverSerialInterface &serial_interface);
+    explicit LedManager(tlc5955::DriverSerialInterface &serial_interface);
 
     // @brief write control data to buffer and send via SPI
     // This is sent twice (once for each chip), only latching on the second time

@@ -32,7 +32,7 @@ namespace bass_station
 class FileManager 
 {
 public:
-    FileManager(fatfs::DiskioProtocolSPI &fatfs_spi_interface);
+    explicit FileManager(fatfs::DiskioProtocolSPI &fatfs_spi_interface);
 
 private:
 
