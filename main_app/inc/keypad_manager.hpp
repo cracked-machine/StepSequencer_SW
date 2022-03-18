@@ -84,7 +84,8 @@ private:
     adp5587::Driver<STM32G0_ISR> m_keypad_driver;
 
     /// @brief The timer for pattern key debounce
-    std::unique_ptr<TIM_TypeDef> m_debounce_timer;
+    // std::unique_ptr<TIM_TypeDef> m_debounce_timer;
+    TIM_TypeDef* m_debounce_timer;
 
     /// @brief The allowable delay between pressing keys on the sequence keypad
     /// Increasing this value will decrease bounce but also responsiveness
