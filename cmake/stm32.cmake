@@ -18,13 +18,14 @@ set(ARM_ASM             mthumb)
 set(LINKER_SCRIPT       ${CMAKE_SOURCE_DIR}/stm32cube_workspace/G0B1KET6N/STM32G0B1KETXN_FLASH.ld)
 set(BUILD_NAME          build.elf)
 set(HEX_NAME            build.hex)
+set(MAP_NAME            build.map)
 
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=10000")
 set(OPTIMZATIONS "-ffunction-sections -Wl,--gc-sections -fdata-sections")
 set(WARNING_FLAGS "-Wall -Werror -Wextra -Wdouble-promotion -Wformat=2 -Wformat-overflow -Wundef -Wformat-truncation -Wfloat-equal -Wshadow")
 set(COMMON_FLAGS "-march=${ARCH} -mcpu=${CORE} -${ARM_ASM} -mfloat-abi=soft -ffreestanding -fno-builtin ")
-set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=${CORE} -specs=nosys.specs -T${LINKER_SCRIPT}" CACHE INTERNAL "exe link flags")
+set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=${CORE} -specs=nosys.specs -Wl,-Map=${MAP_NAME} -T${LINKER_SCRIPT}" CACHE INTERNAL "exe link flags")
 
 # C compiler settings
 set(C_FLAGS "--specs=nano.specs")
