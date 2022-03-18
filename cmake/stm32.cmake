@@ -20,7 +20,7 @@ set(BUILD_NAME          build.elf)
 set(HEX_NAME            build.hex)
 
 # common build settings
-set(STACK_USAGE "-fstack-usage -Wstack-usage=4092")
+set(STACK_USAGE "-fstack-usage -Wstack-usage=10000")
 set(WARNING_FLAGS "-Wall -Werror -Wextra -Wdouble-promotion -Wformat=2 -Wformat-overflow -Wundef -Wformat-truncation -Wfloat-equal -Wshadow")
 set(COMMON_FLAGS "-march=${ARCH} -mcpu=${CORE} -${ARM_ASM} ${STACK_USAGE} ${WARNING_FLAGS} ${OPTIM_LVL} ${DEBUG_LVL} ${ADDITIONAL_FLAGS} -mfloat-abi=soft -pedantic -Wall -Wextra -Wfloat-equal -Wshadow -Wall -Wl,--gc-sections -fmessage-length=0 -ffunction-sections -fdata-sections -ffreestanding -fno-builtin")
 set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=cortex-m0 -specs=nosys.specs -static -Wl,-Map=build.map -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -T${LINKER_SCRIPT}" CACHE INTERNAL "exe link flags")
