@@ -28,8 +28,13 @@ elseif(TARGET_TYPE STREQUAL GNU)
     include(cmake/linux.cmake)    
 endif()
 
+set(CMAKE_CXX_CPPCHECK "cppcheck")
+list(APPEND CMAKE_CXX_CPPCHECK "--enable=style" "--quiet" "--force" "-UX86_UNIT_TESTING_ONLY" "--inline-suppr" --suppressions-list=${CMAKE_SOURCE_DIR}/coverage/CppCheckSuppressions.txt)
+
 # Declare the project 
 project(STEP_SEQUENCER VERSION 0.1 DESCRIPTION "STEP_SEQUENCER")
+
+
 
 # set the executable target
 add_executable(${BUILD_NAME} "")

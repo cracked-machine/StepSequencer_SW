@@ -1,0 +1,22 @@
+// suppress 3rd party code
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/CMSIS/Include/cmsis_gcc.h
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_gpio.h
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_crs.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_exti.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_i2c.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_pwr.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_spi.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_utils.h
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_usart.c
+
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/i2c_utils.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/spi_utils.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/usart_utils.cpp
+
+useStlAlgorithm:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/inc/static_map.hpp
+
+// Uncomment these if you need to supress library errors/warnings
+// Obviously these should be commented out by default
