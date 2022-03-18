@@ -12,11 +12,33 @@
 *:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_utils.h
 *:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32cube_workspace/G0B1KET6N/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_usart.c
 
-unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/i2c_utils.cpp
+// STM CMSIS is written in C so we can't avoid these issues
+cstyleCast:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/main_app/src/mainapp.cpp
+
+// false positives or badly configured cppcheck? answers on a postcard...
 unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/spi_utils.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/i2c_utils.cpp
 unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/usart_utils.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/stm32_interrupt_managers/rawptrs/src/isr_manager_stm32g0.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/main_app/src/led_manager.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_tlc5955/src/tlc5955.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/main_app/src/sequence_manager.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_adg2188/src/adg2188.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/main_app/src/display_manager.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_adp5587/src/adp5587_common.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_ssd1306/src/ssd1306_common.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/main_app/src/mainapp.cpp
+unusedFunction:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/src/timer_manager.cpp
 
 useStlAlgorithm:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/embedded_utils/inc/static_map.hpp
+useStlAlgorithm:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_ssd1306/src/ssd1306_common.cpp
+
+
+// deferring FATFS issues for now
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_fatfs/inc/ff_driver_public_impl.hpp
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_fatfs/src/ff_driver_common.cpp
+*:/home/chris/Projects/Embedded/BassStation/StepSequencer_SW/cpp_fatfs/inc/ff_driver_hidden_impl.hpp
+
 
 // Uncomment these if you need to supress library errors/warnings
 // Obviously these should be commented out by default
