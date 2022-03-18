@@ -66,9 +66,9 @@ enum Note
 class NoteData
 {
 public:
-    NoteData(std::string note, noarch::containers::StaticString<4> note_static_string, adg2188::Driver::Pole sw)
-    : m_note_string(note), m_note_static_string(note_static_string), m_sw(sw) {}
-    std::string m_note_string;
+    NoteData(noarch::containers::StaticString<4> note_static_string, adg2188::Driver::Pole sw)
+    : m_note_static_string(note_static_string), m_sw(sw) {}
+
     noarch::containers::StaticString<4> m_note_static_string;
     adg2188::Driver::Pole m_sw;
 };

@@ -58,7 +58,7 @@ SequenceManager::SequenceManager(
         // set the rotary encoder to a default value or "tempo"
         m_sequencer_encoder_timer->CNT = 16;
         // enable the rotary encoder (timer)
-        m_sequencer_encoder_timer.get()->CR1 = m_sequencer_encoder_timer.get()->CR1 | TIM_CR1_CEN;
+        m_sequencer_encoder_timer->CR1 = m_sequencer_encoder_timer->CR1 | TIM_CR1_CEN;
         // setup rotary encoder switch callback (rotary_sw_exti_isr()) to allow mode change (bass_station::SequenceManager::Mode)
         m_rotary_sw_exti_handler.init_rotary_encoder_callback(this);
 
@@ -198,7 +198,7 @@ void SequenceManager::tempo_timer_isr()
 
 void SequenceManager::rotary_sw_exti_isr()
 {
-    uint32_t timer_count_ms = m_debounce_timer.get()->CNT;
+    uint32_t timer_count_ms = m_debounce_timer->CNT;
     if (timer_count_ms - m_last_mode_debounce_count_ms > m_mode_debounce_threshold_ms) 
     {
         if (m_current_mode == bass_station::SequenceManager::Mode::NOTE_SELECT) 
@@ -255,8 +255,8 @@ void SequenceManager::update_display_and_tempo()
         if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
         {
             #if not defined(X86_UNIT_TESTING_ONLY)
-                if (m_sequencer_encoder_timer.get()->CR1 & TIM_CR1_DIR)
-                // if (LL_TIM_GetDirection(m_sequencer_encoder_timer.get()))
+                if (m_sequencer_encoder_timer->CR1 & TIM_CR1_DIR)
+                // if (LL_TIM_GetDirection(m_sequencer_encoder_timer))
                 {
                     #ifdef USE_STD_STRING
                         m_display_direction += "up  ";
@@ -414,31 +414,31 @@ void SequenceManager::execute_next_sequence_step()
 
 // @brief The keyboard notes of the BassStation and their associated control switch pole
 std::array< std::pair< Note, NoteData>, 25> SequenceManager::m_note_switch_data = {{
-    { Note::c0,       NoteData("C0 ","C0 ", adg2188::Driver::Pole::x4_to_y0) },
-    { Note::c0_sharp, NoteData("C0#","C0#", adg2188::Driver::Pole::x5_to_y0) },
-    { Note::d0,       NoteData("D0 ","D0 ", adg2188::Driver::Pole::x6_to_y0) },
-    { Note::d0_sharp, NoteData("D0#","D0#", adg2188::Driver::Pole::x7_to_y0) },
-    { Note::e0,       NoteData("E0 ","E0 ", adg2188::Driver::Pole::x0_to_y2) },
-    { Note::f0,       NoteData("F0 ","F0 ", adg2188::Driver::Pole::x1_to_y2) },
-    { Note::f0_sharp, NoteData("F0#","F0#", adg2188::Driver::Pole::x2_to_y2) },
-    { Note::g0,       NoteData("G0 ","G0 ", adg2188::Driver::Pole::x3_to_y2) },
-    { Note::g0_sharp, NoteData("G0#","G0#", adg2188::Driver::Pole::x4_to_y2) },
-    { Note::a1,       NoteData("A1 ","A1 ", adg2188::Driver::Pole::x5_to_y2) },
-    { Note::a1_sharp, NoteData("A1#","A1#", adg2188::Driver::Pole::x6_to_y2) },
-    { Note::b1,       NoteData("B1 ","B1 ", adg2188::Driver::Pole::x7_to_y2) },
-    { Note::c1,       NoteData("C1 ","C1 ", adg2188::Driver::Pole::x0_to_y4) },  // Middle C
-    { Note::c1_sharp, NoteData("C1#","C1#", adg2188::Driver::Pole::x1_to_y4) },
-    { Note::d1,       NoteData("D1 ","D1 ", adg2188::Driver::Pole::x2_to_y4) },
-    { Note::d1_sharp, NoteData("D1#","D1#", adg2188::Driver::Pole::x3_to_y4) },
-    { Note::e1,       NoteData("E1 ","E1 ", adg2188::Driver::Pole::x4_to_y4) },
-    { Note::f1,       NoteData("F1 ","F1 ", adg2188::Driver::Pole::x5_to_y4) },
-    { Note::f1_sharp, NoteData("F1#","F1#", adg2188::Driver::Pole::x6_to_y4) },
-    { Note::g1,       NoteData("G1 ","G1 ", adg2188::Driver::Pole::x7_to_y4) },
-    { Note::g1_sharp, NoteData("G1#","G1#", adg2188::Driver::Pole::x0_to_y6) },
-    { Note::a2,       NoteData("A2 ","A2 ", adg2188::Driver::Pole::x1_to_y6) },
-    { Note::a2_sharp, NoteData("A2#","A2#", adg2188::Driver::Pole::x2_to_y6) },
-    { Note::b2,       NoteData("B2 ","B2 ", adg2188::Driver::Pole::x3_to_y6) },
-    { Note::c2,       NoteData("C2 ","C2 ", adg2188::Driver::Pole::x4_to_y6) }
+    { Note::c0,       NoteData("C0 ", adg2188::Driver::Pole::x4_to_y0) },
+    { Note::c0_sharp, NoteData("C0#", adg2188::Driver::Pole::x5_to_y0) },
+    { Note::d0,       NoteData("D0 ", adg2188::Driver::Pole::x6_to_y0) },
+    { Note::d0_sharp, NoteData("D0#", adg2188::Driver::Pole::x7_to_y0) },
+    { Note::e0,       NoteData("E0 ", adg2188::Driver::Pole::x0_to_y2) },
+    { Note::f0,       NoteData("F0 ", adg2188::Driver::Pole::x1_to_y2) },
+    { Note::f0_sharp, NoteData("F0#", adg2188::Driver::Pole::x2_to_y2) },
+    { Note::g0,       NoteData("G0 ", adg2188::Driver::Pole::x3_to_y2) },
+    { Note::g0_sharp, NoteData("G0#", adg2188::Driver::Pole::x4_to_y2) },
+    { Note::a1,       NoteData("A1 ", adg2188::Driver::Pole::x5_to_y2) },
+    { Note::a1_sharp, NoteData("A1#", adg2188::Driver::Pole::x6_to_y2) },
+    { Note::b1,       NoteData("B1 ", adg2188::Driver::Pole::x7_to_y2) },
+    { Note::c1,       NoteData("C1 ", adg2188::Driver::Pole::x0_to_y4) },  // Middle C
+    { Note::c1_sharp, NoteData("C1#", adg2188::Driver::Pole::x1_to_y4) },
+    { Note::d1,       NoteData("D1 ", adg2188::Driver::Pole::x2_to_y4) },
+    { Note::d1_sharp, NoteData("D1#", adg2188::Driver::Pole::x3_to_y4) },
+    { Note::e1,       NoteData("E1 ", adg2188::Driver::Pole::x4_to_y4) },
+    { Note::f1,       NoteData("F1 ", adg2188::Driver::Pole::x5_to_y4) },
+    { Note::f1_sharp, NoteData("F1#", adg2188::Driver::Pole::x6_to_y4) },
+    { Note::g1,       NoteData("G1 ", adg2188::Driver::Pole::x7_to_y4) },
+    { Note::g1_sharp, NoteData("G1#", adg2188::Driver::Pole::x0_to_y6) },
+    { Note::a2,       NoteData("A2 ", adg2188::Driver::Pole::x1_to_y6) },
+    { Note::a2_sharp, NoteData("A2#", adg2188::Driver::Pole::x2_to_y6) },
+    { Note::b2,       NoteData("B2 ", adg2188::Driver::Pole::x3_to_y6) },
+    { Note::c2,       NoteData("C2 ", adg2188::Driver::Pole::x4_to_y6) }
 }};
 
 // The default sequencer pattern, stored in SequencerManager::m_sequence_map (noarch::containers::StaticMap)
