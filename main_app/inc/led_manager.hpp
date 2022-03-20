@@ -157,7 +157,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::red, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );
@@ -171,7 +171,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::yellow, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );
@@ -185,7 +185,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::green, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );    
@@ -199,7 +199,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::cyan, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );
@@ -213,7 +213,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::blue, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );    
@@ -227,7 +227,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::green, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );    
@@ -241,7 +241,7 @@ void LedManager::update_ladder_demo(
             send_one_led_greyscale_data_at(
                 data_pair.second.m_physical_mapping_index, SequencerRow::lower, pwm_value, LedColour::white, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
-            LL_mDelay(delay_ms);
+            stm32::delay_millisecond(delay_ms);
 #endif
         }
     );    
