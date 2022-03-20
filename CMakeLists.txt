@@ -41,7 +41,7 @@ add_executable(${BUILD_NAME} "")
 # add common sources
 add_subdirectory(main_app)
 add_subdirectory(embedded_utils)
-add_subdirectory(stm32_interrupt_managers/rawptrs)
+add_subdirectory(stm32_interrupt_managers)
 add_subdirectory(cpp_tlc5955)               # led driver
 add_subdirectory(cpp_ssd1306)               # oled driver
 add_subdirectory(cpp_midi_stm32)
