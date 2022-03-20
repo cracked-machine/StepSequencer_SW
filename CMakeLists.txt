@@ -28,7 +28,7 @@ elseif(TARGET_TYPE STREQUAL GNU)
     include(cmake/linux.cmake)    
 endif()
 
-include(cmake/cppcheck.cmake)
+# include(cmake/cppcheck.cmake)
 
 # Declare the project 
 project(STEP_SEQUENCER VERSION 0.1 DESCRIPTION "STEP_SEQUENCER")
@@ -40,17 +40,17 @@ add_executable(${BUILD_NAME} "")
 
 # add common sources
 add_subdirectory(main_app)
-add_subdirectory(embedded_utils)
-add_subdirectory(stm32_interrupt_managers)
-add_subdirectory(cpp_tlc5955)               # led driver
-add_subdirectory(cpp_ssd1306)               # oled driver
-add_subdirectory(cpp_midi_stm32)
-add_subdirectory(cpp_adp5587) # keyscan/io expander driver              
-add_subdirectory(cpp_adg2188) #xpoint switch driver      
+add_subdirectory(extern/embedded_utils)
+add_subdirectory(extern/stm32_interrupt_managers)
+add_subdirectory(extern/cpp_tlc5955)               # led driver
+add_subdirectory(extern/cpp_ssd1306)               # oled driver
+add_subdirectory(extern/cpp_midi_stm32)
+add_subdirectory(extern/cpp_adp5587) # keyscan/io expander driver              
+add_subdirectory(extern/cpp_adg2188) #xpoint switch driver      
 
 # add_compile_definitions(ENABLE_MMC_SPI)
 # add_compile_definitions(ENABLE_MMC_SDIO)
-add_subdirectory(cpp_fatfs)
+add_subdirectory(extern/cpp_fatfs)
 
 
 

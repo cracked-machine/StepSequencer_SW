@@ -1,24 +1,24 @@
 [submodule "cpp_ssd1306"]
-	path = cpp_ssd1306
+	path = extern/cpp_ssd1306
 	url = https://github.com/cracked-machine/cpp_ssd1306
 [submodule "cpp_tlc5955"]
-	path = cpp_tlc5955
+	path = extern/cpp_tlc5955
 	url = https://github.com/cracked-machine/cpp_tlc5955
 [submodule "embedded_utils"]
-	path = embedded_utils
+	path = extern/embedded_utils
 	url = https://github.com/cracked-machine/embedded_utils
 [submodule "cpp_adp5587"]
-	path = cpp_adp5587
+	path = extern/cpp_adp5587
 	url = https://github.com/cracked-machine/cpp_adp5587
 [submodule "cpp_adg2188"]
-	path = cpp_adg2188
+	path = extern/cpp_adg2188
 	url = https://github.com/cracked-machine/cpp_adg2188
 [submodule "stm32_interrupt_managers"]
-	path = stm32_interrupt_managers
+	path = extern/stm32_interrupt_managers
 	url = https://github.com/cracked-machine/stm32_interrupt_managers
 [submodule "cpp_midi_stm32"]
-	path = cpp_midi_stm32
+	path = extern/cpp_midi_stm32
 	url = https://github.com/cracked-machine/cpp_midi_stm32
 [submodule "cpp_fatfs"]
-	path = cpp_fatfs
+	path = extern/cpp_fatfs
 	url = https://github.com/cracked-machine/cpp_fatfs
