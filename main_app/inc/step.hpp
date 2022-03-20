@@ -26,12 +26,14 @@
 #include <adp5587.hpp>
 #include <note.hpp>
 
-// used for LL_mDelay()
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvolatile"
-#include <stm32g0xx_ll_utils.h>
-#pragma GCC diagnostic pop
-
+#if defined(X86_UNIT_TESTING_ONLY)
+    #include <mock_cmsis.hpp>
+#else
+    // used for LL_mDelay()
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wvolatile"
+    #pragma GCC diagnostic pop
+#endif // X86_UNIT_TESTING_ONLY
 namespace bass_station
 {
 

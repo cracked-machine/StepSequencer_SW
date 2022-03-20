@@ -21,11 +21,14 @@
 // SOFTWARE.
 
 #include <file_manager.hpp>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvolatile"
-    #include <stm32g0xx_ll_gpio.h>
-#pragma GCC diagnostic pop
-
+#if defined(X86_UNIT_TESTING_ONLY)
+	#include <mock_cmsis.hpp>
+#else
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wvolatile"
+        #include <stm32g0xx_ll_gpio.h>
+    #pragma GCC diagnostic pop
+#endif
 namespace bass_station 
 {
 /// @brief Construct a new File Manager object
