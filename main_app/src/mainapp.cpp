@@ -32,13 +32,22 @@ extern "C"
 {
 #endif
 
+void error_handler()
+{
+	while(true)
+	{
 
+	}
+}
 
 void mainapp()
 {	
 
 	// initialise the timer used for system wide microsecond timeout
-	stm32::TimerManager::initialise(TIM6);
+	if (stm32::TimerManager::initialise(TIM6) == false)
+	{
+		error_handler();
+	}
 
 	// setup fatfs support for uSDCard
     fatfs::DiskioProtocolSPI fatfs_spi_interface (
