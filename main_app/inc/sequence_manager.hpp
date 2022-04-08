@@ -89,7 +89,7 @@ private:
     // @brief The 25-key note data of the BassStation keyboard
     static std::array< std::pair< Note, NoteData >, 25> m_note_switch_data;
 
-    // @brief Map holding the note data associated with its ADG2188 HW crosspoint switch config
+    /// @brief Map holding the note data associated with its ADG2188 HW crosspoint switch config
     noarch::containers::StaticMap< Note, NoteData, m_note_switch_data.size() > m_note_switch_map =
         noarch::containers::StaticMap< Note, NoteData, m_note_switch_data.size()>{{ m_note_switch_data }};
 
@@ -117,8 +117,6 @@ private:
 
     /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
     uint8_t m_pattern_cursor {0};
-
-    
 
     /// @brief Save this value so we can return to TEMPO_MODE with the expected tempo
     uint16_t m_saved_tempo_setting {0};

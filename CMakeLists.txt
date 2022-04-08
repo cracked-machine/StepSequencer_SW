@@ -52,6 +52,8 @@ add_subdirectory(extern/cpp_adg2188) #xpoint switch driver
 # add_compile_definitions(ENABLE_MMC_SDIO)
 add_subdirectory(extern/cpp_fatfs)
 
+# add the path for gnuc_ext_defs.hpp
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/extern/embedded_utils/include)  
 
 
 # add the stm32-specific sources for the embedded build
