@@ -22,18 +22,19 @@ set(MAP_NAME            build.map)
 
 # common build settings
 set(STACK_USAGE "-fstack-usage -Wstack-usage=10000")
-set(OPTIMZATIONS "-ffunction-sections -Wl,--gc-sections -fdata-sections")
+set(OPTIMZATIONS "-ffunction-sections -Wl,--gc-sections -fdata-sections -fsection-anchors")
 set(WARNING_FLAGS "-Wall -Werror -Wextra -Wdouble-promotion -Wformat=2 -Wformat-overflow -Wundef -Wformat-truncation -Wfloat-equal -Wshadow")
-set(COMMON_FLAGS "-march=${ARCH} -mcpu=${CORE} -${ARM_ASM} -mfloat-abi=soft -ffreestanding -fno-builtin ")
-set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=${CORE} -specs=nosys.specs -Wl,-Map=${MAP_NAME} -T${LINKER_SCRIPT}" CACHE INTERNAL "exe link flags")
+set(COMMON_FLAGS "-march=${ARCH} -mcpu=${CORE} -${ARM_ASM} -mfloat-abi=soft -ffreestanding -fno-builtin -fno-exceptions")
+set(CMAKE_EXE_LINKER_FLAGS  "-mthumb -mcpu=${CORE} -specs=nosys.specs -Wl,-Map=${MAP_NAME} -fno-exceptions -T${LINKER_SCRIPT}" CACHE INTERNAL "exe link flags")
 
 # C compiler settings
 set(C_FLAGS "--specs=nano.specs")
-set(CMAKE_C_FLAGS "${C_FLAGS} ${COMMON_FLAGS} ${STACK_USAGE} ${WARNING_FLAGS} ${OPTIMZATIONS}" CACHE INTERNAL "c compiler flags")
+set(CMAKE_C_FLAGS "${C_FLAGS} ${COMMON_FLAGS} ${STACK_USAGE} ${WARNING_FLAGS} ${OPTIMZATIONS} " CACHE INTERNAL "c compiler flags")
 enable_language(C)
 
 # c++ compiler settings
-set(CPP_FLAGS "-fno-rtti -fno-exceptions -fno-use-cxa-atexit -fno-threadsafe-statics -ftemplate-backtrace-limit=0 ")
+set(CMSIS_COMPAT "-Wno-volatile")
+set(CPP_FLAGS "-fno-rtti -fno-exceptions -fno-use-cxa-atexit -fno-threadsafe-statics -ftemplate-backtrace-limit=0 ${CMSIS_COMPAT}")
 set(CMAKE_CXX_FLAGS "${CPP_FLAGS} ${COMMON_FLAGS} ${STACK_USAGE} ${WARNING_FLAGS} ${OPTIMZATIONS}" CACHE INTERNAL "cpp compiler flags")
 enable_language(CXX)
 
