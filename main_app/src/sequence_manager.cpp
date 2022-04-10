@@ -50,7 +50,6 @@ SequenceManager::SequenceManager(
 
     // Send configuration data to TLC5955. The first of two steps. 
     // Second step is sending data in execute_next_sequence_step()
-    /// @note this function call cause code bloat
     m_led_manager.send_control_data();
 
 
@@ -67,7 +66,6 @@ SequenceManager::SequenceManager(
         m_sequencer_tempo_timer_isr_handler.init_tempo_timer_callback(this);
 
         // send the initial LED sequence to the TL5955 driver (this is normally called repeatedly in execute_next_sequence_step())
-        /// @note this function call cause code bloat
         m_led_manager.send_both_rows_greyscale_data(m_sequence_map);        
         
     #endif
@@ -101,9 +99,8 @@ void SequenceManager::main_loop()
         m_ssd1306_display_spi.update_oled();
 
         // get latest key events from adp5587 (the sequencer pattern button presses (m_sequence_map) and the user start/stop buttons (return))
-        /// @note this function call cause code bloat
         UserKeyStates new_state = m_adp5587_keypad_i2c.process_key_events(m_sequence_map);
-        // UserKeyStates new_state = UserKeyStates::RUNNING;
+        
         // update the midi running state/heartbeat 
         switch(new_state)
         {
@@ -250,10 +247,9 @@ void SequenceManager::update_display_and_tempo()
         m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);   
 
         // lookup the step position using the index of the last user selected key
-        /// @note this function call cause code bloat
-        [[maybe_unused]] Step last_selected_step = m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second;
-        // [[maybe_unused]] Step last_selected_step = m_sequence_map.data.at(0).second;
-        [[maybe_unused]] Note last_selected_step_note = last_selected_step.m_note;
+        /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
+        Step last_selected_step = m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second;
+        Note last_selected_step_note = last_selected_step.m_note;
         
         
         // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
@@ -270,8 +266,8 @@ void SequenceManager::update_display_and_tempo()
                         
                         m_display_direction.concat(0, "up  ");
                     #endif
-                    /// @note this function call cause code bloat
-                    m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
+                    /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
+                    m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note = 
                         static_cast<Note>(last_selected_step_note + 1);
                 }
                 else
@@ -281,8 +277,8 @@ void SequenceManager::update_display_and_tempo()
                     #else
                         m_display_direction.concat(0, "down");
                     #endif
-                    /// @note this function call cause code bloat
-                    m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note = 
+                    /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
+                    m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note = 
                         static_cast<Note>(last_selected_step_note - 1);                
                 }
             #endif
@@ -292,9 +288,8 @@ void SequenceManager::update_display_and_tempo()
     }
 
     // now read back the updated note from the step to get the note string value
-    /// @note this function call cause code bloat
-    [[maybe_unused]] NoteData *lookup_note_data = m_note_switch_map.find_key(m_sequence_map.data.at(m_adp5587_keypad_i2c.last_user_selected_key_idx).second.m_note);
-    // [[maybe_unused]] NoteData *lookup_note_data = &m_note_switch_map.data[0].second;
+    /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
+    NoteData *lookup_note_data = m_note_switch_map.find_key(m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note);
 
     if (lookup_note_data != nullptr)
     {
@@ -351,11 +346,11 @@ void SequenceManager::execute_next_sequence_step()
 
     // get the current sequence position Step object from the map
     // and save its current colour/state so it can be restored later
-    /// @note this function call cause code bloat
-    [[maybe_unused]] Step &current_step = m_sequence_map.data.at(m_sequencer_key_mapping.at(m_pattern_cursor)).second;
-    // [[maybe_unused]] Step &current_step = m_sequence_map.data.at(0).second;
-    [[maybe_unused]] LedColour previous_colour = current_step.m_colour;
-    [[maybe_unused]] KeyState previous_key_state = current_step.m_key_state;
+    /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
+    Step &current_step = m_sequence_map.data[m_sequencer_key_mapping[m_pattern_cursor]].second;
+    
+    LedColour previous_colour = current_step.m_colour;
+    KeyState previous_key_state = current_step.m_key_state;
     
     // find the note for the enabled step so we can trigger the key/note on the synth
     if (current_step.m_key_state == KeyState::ON)
@@ -363,7 +358,7 @@ void SequenceManager::execute_next_sequence_step()
         // update LED colour to show the sequencer IS at this position in the pattern
         current_step.m_colour = beat_colour_on;
 
-        [[maybe_unused]] NoteData *found_note_data = m_note_switch_map.find_key(current_step.m_note);
+        NoteData *found_note_data = m_note_switch_map.find_key(current_step.m_note);
 
         // turn on/off the note sound from the previous step but only if sequencer is running
         if (m_sequencer_state == UserKeyStates::RUNNING)
@@ -414,7 +409,6 @@ void SequenceManager::execute_next_sequence_step()
     current_step.m_key_state = KeyState::ON;
 
     // send the updated LED sequence map to the TL5955 driver
-    /// @note this function call cause code bloat
     m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
     
     // restore the state of the current step (so it is cleared on the next iteration)

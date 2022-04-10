@@ -115,7 +115,8 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
                     // de-highlight the previously highlighted key...unless we just selected the same key again, then skip
                     if (last_user_selected_key_idx != step->m_array_index)
                     {
-                        sequence_map.data.at(last_user_selected_key_idx).second.m_colour = default_colour;
+                        /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
+                        sequence_map.data[last_user_selected_key_idx].second.m_colour = default_colour;
                     }
 
                 #endif
