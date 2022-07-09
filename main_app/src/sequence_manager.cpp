@@ -23,7 +23,7 @@
 #include <sequence_manager.hpp>
 
 
-#define SEQUENCER_AUTOSTART_ON_BOOT 0
+#define SEQUENCER_AUTOSTART_ON_BOOT 1
 
 namespace bass_station
 {
