@@ -50,17 +50,17 @@ void mainapp()
 		error_handler();
 	}
 
-	// setup fatfs support for uSDCard
-    fatfs::DiskioProtocolSPI fatfs_spi_interface (
-        SPI2,
-        std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck  - PB8
-		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi - PB7
-        std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso - PD3
-		std::make_pair(GPIOD, GPIO_BSRR_BS2), 	// cs  	- PD2
-        RCC_APBENR1_SPI2EN
-    );
+	// // setup fatfs support for uSDCard
+    // fatfs::DiskioProtocolSPI fatfs_spi_interface (
+    //     SPI2,
+    //     std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck  - PB8
+	// 	std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi - PB7
+    //     std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso - PD3
+	// 	std::make_pair(GPIOD, GPIO_BSRR_BS2), 	// cs  	- PD2
+    //     RCC_APBENR1_SPI2EN
+    // );
 	
-	bass_station::FileManager spi_fm(fatfs_spi_interface);
+	// bass_station::FileManager spi_fm(fatfs_spi_interface);
 
 	// Timer peripheral for sequencer manager rotary encoder control
 	TIM_TypeDef *sequencer_encoder_timer = TIM1;
