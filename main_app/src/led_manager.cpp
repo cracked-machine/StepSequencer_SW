@@ -28,35 +28,7 @@ namespace bass_station
 LedManager::LedManager(tlc5955::DriverSerialInterface &serial_interface)
     : m_tlc5955_driver(tlc5955::Driver(serial_interface))
 {
-}
-
-void LedManager::send_control_data()
-{
-    // refresh buffers
-    m_tlc5955_driver.reset();
-
-    // construct the SPI transmit data
-    m_tlc5955_driver.set_ctrl_cmd();
-    m_tlc5955_driver.set_padding_bits();
-    m_tlc5955_driver.set_function_cmd(
-        tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_off,
-        tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::normal_pwm,
-        tlc5955::Driver::ShortDetectFunction::threshold_90_percent);
-
-    m_tlc5955_driver.set_global_brightness_cmd(0x1, 0x1, 0x1);
-    m_tlc5955_driver.set_max_current_cmd(0x1, 0x1, 0x1);
-    m_tlc5955_driver.set_dot_correction_cmd_all(0x1F);
-
-    // prepare SPI transmit data as bytes
-    m_tlc5955_driver.process_register();
-
-    // send data for top row (no latch)
-    m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::control);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
-
-    // send data for bottom row
-    m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::control);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
+    m_tlc5955_driver.init();
 }
 
 void LedManager::set_all_leds(uint16_t greyscale_pwm, const LedColour &colour)

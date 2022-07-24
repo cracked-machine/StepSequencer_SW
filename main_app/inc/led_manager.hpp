@@ -43,10 +43,6 @@ class LedManager
     // @brief Construct a new Sequencer Led Manager object
     explicit LedManager(tlc5955::DriverSerialInterface &serial_interface);
 
-    // @brief write control data to buffer and send via SPI
-    // This is sent twice (once for each chip), only latching on the second time
-    void send_control_data();
-
     // @brief Sets one LED only and send the data via SPI
     // @param led_position index position within row: 0-15
     // @param row The sequencer row: SequencerRow::upper or SequencerRow::lower
