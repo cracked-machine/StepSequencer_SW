@@ -109,8 +109,6 @@ void LedManager::send_both_rows_greyscale_data(
             }
         });
 
-    // send the upper row data without latch
-    m_tlc5955_driver.process_register();
     m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
     m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
 
@@ -131,7 +129,6 @@ void LedManager::send_both_rows_greyscale_data(
         });
 
     // send the lower row data with latch
-    m_tlc5955_driver.process_register();
     m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
     m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
 }
