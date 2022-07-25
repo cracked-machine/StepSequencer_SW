@@ -31,7 +31,7 @@ LedManager::LedManager(tlc5955::DriverSerialInterface &serial_interface)
     m_tlc5955_driver.init();
 }
 
-void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour &colour)
+void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const tlc5955::LedColour &colour)
 {
     // refresh buffers
     m_tlc5955_driver.reset();
@@ -39,25 +39,25 @@ void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour 
     // send upper row first
     switch (colour)
     {
-    case LedColour::blue:
+    case tlc5955::LedColour::blue:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, 0);
         break;
-    case LedColour::green:
+    case tlc5955::LedColour::green:
         m_tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, 0);
         break;
-    case LedColour::red:
+    case tlc5955::LedColour::red:
         m_tlc5955_driver.set_greyscale_cmd_rgb(0, 0, greyscale_pwm);
         break;
-    case LedColour::magenta:
+    case tlc5955::LedColour::magenta:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, greyscale_pwm);
         break;
-    case LedColour::yellow:
+    case tlc5955::LedColour::yellow:
         m_tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, greyscale_pwm);
         break;
-    case LedColour::cyan:
+    case tlc5955::LedColour::cyan:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, 0);
         break;
-    case LedColour::white:
+    case tlc5955::LedColour::white:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, greyscale_pwm);
         break;
     }
@@ -70,25 +70,25 @@ void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour 
     // send lower row second
     switch (colour)
     {
-    case LedColour::blue:
+    case tlc5955::LedColour::blue:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, 0);
         break;
-    case LedColour::green:
+    case tlc5955::LedColour::green:
         m_tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, 0);
         break;
-    case LedColour::red:
+    case tlc5955::LedColour::red:
         m_tlc5955_driver.set_greyscale_cmd_rgb(0, 0, greyscale_pwm);
         break;
-    case LedColour::magenta:
+    case tlc5955::LedColour::magenta:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, 0, greyscale_pwm);
         break;
-    case LedColour::yellow:
+    case tlc5955::LedColour::yellow:
         m_tlc5955_driver.set_greyscale_cmd_rgb(0, greyscale_pwm, greyscale_pwm);
         break;
-    case LedColour::cyan:
+    case tlc5955::LedColour::cyan:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, 0);
         break;
-    case LedColour::white:
+    case tlc5955::LedColour::white:
         m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, greyscale_pwm);
         break;
     }
@@ -98,37 +98,8 @@ void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour 
     m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
 }
 
-void LedManager::set_position_and_colour(uint16_t position, LedColour colour)
-{
-    uint16_t greyscale_pwm{0xFFFF};
-    switch (colour)
-    {
-    case LedColour::red:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, greyscale_pwm, 0, 0);
-        break;
-    case LedColour::green:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, 0, greyscale_pwm, 0);
-        break;
-    case LedColour::blue:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, 0, 0, greyscale_pwm);
-        break;
-    case LedColour::magenta:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, greyscale_pwm, 0, greyscale_pwm);
-        break;
-    case LedColour::yellow:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, greyscale_pwm, greyscale_pwm, 0);
-        break;
-    case LedColour::cyan:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, 0, greyscale_pwm, greyscale_pwm);
-        break;
-    case LedColour::white:
-        m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(position, greyscale_pwm, greyscale_pwm, greyscale_pwm);
-        break;
-    }
-}
-
 void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm,
-                                                const LedColour &colour, const LatchOption &latch_option)
+                                                const tlc5955::LedColour &colour, const LatchOption &latch_option)
 {
     // refresh buffers
     m_tlc5955_driver.reset();
@@ -139,25 +110,25 @@ void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const Seq
     case SequencerRow::upper:
         switch (colour)
         {
-        case LedColour::red:
+        case tlc5955::LedColour::red:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, 0);
             break;
-        case LedColour::green:
+        case tlc5955::LedColour::green:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, 0);
             break;
-        case LedColour::blue:
+        case tlc5955::LedColour::blue:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, 0, greyscale_pwm);
             break;
-        case LedColour::magenta:
+        case tlc5955::LedColour::magenta:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, greyscale_pwm);
             break;
-        case LedColour::yellow:
+        case tlc5955::LedColour::yellow:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, greyscale_pwm, 0);
             break;
-        case LedColour::cyan:
+        case tlc5955::LedColour::cyan:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, greyscale_pwm);
             break;
-        case LedColour::white:
+        case tlc5955::LedColour::white:
             m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, greyscale_pwm);
             break;
         }
@@ -167,25 +138,25 @@ void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const Seq
     case SequencerRow::lower:
         switch (colour)
         {
-        case LedColour::red:
+        case tlc5955::LedColour::red:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, 0);
             break;
-        case LedColour::green:
+        case tlc5955::LedColour::green:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, 0);
             break;
-        case LedColour::blue:
+        case tlc5955::LedColour::blue:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, 0, greyscale_pwm);
             break;
-        case LedColour::magenta:
+        case tlc5955::LedColour::magenta:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, 0, greyscale_pwm);
             break;
-        case LedColour::yellow:
+        case tlc5955::LedColour::yellow:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, greyscale_pwm, greyscale_pwm, 0);
             break;
-        case LedColour::cyan:
+        case tlc5955::LedColour::cyan:
             m_tlc5955_driver.set_greyscale_cmd_rgb_at_position(led_position, 0, greyscale_pwm, greyscale_pwm);
             break;
-        case LedColour::white:
+        case tlc5955::LedColour::white:
             m_tlc5955_driver.set_greyscale_cmd_rgb(greyscale_pwm, greyscale_pwm, greyscale_pwm);
             break;
         }

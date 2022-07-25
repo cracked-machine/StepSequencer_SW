@@ -50,7 +50,7 @@ class LedManager
     // @param colour Preset colour: LedColour
     // @param latch_option LatchOption
     void send_one_led_greyscale_data_at(uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm,
-                                        const LedColour &colour, const LatchOption &latch_option);
+                                        const tlc5955::LedColour &colour, const LatchOption &latch_option);
 
     // @brief Used to display the selected sequencer keys all in one shot
     // @tparam LED_NUMBER The size of the sequence array (always 32 in this version)
@@ -73,16 +73,11 @@ class LedManager
     // @brief Convenience function to set the all key leds on to a single colour
     // @param greyscale_pwm
     // @param colour
-    void set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour &colour);
+    void set_all_leds_both_rows(uint16_t greyscale_pwm, const tlc5955::LedColour &colour);
 
   private:
     // @brief The TLC5955 driver instance
     tlc5955::Driver m_tlc5955_driver;
-
-    // @brief Helper function that maps RGB pwm values to preset primary and secondary colours
-    // @param position Set the LED at this position in the buffer
-    // @param colour The colour to set it to
-    void set_position_and_colour(uint16_t position, LedColour colour);
 };
 
 template <std::size_t LED_NUMBER>
@@ -105,7 +100,7 @@ void LedManager::send_both_rows_greyscale_data(
             if (current_step.m_key_state == KeyState::ON)
             {
                 // remap the logical array positions to the physical PCB wiring
-                set_position_and_colour(current_step.m_physical_mapping_index, current_step.m_colour);
+                m_tlc5955_driver.set_position_and_colour(current_step.m_physical_mapping_index, current_step.m_colour);
             }
         });
 
@@ -124,7 +119,7 @@ void LedManager::send_both_rows_greyscale_data(
             if (current_step.m_key_state == KeyState::ON)
             {
                 // remap the logical array positions to the physical PCB wiring
-                set_position_and_colour(current_step.m_physical_mapping_index, current_step.m_colour);
+                m_tlc5955_driver.set_position_and_colour(current_step.m_physical_mapping_index, current_step.m_colour);
             }
         });
 
@@ -143,9 +138,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::red, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::red, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::red, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::red, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif
@@ -155,9 +150,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::yellow, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::yellow, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::yellow, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::yellow, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif
@@ -167,9 +162,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::green, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::green, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::green, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::green, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif
@@ -179,9 +174,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::cyan, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::cyan, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::cyan, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::cyan, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif
@@ -191,9 +186,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::blue, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::blue, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::blue, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::blue, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif
@@ -203,9 +198,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::green, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::green, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::green, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::green, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif
@@ -215,9 +210,9 @@ void LedManager::update_ladder_demo(
                   [=, this](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair) {
                       // set the LED colours and positions
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::upper,
-                                                     pwm_value, LedColour::white, LatchOption::disable);
+                                                     pwm_value, tlc5955::LedColour::white, LatchOption::disable);
                       send_one_led_greyscale_data_at(data_pair.second.m_physical_mapping_index, SequencerRow::lower,
-                                                     pwm_value, LedColour::white, LatchOption::enable);
+                                                     pwm_value, tlc5955::LedColour::white, LatchOption::enable);
 #if not defined(X86_UNIT_TESTING_ONLY)
                       stm32::delay_millisecond(delay_ms);
 #endif

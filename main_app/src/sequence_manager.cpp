@@ -23,6 +23,7 @@
 #include <limits>
 #include <sequence_manager.hpp>
 #include <timer_manager.hpp>
+#include <tlc5955.hpp>
 
 /// @brief Cycle sequencer LEDs through primary/secondary colours. Warning, this will disable normal sequencer function.
 #define LED_TEST 1
@@ -74,17 +75,17 @@ void SequenceManager::main_loop()
     while (true)
     {
 
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::red);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::magenta);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::blue);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::cyan);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::yellow);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::green);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
         stm32::delay_millisecond(2000);
     }
 #endif
@@ -361,7 +362,7 @@ void SequenceManager::execute_next_sequence_step()
     /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
     Step &current_step = m_sequence_map.data[m_sequencer_key_mapping[m_pattern_cursor]].second;
 
-    LedColour previous_colour = current_step.m_colour;
+    tlc5955::LedColour previous_colour = current_step.m_colour;
     KeyState previous_key_state = current_step.m_key_state;
 
     // find the note for the enabled step so we can trigger the key/note on the synth
