@@ -74,17 +74,17 @@ void SequenceManager::main_loop()
     while (true)
     {
 
-        m_led_manager.set_all_leds(_pwm_led_value, bass_station::LedColour::red);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::red);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds(_pwm_led_value, bass_station::LedColour::magenta);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::magenta);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds(_pwm_led_value, bass_station::LedColour::blue);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::blue);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds(_pwm_led_value, bass_station::LedColour::cyan);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::cyan);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds(_pwm_led_value, bass_station::LedColour::yellow);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::yellow);
         stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds(_pwm_led_value, bass_station::LedColour::green);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, bass_station::LedColour::green);
         stm32::delay_millisecond(2000);
     }
 #endif

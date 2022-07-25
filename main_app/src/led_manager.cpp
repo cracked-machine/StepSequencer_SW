@@ -31,7 +31,7 @@ LedManager::LedManager(tlc5955::DriverSerialInterface &serial_interface)
     m_tlc5955_driver.init();
 }
 
-void LedManager::set_all_leds(uint16_t greyscale_pwm, const LedColour &colour)
+void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour &colour)
 {
     // refresh buffers
     m_tlc5955_driver.reset();

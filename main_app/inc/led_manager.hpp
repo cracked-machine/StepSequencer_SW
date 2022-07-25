@@ -73,7 +73,7 @@ class LedManager
     // @brief Convenience function to set the all key leds on to a single colour
     // @param greyscale_pwm
     // @param colour
-    void set_all_leds(uint16_t greyscale_pwm, const LedColour &colour);
+    void set_all_leds_both_rows(uint16_t greyscale_pwm, const LedColour &colour);
 
   private:
     // @brief The TLC5955 driver instance
