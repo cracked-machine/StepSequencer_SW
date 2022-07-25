@@ -98,8 +98,8 @@ void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const tlc5955::L
     m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
 }
 
-void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm,
-                                                const tlc5955::LedColour &colour, const LatchOption &latch_option)
+void LedManager::set_one_led_at(uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm,
+                                const tlc5955::LedColour &colour, const LatchOption &latch_option)
 {
     // refresh buffers
     m_tlc5955_driver.reset();
@@ -175,19 +175,6 @@ void LedManager::send_one_led_greyscale_data_at(uint16_t led_position, const Seq
     {
         m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
     }
-}
-
-void LedManager::clear_all_leds()
-{
-    m_tlc5955_driver.reset();
-
-    // send upper row first with no latching
-    m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::no_latch);
-
-    // send lower row with latching
-    m_tlc5955_driver.send_first_bit(tlc5955::Driver::DataLatchType::data);
-    m_tlc5955_driver.send_spi_bytes(tlc5955::Driver::LatchPinOption::latch_after_send);
 }
 
 } // namespace bass_station

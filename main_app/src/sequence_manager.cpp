@@ -63,7 +63,7 @@ SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_tim
 
     // send the initial LED sequence to the TL5955 driver (this is normally called repeatedly in
     // execute_next_sequence_step())
-    m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
+    m_led_manager.set_both_rows_with_step_sequence_mapping(m_sequence_map);
 
 #endif
 }
@@ -422,7 +422,7 @@ void SequenceManager::execute_next_sequence_step()
     current_step.m_key_state = KeyState::ON;
 
     // send the updated LED sequence map to the TL5955 driver
-    m_led_manager.send_both_rows_greyscale_data(m_sequence_map);
+    m_led_manager.set_both_rows_with_step_sequence_mapping(m_sequence_map);
 
     // restore the state of the current step (so it is cleared on the next iteration)
     current_step.m_colour = previous_colour;
