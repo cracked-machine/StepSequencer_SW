@@ -32,6 +32,8 @@ extern "C"
 {
 #endif
 
+#define ENABLE_FATFS 0
+
 void error_handler()
 {
 	while(true)
@@ -50,15 +52,17 @@ void mainapp()
 		error_handler();
 	}
 
-	// // setup fatfs support for uSDCard
-    // fatfs::DiskioProtocolSPI fatfs_spi_interface (
-    //     SPI2,
-    //     std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck  - PB8
-	// 	std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi - PB7
-    //     std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso - PD3
-	// 	std::make_pair(GPIOD, GPIO_BSRR_BS2), 	// cs  	- PD2
-    //     RCC_APBENR1_SPI2EN
-    // );
+	#if ENABLE_FATFS
+		// setup fatfs support for uSDCard
+		fatfs::DiskioProtocolSPI fatfs_spi_interface (
+			SPI2,
+			std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck  - PB8
+			std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi - PB7
+			std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso - PD3
+			std::make_pair(GPIOD, GPIO_BSRR_BS2), 	// cs  	- PD2
+			RCC_APBENR1_SPI2EN
+		);
+	#endif
 	
 	// bass_station::FileManager spi_fm(fatfs_spi_interface);
 
