@@ -31,6 +31,16 @@ LedManager::LedManager(tlc5955::DriverSerialInterface &serial_interface)
     m_tlc5955_driver.init();
 }
 
+void LedManager::reinit_driver(tlc5955::Driver::DisplayFunction display, tlc5955::Driver::TimingFunction timing,
+                               tlc5955::Driver::RefreshFunction refresh, tlc5955::Driver::PwmFunction pwm,
+                               tlc5955::Driver::ShortDetectFunction short_detect,
+                               std::array<uint8_t, 3> global_brightness, std::array<uint8_t, 3> max_current,
+                               uint8_t global_dot_correction)
+{
+    m_tlc5955_driver.init(display, timing, refresh, pwm, short_detect, global_brightness, max_current,
+                          global_dot_correction);
+}
+
 void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const tlc5955::LedColour &colour)
 {
     // refresh buffers

@@ -133,6 +133,8 @@ class SequenceManager
     /// @brief Store the last timer count for debounce
     uint32_t m_last_mode_debounce_count_ms{0};
 
+    void demo();
+
 #ifdef USE_STD_STRING
     std::string m_display_direction{""};
 #else

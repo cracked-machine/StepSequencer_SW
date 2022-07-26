@@ -71,24 +71,7 @@ SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_tim
 void SequenceManager::main_loop()
 {
 #if LED_TEST
-    uint16_t _pwm_led_value = std::numeric_limits<uint16_t>::max();
-    while (true)
-    {
-
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
-        stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
-        stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
-        stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
-        stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
-        stm32::delay_millisecond(2000);
-        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
-        stm32::delay_millisecond(2000);
-    }
-#endif
+    demo();
 #if SEQUENCER_AUTOSTART_ON_BOOT
 
     // enable the tempo timer with update interrupt
@@ -470,7 +453,7 @@ std::array< std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step >, 32 
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A6_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f0_sharp, default_colour,   6,   3,  6)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::A7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g0, default_colour,         7,   7,  7)},
 
-    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::e1, default_colour,       8,   11, 8)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::e1, default_colour,         8,   11, 8)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B1_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         9,   15, 9)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B2_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         10,  10, 10)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B3_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         11,  14, 11)},
@@ -479,7 +462,7 @@ std::array< std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step >, 32 
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B6_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c0, default_colour,         14,  12, 14)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::B7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         15,  8,  15)}, 
 
-    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::e0, default_colour,         0,   7,  16)},
+    {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C0_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::e0, default_colour,          0,   7,  16)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C1_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f1, default_colour,         1,   3,  17)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C2_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::f1_sharp, default_colour,   2,   6,  18)},
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::C3_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::OFF, Note::g1, default_colour,         3,   2,  19)},
@@ -498,5 +481,163 @@ std::array< std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step >, 32 
     {adp5587::Driver<STM32G0_ISR>::KeyPadMappings::D7_OFF | adp5587::Driver<STM32G0_ISR>::KeyPadMappings::ON, Step(KeyState::ON, Note::c1, default_colour,         15,  11, 31)},       
 }};
 // clang-format on
+
+void SequenceManager::demo()
+{
+    uint32_t sweep_delay = 20;
+    uint32_t solid_delay = 250;
+    uint32_t flash_delay = 1000;
+    uint16_t fade_step = 1024;
+    uint16_t _pwm_led_value = 0;
+    while (true)
+    {
+
+        // pwm fade
+        m_led_manager.reinit_driver(
+            tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_on,
+            tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::enhanced_pwm);
+
+        for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        }
+        for (_pwm_led_value = 32768; _pwm_led_value > 0; _pwm_led_value -= fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        }
+
+        for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
+        }
+        for (_pwm_led_value = 32768; _pwm_led_value > 0; _pwm_led_value -= fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
+        }
+
+        for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
+        }
+        for (_pwm_led_value = 32768; _pwm_led_value > 0; _pwm_led_value -= fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
+        }
+
+        for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
+        }
+        for (_pwm_led_value = 32768; _pwm_led_value > 0; _pwm_led_value -= fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
+        }
+
+        for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
+        }
+        for (_pwm_led_value = 32768; _pwm_led_value > 0; _pwm_led_value -= fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
+        }
+
+        for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
+        }
+        for (_pwm_led_value = 32768; _pwm_led_value > 0; _pwm_led_value -= fade_step)
+        {
+            m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
+        }
+
+        // sweep
+        m_led_manager.reinit_driver(
+            tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_on,
+            tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::enhanced_pwm);
+
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::red, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::magenta, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::cyan, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::blue, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::green, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::yellow, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::red, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::magenta, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::cyan, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::blue, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::green, sweep_delay);
+        m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::yellow, sweep_delay);
+
+        // colour cycle
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 8;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
+        stm32::delay_millisecond(solid_delay);
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
+        stm32::delay_millisecond(solid_delay);
+
+        // pwm flash
+        m_led_manager.reinit_driver(
+            tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_off,
+            tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::enhanced_pwm);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 1;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 2;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 3;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::cyan);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 4;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::blue);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 5;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::green);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 6;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::yellow);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 7;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 8;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
+        stm32::delay_millisecond(flash_delay);
+
+        _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 8;
+        m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
+        stm32::delay_millisecond(flash_delay);
+    }
+#endif
+}
 
 } // namespace bass_station

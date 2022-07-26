@@ -72,7 +72,7 @@ struct Step
          int physical_mapping_index, int array_index)
 
         : m_key_state(key_state), m_note(note), m_colour(colour), m_logical_mapping_index(logical_mapping_index),
-          m_physical_mapping_index(physical_mapping_index), m_array_index(array_index)
+          m_tlc5955_pin_index(physical_mapping_index), m_sequence_abs_pos_index(array_index)
     {
         // nothing else to do here
     }
@@ -89,11 +89,11 @@ struct Step
     int m_logical_mapping_index;
 
     // @brief Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
-    int m_physical_mapping_index;
+    int m_tlc5955_pin_index;
 
-    // @brief Maps this step to a position index in the sequence execution order.
-    // This begins on the upper row and ends on the lower row, sweeping left to right
-    int m_array_index;
+    // @brief Maps this step to the absolute position index in the *entire* sequence.
+    // This begins on the left of the upper row and ends on the right of lower row
+    int m_sequence_abs_pos_index;
 };
 
 } // namespace bass_station
