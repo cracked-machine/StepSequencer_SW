@@ -28,12 +28,12 @@
 #include <tlc5955.hpp>
 
 #if defined(X86_UNIT_TESTING_ONLY)
-#include <mock_cmsis.hpp>
+  #include <mock_cmsis.hpp>
 #else
-// used for LL_mDelay()
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvolatile"
-#pragma GCC diagnostic pop
+  // used for LL_mDelay()
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wvolatile"
+  #pragma GCC diagnostic pop
 #endif // X86_UNIT_TESTING_ONLY
 namespace bass_station
 {
@@ -41,16 +41,16 @@ namespace bass_station
 // @brief Refers to the two TLC5955 chips in the bass station sequencer PCB
 enum class SequencerRow
 {
-    upper,
-    lower
+  upper,
+  lower
 };
 
 // @brief Basic state for keys
 // Not enum class so it can be used as boolean
 enum KeyState
 {
-    ON,
-    OFF,
+  ON,
+  OFF,
 };
 
 constexpr tlc5955::LedColour default_colour{tlc5955::LedColour::white};
@@ -62,38 +62,41 @@ constexpr tlc5955::LedColour beat_colour_on{tlc5955::LedColour::red};
 struct Step
 {
 
-    // @brief Construct a new Step object
-    // @param key_state ON or OFF
-    // @param colour The colour when ON
-    // @param logical_mapping_index Maps this step to a position index in one of two 16 position arrays.
-    // @param physical_mapping_index Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
-    // @param sequence_mapping_index Maps this step to a position index in the sequence execution order.
-    Step(KeyState key_state, Note note, tlc5955::LedColour colour, int logical_mapping_index,
-         int physical_mapping_index, int array_index)
+  // @brief Construct a new Step object
+  // @param key_state ON or OFF
+  // @param colour The colour when ON
+  // @param logical_mapping_index Maps this step to a position index in one of two 16 position arrays.
+  // @param physical_mapping_index Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
+  // @param sequence_mapping_index Maps this step to a position index in the sequence execution order.
+  Step(KeyState key_state, Note note, tlc5955::LedColour colour, int logical_mapping_index, int physical_mapping_index, int array_index)
 
-        : m_key_state(key_state), m_note(note), m_colour(colour), m_logical_mapping_index(logical_mapping_index),
-          m_tlc5955_pin_index(physical_mapping_index), m_sequence_abs_pos_index(array_index)
-    {
-        // nothing else to do here
-    }
+      : m_key_state(key_state),
+        m_note(note),
+        m_colour(colour),
+        m_logical_mapping_index(logical_mapping_index),
+        m_tlc5955_pin_index(physical_mapping_index),
+        m_sequence_abs_pos_index(array_index)
+  {
+    // nothing else to do here
+  }
 
-    // @brief Is the Key ON or OFF
-    KeyState m_key_state;
+  // @brief Is the Key ON or OFF
+  KeyState m_key_state;
 
-    Note m_note;
+  Note m_note;
 
-    // @brief The colour of the key when it is ON
-    tlc5955::LedColour m_colour;
+  // @brief The colour of the key when it is ON
+  tlc5955::LedColour m_colour;
 
-    // @brief Maps this step to a position index in one of two 16 position arrays.
-    int m_logical_mapping_index;
+  // @brief Maps this step to a position index in one of two 16 position arrays.
+  int m_logical_mapping_index;
 
-    // @brief Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
-    int m_tlc5955_pin_index;
+  // @brief Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
+  int m_tlc5955_pin_index;
 
-    // @brief Maps this step to the absolute position index in the *entire* sequence.
-    // This begins on the left of the upper row and ends on the right of lower row
-    int m_sequence_abs_pos_index;
+  // @brief Maps this step to the absolute position index in the *entire* sequence.
+  // This begins on the left of the upper row and ends on the right of lower row
+  int m_sequence_abs_pos_index;
 };
 
 } // namespace bass_station

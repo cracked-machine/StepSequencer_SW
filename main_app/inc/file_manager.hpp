@@ -23,31 +23,27 @@
 #ifndef __FILE_MANAGER_HPP__
 #define __FILE_MANAGER_HPP__
 
-#include <ff_driver.hpp>
 #include <array>
+#include <ff_driver.hpp>
 
-namespace bass_station 
+namespace bass_station
 {
 
-class FileManager 
+class FileManager
 {
 public:
-    explicit FileManager(fatfs::DiskioProtocolSPI &fatfs_spi_interface);
+  explicit FileManager(fatfs::DiskioProtocolSPI &fatfs_spi_interface);
 
 private:
+  fatfs::DiskioHardwareMMC<fatfs::DiskioProtocolSPI> m_diskio_mmc_spi;
+  fatfs::DriverSPI m_fat_spi_driver;
+  fatfs::FATFS m_filesys;
+  fatfs::FRESULT m_last_result;
 
-    fatfs::DiskioHardwareMMC<fatfs::DiskioProtocolSPI> m_diskio_mmc_spi;
-    fatfs::DriverSPI m_fat_spi_driver;
-    fatfs::FATFS m_filesys;
-    fatfs::FRESULT m_last_result;
-
-    // uSD device logical drive path
-    std::array<fatfs::TCHAR, 4> m_sd_path;     
-
-    
+  // uSD device logical drive path
+  std::array<fatfs::TCHAR, 4> m_sd_path;
 };
 
-} // namespace bass_station 
-
+} // namespace bass_station
 
 #endif // __FILE_MANAGER_HPP__

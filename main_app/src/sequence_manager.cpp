@@ -25,8 +25,8 @@
 #include <timer_manager.hpp>
 #include <tlc5955.hpp>
 
-/// @brief Cycle sequencer LEDs through primary/secondary colours. Warning, this will disable normal sequencer function.
-#define LED_TEST 1
+/// @brief Cycle sequencer LEDs through primary/secondary colours. Warning, this will replace normal sequencer function.
+#define LED_TEST 0
 /// @brief Automatically start the sequencer on startup. No user input required.
 #define SEQUENCER_AUTOSTART_ON_BOOT 1
 
@@ -36,15 +36,19 @@ namespace bass_station
 SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_timer_pair,
                                  TIM_TypeDef *sequencer_encoder_timer,
                                  ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface,
-                                 I2C_TypeDef *ad5587_keypad_i2c, TIM_TypeDef *debounce_timer,
-                                 I2C_TypeDef *adg2188_control_sw_i2c, tlc5955::DriverSerialInterface &led_spi_interface,
+                                 I2C_TypeDef *ad5587_keypad_i2c,
+                                 TIM_TypeDef *debounce_timer,
+                                 I2C_TypeDef *adg2188_control_sw_i2c,
+                                 tlc5955::DriverSerialInterface &led_spi_interface,
                                  midi_stm32::DeviceInterface<STM32G0_ISR> &midi_usart_interface)
 
-    : m_tempo_timer_pair(tempo_timer_pair), m_sequencer_encoder_timer(sequencer_encoder_timer),
+    : m_tempo_timer_pair(tempo_timer_pair),
+      m_sequencer_encoder_timer(sequencer_encoder_timer),
       m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface)),
       m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, debounce_timer)),
       m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
-      m_led_manager(bass_station::LedManager(led_spi_interface)), m_midi_driver(midi_usart_interface),
+      m_led_manager(bass_station::LedManager(led_spi_interface)),
+      m_midi_driver(midi_usart_interface),
       m_debounce_timer(debounce_timer)
 {
 
@@ -71,20 +75,21 @@ SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_tim
 void SequenceManager::main_loop()
 {
 #if LED_TEST
-  demo();
-  #if SEQUENCER_AUTOSTART_ON_BOOT
+  led_demo();
+#endif
+#if SEQUENCER_AUTOSTART_ON_BOOT
 
   // enable the tempo timer with update interrupt
   m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-  m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+  m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
 
-  m_midi_state = UserKeyStates::RUNNING;
+  m_midi_state      = UserKeyStates::RUNNING;
   m_sequencer_state = UserKeyStates::RUNNING;
 
   // start the midi device early so that it synchronizes correctly
   m_midi_driver.send_realtime_start_msg();
 
-  #endif
+#endif
 
   /// @brief main program infinite loop
   /// @return never
@@ -103,67 +108,67 @@ void SequenceManager::main_loop()
     // update the midi running state/heartbeat
     switch (new_state)
     {
-    case UserKeyStates::RUNNING:
+      case UserKeyStates::RUNNING:
 
-      // either justed booted or user reset the position with stop button
-      if (m_pattern_cursor == 0)
-      {
-        // reset the 1/12 MIDI heartbeat count
-        m_midi_driver.reset_midi_pulse_cnt();
+        // either justed booted or user reset the position with stop button
+        if (m_pattern_cursor == 0)
+        {
+          // reset the 1/12 MIDI heartbeat count
+          m_midi_driver.reset_midi_pulse_cnt();
 
-        // tell MIDI slave device to start its pattern from beginning (restart)
-        m_midi_driver.send_realtime_start_msg();
+          // tell MIDI slave device to start its pattern from beginning (restart)
+          m_midi_driver.send_realtime_start_msg();
 
-        // enable the timer with update interrupt
-        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-        m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+          // enable the timer with update interrupt
+          m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+          m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
 
-        m_midi_state = UserKeyStates::RUNNING;
-        m_sequencer_state = UserKeyStates::RUNNING;
-      }
-      else // resume/continue
-      {
-        // NOTE: to avoid MIDI/Sequencer sync issues, we don't reset the 1/12 MIDI heartbeat count on
-        // continue/resume
+          m_midi_state      = UserKeyStates::RUNNING;
+          m_sequencer_state = UserKeyStates::RUNNING;
+        }
+        else // resume/continue
+        {
+          // NOTE: to avoid MIDI/Sequencer sync issues, we don't reset the 1/12 MIDI heartbeat count on
+          // continue/resume
 
-        // tell MIDI slave device to continue its pattern from where it was stopped (resume)
-        m_midi_driver.send_realtime_continue_msg();
+          // tell MIDI slave device to continue its pattern from where it was stopped (resume)
+          m_midi_driver.send_realtime_continue_msg();
 
-        // enable the timer with update interrupt
-        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-        m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+          // enable the timer with update interrupt
+          m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
+          m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
 
-        m_midi_state = UserKeyStates::RUNNING;
-        m_sequencer_state = UserKeyStates::RUNNING;
-      }
+          m_midi_state      = UserKeyStates::RUNNING;
+          m_sequencer_state = UserKeyStates::RUNNING;
+        }
 
-      break;
-    case UserKeyStates::STOPPED:
+        break;
+      case UserKeyStates::STOPPED:
 
-      // disable the timer with update interrupt
-      m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
-      m_tempo_timer_pair.first->CR1 = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;
+        // disable the timer with update interrupt
+        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
+        m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;
 
-      // Tell the MIDI slave device to pause
-      m_midi_driver.send_realtime_stop_msg();
+        // Tell the MIDI slave device to pause
+        m_midi_driver.send_realtime_stop_msg();
 
-      // silence any synth key/notes that are still sounding
-      m_synth_control_switch.clear_all();
+        // silence any synth key/notes that are still sounding
+        m_synth_control_switch.clear_all();
 
-      // before state update, if sequencer state is already stopped reset pattern position
-      if (m_sequencer_state == UserKeyStates::STOPPED)
-      {
-        m_pattern_cursor = 0;
-      }
+        // before state update, if sequencer state is already stopped reset pattern position
+        if (m_sequencer_state == UserKeyStates::STOPPED)
+        {
+          m_pattern_cursor = 0;
+        }
 
-      // now update the states
-      m_midi_state = UserKeyStates::STOPPED;
-      m_sequencer_state = UserKeyStates::STOPPED;
+        // now update the states
+        m_midi_state      = UserKeyStates::STOPPED;
+        m_sequencer_state = UserKeyStates::STOPPED;
 
-      break;
-    case UserKeyStates::IDLE:
-      // do nothing
-      break;
+        break;
+      case UserKeyStates::IDLE:
+        // do nothing
+        break;
     }
 
     // update the pattern LEDs and trigger synth key/note if running
@@ -176,23 +181,23 @@ void SequenceManager::tempo_timer_isr()
   // update the pattern cursor once every 12 MIDI clock messages
   switch (m_midi_driver.get_midi_pulse_cnt())
   {
-  default:
-    // send the heartbeat clock signal to the MIDI OUT port
-    m_midi_driver.send_realtime_clock_msg();
-    m_midi_driver.increment_midi_pulse_cnt();
-    break;
-  case 12:
-    m_midi_driver.reset_midi_pulse_cnt();
-    // increment the step position in the pattern
-    (m_pattern_cursor >= m_sequencer_key_mapping.size() - 1) ? m_pattern_cursor = 0 : m_pattern_cursor++;
-    break;
+    default:
+      // send the heartbeat clock signal to the MIDI OUT port
+      m_midi_driver.send_realtime_clock_msg();
+      m_midi_driver.increment_midi_pulse_cnt();
+      break;
+    case 12:
+      m_midi_driver.reset_midi_pulse_cnt();
+      // increment the step position in the pattern
+      (m_pattern_cursor >= m_sequencer_key_mapping.size() - 1) ? m_pattern_cursor = 0 : m_pattern_cursor++;
+      break;
   }
 
-  // reset the UIF bit to re-enable interrupts
-  #if not defined(X86_UNIT_TESTING_ONLY)
+// reset the UIF bit to re-enable interrupts
+#if not defined(X86_UNIT_TESTING_ONLY)
   m_tempo_timer_pair.first->SR = m_tempo_timer_pair.first->SR & ~TIM_SR_UIF;
-    // LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
-  #endif
+  // LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
+#endif
 }
 
 void SequenceManager::rotary_sw_exti_isr()
@@ -224,59 +229,44 @@ void SequenceManager::update_display_and_tempo()
     // update the sequencer tempo (prescaler)
     // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
     m_tempo_timer_pair.first->PSC = m_sequencer_encoder_timer->CNT;
-  #ifdef USE_STD_STRING
-    std::string mode_string{""};
-    mode_string += "TEMPO MODE";
-  #else
+
     noarch::containers::StaticString<20> mode_string("TEMPO MODE         ");
-  #endif
+
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);
   }
   else if (m_current_mode == Mode::NOTE_SELECT)
   {
-  #ifdef USE_STD_STRING
-    std::string mode_string{""};
-    mode_string += "NOTE MODE ";
-  #else
+
     noarch::containers::StaticString<20> mode_string("NOTE MODE          ");
-  #endif
+
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_THREE, mode_string);
 
     // lookup the step position using the index of the last user selected key
     /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
-    Step last_selected_step = m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second;
+    Step last_selected_step      = m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second;
     Note last_selected_step_note = last_selected_step.m_note;
 
     // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
 
     if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
     {
-  #if not defined(X86_UNIT_TESTING_ONLY)
+#if not defined(X86_UNIT_TESTING_ONLY)
       if (m_sequencer_encoder_timer->CR1 & TIM_CR1_DIR)
       // if (LL_TIM_GetDirection(m_sequencer_encoder_timer))
       {
-    #ifdef USE_STD_STRING
-        m_display_direction += "up  ";
-    #else
-
         m_display_direction.concat(0, "up  ");
-    #endif
         /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
-        m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note =
-            static_cast<Note>(last_selected_step_note + 1);
+        m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note = static_cast<Note>(last_selected_step_note + 1);
       }
       else
       {
-    #ifdef USE_STD_STRING
-        m_display_direction += "DOWN";
-    #else
+
         m_display_direction.concat(0, "down");
-    #endif
+
         /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
-        m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note =
-            static_cast<Note>(last_selected_step_note - 1);
+        m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note = static_cast<Note>(last_selected_step_note - 1);
       }
-  #endif
+#endif
     }
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FOUR, m_display_direction);
     m_last_encoder_value = m_sequencer_encoder_timer->CNT;
@@ -284,49 +274,34 @@ void SequenceManager::update_display_and_tempo()
 
   // now read back the updated note from the step to get the note string value
   /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
-  NoteData *lookup_note_data =
-      m_note_switch_map.find_key(m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note);
+  NoteData *lookup_note_data = m_note_switch_map.find_key(m_sequence_map.data[m_adp5587_keypad_i2c.last_user_selected_key_idx].second.m_note);
 
   if (lookup_note_data != nullptr)
   {
-  #ifdef USE_STD_STRING
-    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, lookup_note_data->m_note_string);
-  #else
-    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE,
-                                           lookup_note_data->m_note_static_string);
-  #endif
+
+    m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, lookup_note_data->m_note_static_string);
   }
   else
   {
-  #ifdef USE_STD_STRING
-    std::string nullptr_text{"---"};
-  #else
+
     noarch::containers::StaticString<20> nullptr_text("---                ");
-  #endif
+
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FIVE, nullptr_text);
   }
 
   // update the display with the sequencer position index
-  #ifdef USE_STD_STRING
-  std::string beat_pos{"Position: "};
-  beat_pos += std::to_string(m_pattern_cursor) + ' ';
-  #else
+
   noarch::containers::StaticString<20> beat_pos;
   beat_pos.concat(0, "Position:");
   beat_pos.concat_int(9, m_pattern_cursor);
-  #endif
 
   m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_ONE, beat_pos);
 
   // update the display with the encoder count value (using the PSC as a shadow value if Mode::NOTE_SELECT)
-  #ifdef USE_STD_STRING
-  std::string encoder_pos{"Tempo: "};
-  encoder_pos += std::to_string(m_tempo_timer_pair.first->PSC) + "   ";
-  #else
+
   noarch::containers::StaticString<20> encoder_pos;
   encoder_pos.concat(0, "Tempo:");
   encoder_pos.concat_int(6, m_tempo_timer_pair.first->PSC);
-  #endif
 
   m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);
 
@@ -346,7 +321,7 @@ void SequenceManager::execute_next_sequence_step()
   Step &current_step = m_sequence_map.data[m_sequencer_key_mapping[m_pattern_cursor]].second;
 
   tlc5955::LedColour previous_colour = current_step.m_colour;
-  KeyState previous_key_state = current_step.m_key_state;
+  KeyState previous_key_state        = current_step.m_key_state;
 
   // find the note for the enabled step so we can trigger the key/note on the synth
   if (current_step.m_key_state == KeyState::ON)
@@ -359,27 +334,20 @@ void SequenceManager::execute_next_sequence_step()
     // turn on/off the note sound from the previous step but only if sequencer is running
     if (m_sequencer_state == UserKeyStates::RUNNING)
     {
-      // first, turn off the synth key/note that we enabled on the previous pattern step
-      // if (m_previous_enabled_note != nullptr)
-      // {
-      //     m_synth_control_switch.write_switch(
-      //         adg2188::Driver::Throw::open,
-      //         m_previous_enabled_note->m_sw,
-      //         adg2188::Driver::Latch::set);
-      // }
+      //   first, turn off the synth key / note that we enabled on the previous pattern step if (m_previous_enabled_note
+      //   != nullptr)
+      {
+        m_synth_control_switch.write_switch(adg2188::Driver::Throw::open, m_previous_enabled_note->m_sw, adg2188::Driver::Latch::set);
+      }
 
-      // // second, turn on the synth key/note for the current step
-      // if (current_step.m_note != Note::none)
-      // {
-      //     if (found_note_data != nullptr)
-      //     {
-      //         m_synth_control_switch.write_switch(
-      //             adg2188::Driver::Throw::close,
-      //             found_note_data->m_sw,
-      //             adg2188::Driver::Latch::set);
-      //     }
-
-      // }
+      // second, turn on the synth key/note for the current step
+      if (current_step.m_note != Note::none)
+      {
+        if (found_note_data != nullptr)
+        {
+          m_synth_control_switch.write_switch(adg2188::Driver::Throw::close, found_note_data->m_sw, adg2188::Driver::Latch::set);
+        }
+      }
     }
 
     // retain the synth key/note we enabled for this Step
@@ -391,14 +359,11 @@ void SequenceManager::execute_next_sequence_step()
     // update LED colour to show the sequencer is NOT at this position in the pattern anymore
     current_step.m_colour = beat_colour_off;
 
-    // // turn off the note sound from the previous step
-    // if (m_previous_enabled_note != nullptr)
-    // {
-    //     m_synth_control_switch.write_switch(
-    //         adg2188::Driver::Throw::open,
-    //         m_previous_enabled_note->m_sw,
-    //         adg2188::Driver::Latch::set);
-    // }
+    // turn off the note sound from the previous step
+    if (m_previous_enabled_note != nullptr)
+    {
+      m_synth_control_switch.write_switch(adg2188::Driver::Throw::open, m_previous_enabled_note->m_sw, adg2188::Driver::Latch::set);
+    }
   }
 
   // finally enable the current step in the sequence
@@ -408,7 +373,7 @@ void SequenceManager::execute_next_sequence_step()
   m_led_manager.set_both_rows_with_step_sequence_mapping(m_sequence_map);
 
   // restore the state of the current step (so it is cleared on the next iteration)
-  current_step.m_colour = previous_colour;
+  current_step.m_colour    = previous_colour;
   current_step.m_key_state = previous_key_state;
 }
 
@@ -482,20 +447,21 @@ std::array< std::pair< adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step >, 32 
 }};
 // clang-format on
 
-void SequenceManager::demo()
+void SequenceManager::led_demo()
 {
-  uint32_t sweep_delay = 20;
-  uint32_t solid_delay = 250;
-  uint32_t flash_delay = 1000;
-  uint16_t fade_step = 1024;
+  uint32_t sweep_delay    = 20;
+  uint32_t solid_delay    = 250;
+  uint32_t flash_delay    = 1000;
+  uint16_t fade_step      = 1024;
   uint16_t _pwm_led_value = 0;
   while (true)
   {
 
     // pwm fade
-    m_led_manager.reinit_driver(
-        tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_on,
-        tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::enhanced_pwm);
+    m_led_manager.reinit_driver(tlc5955::Driver::DisplayFunction::display_repeat_off,
+                                tlc5955::Driver::TimingFunction::timing_reset_on,
+                                tlc5955::Driver::RefreshFunction::auto_refresh_off,
+                                tlc5955::Driver::PwmFunction::enhanced_pwm);
 
     for (_pwm_led_value = 0; _pwm_led_value < 32768; _pwm_led_value += fade_step)
     {
@@ -552,9 +518,10 @@ void SequenceManager::demo()
     }
 
     // sweep
-    m_led_manager.reinit_driver(
-        tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_on,
-        tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::enhanced_pwm);
+    m_led_manager.reinit_driver(tlc5955::Driver::DisplayFunction::display_repeat_off,
+                                tlc5955::Driver::TimingFunction::timing_reset_on,
+                                tlc5955::Driver::RefreshFunction::auto_refresh_off,
+                                tlc5955::Driver::PwmFunction::enhanced_pwm);
 
     m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::red, sweep_delay);
     m_led_manager.run_led_sweep(m_sequence_map, tlc5955::LedColour::magenta, sweep_delay);
@@ -597,9 +564,10 @@ void SequenceManager::demo()
     stm32::delay_millisecond(solid_delay);
 
     // pwm flash
-    m_led_manager.reinit_driver(
-        tlc5955::Driver::DisplayFunction::display_repeat_off, tlc5955::Driver::TimingFunction::timing_reset_off,
-        tlc5955::Driver::RefreshFunction::auto_refresh_off, tlc5955::Driver::PwmFunction::enhanced_pwm);
+    m_led_manager.reinit_driver(tlc5955::Driver::DisplayFunction::display_repeat_off,
+                                tlc5955::Driver::TimingFunction::timing_reset_off,
+                                tlc5955::Driver::RefreshFunction::auto_refresh_off,
+                                tlc5955::Driver::PwmFunction::enhanced_pwm);
 
     _pwm_led_value = (std::numeric_limits<uint16_t>::max() / 8) * 1;
     m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::red);
@@ -637,7 +605,6 @@ void SequenceManager::demo()
     m_led_manager.set_all_leds_both_rows(_pwm_led_value, tlc5955::LedColour::magenta);
     stm32::delay_millisecond(flash_delay);
   }
-#endif
 }
 
 } // namespace bass_station

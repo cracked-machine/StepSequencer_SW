@@ -22,57 +22,26 @@
 
 #include <display_manager.hpp>
 #include <static_string.hpp>
-namespace bass_station 
+namespace bass_station
 {
 
-DisplayManager::DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface) 
-: m_oled(ssd1306::Driver<STM32G0_ISR>(display_spi_interface, ssd1306::Driver<STM32G0_ISR>::SPIDMA::enabled))
+DisplayManager::DisplayManager(ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface)
+    : m_oled(ssd1306::Driver<STM32G0_ISR>(display_spi_interface, ssd1306::Driver<STM32G0_ISR>::SPIDMA::enabled))
 {
-    noarch::containers::StaticString<5> s("TEST");
-    // init SSD1306 IC display driver
-	m_oled.power_on_sequence();
-    
+  noarch::containers::StaticString<5> s("TEST");
+  // init SSD1306 IC display driver
+  m_oled.power_on_sequence();
 }
-
-#ifdef USE_STD_STRING
-void DisplayManager::set_display_line(DisplayLine line, std::string &msg)
-{
-    switch(line)
-    {
-        case DisplayLine::LINE_ONE:
-            m_display_line1 = msg;
-            break;
-        case DisplayLine::LINE_TWO:
-            m_display_line2 = msg;
-            break;
-        case DisplayLine::LINE_THREE:
-            m_display_line3 = msg;
-            break;        
-        case DisplayLine::LINE_FOUR:
-            m_display_line4 = msg;
-            break;
-        case DisplayLine::LINE_FIVE:
-            m_display_line5 = msg;
-            break;        
-        case DisplayLine::LINE_SIX:
-            m_display_line6 = msg;
-            break;        
-    }    
-}
-#endif // #ifdef USE_STD_STRING
-
-
 
 void DisplayManager::update_oled()
 {
-    
-	m_oled.write(m_display_line1, m_font, 0, 0, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-    m_oled.write(m_display_line2, m_font, 0, 10, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-    m_oled.write(m_display_line3, m_font, 0, 20, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-    m_oled.write(m_display_line4, m_font, 0, 30, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-    m_oled.write(m_display_line5, m_font, 0, 40, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
-    m_oled.write(m_display_line6, m_font, 0, 50, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+
+  m_oled.write(m_display_line1, m_font, 0, 0, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+  m_oled.write(m_display_line2, m_font, 0, 10, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+  m_oled.write(m_display_line3, m_font, 0, 20, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+  m_oled.write(m_display_line4, m_font, 0, 30, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+  m_oled.write(m_display_line5, m_font, 0, 40, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
+  m_oled.write(m_display_line6, m_font, 0, 50, ssd1306::Colour::Black, ssd1306::Colour::White, 3, true);
 }
 
-
-} // namespace bass_station 
+} // namespace bass_station

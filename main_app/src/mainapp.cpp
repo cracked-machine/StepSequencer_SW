@@ -20,12 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #include "mainapp.hpp"
-#include <sequence_manager.hpp>
-#include <timer_manager.hpp>
 #include <adp5587.hpp>
 #include <file_manager.hpp>
+#include <sequence_manager.hpp>
+#include <timer_manager.hpp>
 
 #ifdef __cplusplus
 extern "C"
@@ -34,91 +33,80 @@ extern "C"
 
 #define ENABLE_FATFS 0
 
-void error_handler()
-{
-	while(true)
-	{
+  void error_handler()
+  {
+    while (true)
+    {
+    }
+  }
 
-	}
-}
+  void mainapp()
+  {
 
+    // initialise the timer used for system wide microsecond timeout
+    if (stm32::TimerManager::initialise(TIM6) == false)
+    {
+      error_handler();
+    }
 
-void mainapp()
-{	
+#if ENABLE_FATFS
+    // setup fatfs support for uSDCard
+    fatfs::DiskioProtocolSPI fatfs_spi_interface(SPI2,
+                                                 std::make_pair(GPIOB, GPIO_BSRR_BS8), // sck  - PB8
+                                                 std::make_pair(GPIOB, GPIO_BSRR_BS7), // mosi - PB7
+                                                 std::make_pair(GPIOD, GPIO_BSRR_BS3), // miso - PD3
+                                                 std::make_pair(GPIOD, GPIO_BSRR_BS2), // cs  	- PD2
+                                                 RCC_APBENR1_SPI2EN);
+#endif
 
-	// initialise the timer used for system wide microsecond timeout
-	if (stm32::TimerManager::initialise(TIM6) == false)
-	{
-		error_handler();
-	}
+    // bass_station::FileManager spi_fm(fatfs_spi_interface);
 
-	#if ENABLE_FATFS
-		// setup fatfs support for uSDCard
-		fatfs::DiskioProtocolSPI fatfs_spi_interface (
-			SPI2,
-			std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck  - PB8
-			std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi - PB7
-			std::make_pair(GPIOD, GPIO_BSRR_BS3), 	// miso - PD3
-			std::make_pair(GPIOD, GPIO_BSRR_BS2), 	// cs  	- PD2
-			RCC_APBENR1_SPI2EN
-		);
-	#endif
-	
-	// bass_station::FileManager spi_fm(fatfs_spi_interface);
+    // Timer peripheral for sequencer manager rotary encoder control
+    TIM_TypeDef *sequencer_encoder_timer = TIM1;
 
-	// Timer peripheral for sequencer manager rotary encoder control
-	TIM_TypeDef *sequencer_encoder_timer = TIM1;
+    // SPI peripheral for SSD1306 display driver serial communication
+    ssd1306::DriverSerialInterface<STM32G0_ISR> ssd1306_spi_interface(SPI1,
+                                                                      std::make_pair(GPIOA, GPIO_BSRR_BS0), // PA0 - DC
+                                                                      std::make_pair(GPIOA, GPIO_BSRR_BS3), // PA3 - Reset
+                                                                      STM32G0_ISR::dma1_ch2);
 
-	// SPI peripheral for SSD1306 display driver serial communication
-	ssd1306::DriverSerialInterface<STM32G0_ISR> ssd1306_spi_interface(
-		SPI1, 
-		std::make_pair(GPIOA, GPIO_BSRR_BS0), 	// PA0 - DC
-		std::make_pair(GPIOA, GPIO_BSRR_BS3), 	// PA3 - Reset
-		STM32G0_ISR::dma1_ch2);
+    // I2C peripheral for keypad manager serial communication
+    I2C_TypeDef *ad5587_keypad_i2c = I2C3;
 
-	// I2C peripheral for keypad manager serial communication
-	I2C_TypeDef *ad5587_keypad_i2c = I2C3;
+    // keypad debounce timer
+    TIM_TypeDef *general_purpose_debounce_timer = TIM17;
 
-	// keypad debounce timer
-	TIM_TypeDef *general_purpose_debounce_timer = TIM17;
+    // I2C periperhal for synth output control switch serial communication
+    I2C_TypeDef *adg2188_control_sw_i2c = I2C2;
 
-	// I2C periperhal for synth output control switch serial communication
-	I2C_TypeDef *adg2188_control_sw_i2c = I2C2;
+    // std::pair<GPIO_TypeDef*, uint16_t> test (GPIOB, GPIO_BSRR_BS9);
 
-	// std::pair<GPIO_TypeDef*, uint16_t> test (GPIOB, GPIO_BSRR_BS9);
+    // SPI peripheral for TLC5955 LED driver serial communication
+    tlc5955::DriverSerialInterface tlc5955_spi_interface(SPI2,
+                                                         std::make_pair(GPIOB, GPIO_BSRR_BS9), // latch port+pin
+                                                         std::make_pair(GPIOB, GPIO_BSRR_BS7), // mosi port+pin
+                                                         std::make_pair(GPIOB, GPIO_BSRR_BS8), // sck port+pin
+                                                         std::make_pair(TIM4, TIM_CCER_CC1E),  // gsclk timer+channel
+                                                         RCC_IOPENR_GPIOBEN,                   // for enabling GPIOB clock
+                                                         RCC_APBENR1_SPI2EN                    // for enabling SPI2 clock
+    );
 
-	// SPI peripheral for TLC5955 LED driver serial communication
-	tlc5955::DriverSerialInterface tlc5955_spi_interface(
-		SPI2, 
-		std::make_pair(GPIOB, GPIO_BSRR_BS9), 	// latch port+pin
-		std::make_pair(GPIOB, GPIO_BSRR_BS7), 	// mosi port+pin 
-		std::make_pair(GPIOB, GPIO_BSRR_BS8), 	// sck port+pin
-		std::make_pair(TIM4, TIM_CCER_CC1E),	// gsclk timer+channel
-		RCC_IOPENR_GPIOBEN, 					// for enabling GPIOB clock
-		RCC_APBENR1_SPI2EN  					// for enabling SPI2 clock
-	);
+    // The USART and Timer used to send the MIDI heartbeat
+    midi_stm32::DeviceInterface<STM32G0_ISR> midi_usart_interface(USART5, STM32G0_ISR::usart5);
 
-	// The USART and Timer used to send the MIDI heartbeat
-	midi_stm32::DeviceInterface<STM32G0_ISR> midi_usart_interface(
-		USART5,
-		STM32G0_ISR::usart5
-	);	
+    // initialise the sequencer
+    bass_station::SequenceManager sequencer(std::make_pair(TIM3, STM32G0_ISR::tim3), // Timer peripheral for sequencer manager tempo control
+                                            sequencer_encoder_timer,
+                                            ssd1306_spi_interface,
+                                            ad5587_keypad_i2c,
+                                            general_purpose_debounce_timer,
+                                            adg2188_control_sw_i2c,
+                                            tlc5955_spi_interface,
+                                            midi_usart_interface);
 
-
-	// initialise the sequencer
-	bass_station::SequenceManager sequencer(
-		std::make_pair(TIM3, STM32G0_ISR::tim3), // Timer peripheral for sequencer manager tempo control
-		sequencer_encoder_timer,
-		ssd1306_spi_interface, 
-		ad5587_keypad_i2c, 
-		general_purpose_debounce_timer,
-		adg2188_control_sw_i2c, 
-		tlc5955_spi_interface,
-		midi_usart_interface);
-
-	sequencer.main_loop();
-	// we should never get past here	
-}
+    sequencer.main_loop();
+    // we should never get past here
+  }
 
 #ifdef __cplusplus
 }

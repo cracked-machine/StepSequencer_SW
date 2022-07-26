@@ -20,57 +20,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __NOTE_HPP__
 #define __NOTE_HPP__
 
-#include <static_map.hpp>
 #include <adg2188.hpp>
+#include <static_map.hpp>
 #include <static_string.hpp>
 
-namespace bass_station 
+namespace bass_station
 {
 
 // @brief Represent each note on the BassStation keyboard
 enum Note
 {
-    c0,          
-    c0_sharp,
-    d0,
-    d0_sharp,
-    e0,
-    f0,
-    f0_sharp,
-    g0,
-    g0_sharp,
-    a1,
-    a1_sharp,
-    b1,
-    c1,  // Middle C
-    c1_sharp,
-    d1,
-    d1_sharp,
-    e1,
-    f1,
-    f1_sharp,
-    g1,
-    g1_sharp,
-    a2,
-    a2_sharp,
-    b2,
-    c2,
-    none,
+  c0,
+  c0_sharp,
+  d0,
+  d0_sharp,
+  e0,
+  f0,
+  f0_sharp,
+  g0,
+  g0_sharp,
+  a1,
+  a1_sharp,
+  b1,
+  c1, // Middle C
+  c1_sharp,
+  d1,
+  d1_sharp,
+  e1,
+  f1,
+  f1_sharp,
+  g1,
+  g1_sharp,
+  a2,
+  a2_sharp,
+  b2,
+  c2,
+  none,
 };
 
 // @brief Class to hold note string text and associated adg2188 pole config
 class NoteData
 {
 public:
-    NoteData(noarch::containers::StaticString<4> note_static_string, adg2188::Driver::Pole sw)
-    : m_note_static_string(note_static_string), m_sw(sw) {}
+  NoteData(noarch::containers::StaticString<4> note_static_string, adg2188::Driver::Pole sw)
+      : m_note_static_string(note_static_string),
+        m_sw(sw)
+  {
+  }
 
-    noarch::containers::StaticString<4> m_note_static_string;
-    adg2188::Driver::Pole m_sw;
+  noarch::containers::StaticString<4> m_note_static_string;
+  adg2188::Driver::Pole m_sw;
 };
 
 } // namespace bass_station
