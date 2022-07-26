@@ -1,5 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "Enabled",
+    "C_Cpp.clang_format_style": "{ ColumnLimit: 0, BreakBeforeBraces: Allman, IndentPPDirectives: BeforeHash }",
     "cmake.configureOnOpen": false,
     "files.associations": {
         "main.h": "c",
