@@ -60,10 +60,10 @@ SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_tim
   m_sequencer_encoder_timer->CR1 = m_sequencer_encoder_timer->CR1 | TIM_CR1_CEN;
   // setup rotary encoder switch callback (rotary_sw_exti_isr()) to allow mode change
   // (bass_station::SequenceManager::Mode)
-  m_rotary_sw_exti_handler.init_rotary_encoder_callback(this);
+  // m_rotary_sw_exti_handler.init_rotary_encoder_callback(this);
 
   // setup tempo timer callback to allow pattern sequence update
-  m_sequencer_tempo_timer_isr_handler.init_tempo_timer_callback(this);
+  // m_sequencer_tempo_timer_isr_handler.init_tempo_timer_callback(this);
 
   // send the initial LED sequence to the TL5955 driver (this is normally called repeatedly in
   // execute_next_sequence_step())

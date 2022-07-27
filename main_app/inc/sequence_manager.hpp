@@ -100,7 +100,6 @@ private:
   float m_tempo_timer_freq_hz{0};
 
   /// @brief The timer used for rotary encoder
-  // std::unique_ptr<TIM_TypeDef> m_sequencer_encoder_timer;
   TIM_TypeDef *m_sequencer_encoder_timer;
 
   /// @brief Manages the SSD1306 OLED display
@@ -156,15 +155,13 @@ private:
   {
     /// @brief the parent driver class
     SequenceManager *m_seq_man_ptr{nullptr};
-
-    /// @brief initialise and register this handler instance with InterruptManagerStm32g0
-    // @param parent_driver_ptr the instance to register
-    void init_tempo_timer_callback(SequenceManager *seq_man_ptr)
+    TempoTimerIntHandler(SequenceManager *seq_man_ptr)
     {
       m_seq_man_ptr = seq_man_ptr;
       // register pointer to this handler class in stm32::isr::InterruptManagerStm32g0
       stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
     }
+
     // @brief Definition of InterruptManagerStm32Base::ISR. This is called by
     // stm32::isr::InterruptManagerStm32Base<sINTERRUPT_TYPE> specialization
     virtual void ISR()
@@ -175,8 +172,8 @@ private:
       }
     }
   };
-  /// @brief TempoTimerIntHandler member
-  TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler;
+  /// @brief setup tempo timer callback to allow pattern sequence update
+  TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler{this};
 
   /// @brief SequenceManager callback for timer interrupt
   void tempo_timer_isr();
@@ -185,20 +182,27 @@ private:
   struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>
   {
     // @brief the parent driver class
-    SequenceManager *m_parent_driver_ptr;
+    SequenceManager *m_parent_driver_ptr{nullptr};
     // @brief initialise and register this handler instance with IsrManagerStm32g0
     // @param parent_driver_ptr the instance to register
-    void init_rotary_encoder_callback(SequenceManager *parent_driver_ptr)
+    RotarySwExtIntHandler(SequenceManager *parent_driver_ptr)
     {
       m_parent_driver_ptr = parent_driver_ptr;
       // register pointer to this handler class in stm32::isr::IsrManagerStm32g0
       stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(STM32G0_ISR::exti10, this);
     }
+
     // @brief The callback used by IsrManagerStm32g0
-    virtual void ISR() { m_parent_driver_ptr->rotary_sw_exti_isr(); }
+    virtual void ISR()
+    {
+      if (m_parent_driver_ptr != nullptr)
+      {
+        m_parent_driver_ptr->rotary_sw_exti_isr();
+      }
+    }
   };
-  // @brief handler object
-  RotarySwExtIntHandler m_rotary_sw_exti_handler;
+  // @brief setup rotary encoder switch callback
+  RotarySwExtIntHandler m_rotary_sw_exti_handler{this};
 
   /// @brief SequenceManager callback for exti15 interrupt
   void rotary_sw_exti_isr();
