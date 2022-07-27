@@ -116,10 +116,20 @@ void MX_GPIO_Init(void)
   LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA, LL_EXTI_CONFIG_LINE5);
 
   /**/
+  LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTB, LL_EXTI_CONFIG_LINE15);
+
+  /**/
   LL_EXTI_SetEXTISource(LL_EXTI_CONFIG_PORTA, LL_EXTI_CONFIG_LINE10);
 
   /**/
   EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_5;
+  EXTI_InitStruct.LineCommand = ENABLE;
+  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
+  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
+  LL_EXTI_Init(&EXTI_InitStruct);
+
+  /**/
+  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_15;
   EXTI_InitStruct.LineCommand = ENABLE;
   EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
   EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
@@ -136,10 +146,16 @@ void MX_GPIO_Init(void)
   LL_GPIO_SetPinPull(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_PULL_UP);
 
   /**/
+  LL_GPIO_SetPinPull(ENCODER_SW_GPIO_Port, ENCODER_SW_Pin, LL_GPIO_PULL_UP);
+
+  /**/
   LL_GPIO_SetPinPull(ROTENC_SW_EXTI_GPIO_Port, ROTENC_SW_EXTI_Pin, LL_GPIO_PULL_UP);
 
   /**/
   LL_GPIO_SetPinMode(I2C3_INT_GPIO_Port, I2C3_INT_Pin, LL_GPIO_MODE_INPUT);
+
+  /**/
+  LL_GPIO_SetPinMode(ENCODER_SW_GPIO_Port, ENCODER_SW_Pin, LL_GPIO_MODE_INPUT);
 
   /**/
   LL_GPIO_SetPinMode(ROTENC_SW_EXTI_GPIO_Port, ROTENC_SW_EXTI_Pin, LL_GPIO_MODE_INPUT);
