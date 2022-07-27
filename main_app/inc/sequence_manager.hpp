@@ -73,7 +73,7 @@ private:
   Mode m_current_mode{Mode::TEMPO_ADJUST};
 
   // @brief state variable for previous note
-  NoteData *m_previous_enabled_note;
+  NoteData *m_previous_enabled_note{nullptr};
 
   // @brief The previously captured rotary encoder value
   uint16_t m_last_encoder_value;

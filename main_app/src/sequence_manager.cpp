@@ -335,7 +335,7 @@ void SequenceManager::execute_next_sequence_step()
     if (m_sequencer_state == UserKeyStates::RUNNING)
     {
       //   first, turn off the synth key / note that we enabled on the previous pattern step if (m_previous_enabled_note
-      //   != nullptr)
+      if (m_previous_enabled_note != nullptr)
       {
         m_synth_control_switch.write_switch(adg2188::Driver::Throw::open, m_previous_enabled_note->m_sw, adg2188::Driver::Latch::set);
       }
