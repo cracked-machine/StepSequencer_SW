@@ -31,7 +31,7 @@
 namespace bass_station
 {
 
-using tempo_timer_pair_t = std::pair<TIM_TypeDef &, STM32G0_ISR>;
+using tempo_timer_pair_t = std::pair<TIM_TypeDef *, STM32G0_ISR>;
 
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
@@ -49,7 +49,7 @@ public:
     /// @param led_spi_interface The LedManager SPI interface
     /// @param midi_usart_interface The MIDI USART interface
     SequenceManager(
-        TIM_TypeDef *tempo_timer_pair,
+        tempo_timer_pair_t tempo_timer_pair,
         TIM_TypeDef *sequencer_encoder_timer,
         ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi, 
         I2C_TypeDef *ad5587_keypad_i2c,
@@ -96,7 +96,9 @@ private:
       noarch::containers::StaticMap<Note, NoteData, m_note_switch_data.size()>{{m_note_switch_data}};
 
   /// @brief The timer for tempo of the sequencer
-  TIM_TypeDef &m_tempo_timer;
+  TIM_TypeDef &m_tempo_timer_device;
+  STM32G0_ISR m_tempo_timer_isr;
+
   float m_tempo_timer_freq_hz{0};
 
   /// @brief reference to the hw timer register object (for memory safe access)
