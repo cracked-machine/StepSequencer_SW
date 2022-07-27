@@ -154,23 +154,19 @@ private:
   struct TempoTimerIntHandler : public stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>
   {
     /// @brief the parent driver class
-    SequenceManager *m_seq_man_ptr{nullptr};
+    SequenceManager &m_seq_man_ptr;
+    /// @brief Construct a new Tempo Timer Int Handler object
+    /// @param seq_man_ptr
     TempoTimerIntHandler(SequenceManager *seq_man_ptr)
+        : m_seq_man_ptr(*seq_man_ptr)
     {
-      m_seq_man_ptr = seq_man_ptr;
       // register pointer to this handler class in stm32::isr::InterruptManagerStm32g0
-      stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(m_seq_man_ptr->m_tempo_timer_pair.second, this);
+      stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(m_seq_man_ptr.m_tempo_timer_pair.second, this);
     }
 
     // @brief Definition of InterruptManagerStm32Base::ISR. This is called by
     // stm32::isr::InterruptManagerStm32Base<sINTERRUPT_TYPE> specialization
-    virtual void ISR()
-    {
-      if (m_seq_man_ptr != nullptr)
-      {
-        m_seq_man_ptr->tempo_timer_isr();
-      }
-    }
+    virtual void ISR() { m_seq_man_ptr.tempo_timer_isr(); }
   };
   /// @brief setup tempo timer callback to allow pattern sequence update
   TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler{this};
@@ -182,24 +178,18 @@ private:
   struct RotarySwExtIntHandler : public stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>
   {
     // @brief the parent driver class
-    SequenceManager *m_parent_driver_ptr{nullptr};
+    SequenceManager &m_seq_man_ptr;
     // @brief initialise and register this handler instance with IsrManagerStm32g0
-    // @param parent_driver_ptr the instance to register
-    RotarySwExtIntHandler(SequenceManager *parent_driver_ptr)
+    // @param seq_man_ptr the instance to register
+    RotarySwExtIntHandler(SequenceManager *seq_man_ptr)
+        : m_seq_man_ptr(*seq_man_ptr)
     {
-      m_parent_driver_ptr = parent_driver_ptr;
       // register pointer to this handler class in stm32::isr::IsrManagerStm32g0
       stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(STM32G0_ISR::exti10, this);
     }
 
     // @brief The callback used by IsrManagerStm32g0
-    virtual void ISR()
-    {
-      if (m_parent_driver_ptr != nullptr)
-      {
-        m_parent_driver_ptr->rotary_sw_exti_isr();
-      }
-    }
+    virtual void ISR() { m_seq_man_ptr.rotary_sw_exti_isr(); }
   };
   // @brief setup rotary encoder switch callback
   RotarySwExtIntHandler m_rotary_sw_exti_handler{this};
