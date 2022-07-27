@@ -47,7 +47,7 @@ enum class SequencerRow
 
 // @brief Basic state for keys
 // Not enum class so it can be used as boolean
-enum KeyState
+enum StepState
 {
   ON,
   OFF,
@@ -58,7 +58,7 @@ constexpr tlc5955::LedColour user_select_colour{tlc5955::LedColour::blue};
 constexpr tlc5955::LedColour beat_colour_off{tlc5955::LedColour::white};
 constexpr tlc5955::LedColour beat_colour_on{tlc5955::LedColour::red};
 
-// @brief Represents a single step/key/button in the sequencer
+// @brief Values associated with a single step button in the sequence
 struct Step
 {
 
@@ -68,9 +68,9 @@ struct Step
   // @param logical_mapping_index Maps this step to a position index in one of two 16 position arrays.
   // @param physical_mapping_index Maps this step to the physical wiring pin index of the TLC5955 chip on the PCB
   // @param sequence_mapping_index Maps this step to a position index in the sequence execution order.
-  Step(KeyState key_state, Note note, tlc5955::LedColour colour, int logical_mapping_index, int physical_mapping_index, int array_index)
+  Step(StepState state, Note note, tlc5955::LedColour colour, int logical_mapping_index, int physical_mapping_index, int array_index)
 
-      : m_key_state(key_state),
+      : m_state(state),
         m_note(note),
         m_colour(colour),
         m_logical_mapping_index(logical_mapping_index),
@@ -80,8 +80,8 @@ struct Step
     // nothing else to do here
   }
 
-  // @brief Is the Key ON or OFF
-  KeyState m_key_state;
+  // @brief Is the Step ON or OFF
+  StepState m_state;
 
   Note m_note;
 

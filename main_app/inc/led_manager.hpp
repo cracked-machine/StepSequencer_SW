@@ -66,13 +66,13 @@ public:
   // @param step_sequence The array of step objects that make up the full sequence
   template <std::size_t LED_NUMBER>
   void set_both_rows_with_step_sequence_mapping(
-      noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &step_sequence);
+      noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyEventIndex, Step, LED_NUMBER> &step_sequence);
 
   // @brief Run a simple demo that runs boths rows 0->15 then 15->0, for red, green and blue.
   // @param pwm_value The constrast for the iteration
   // @param delay_ms The delay between each iteration. Affects the speed of the demo
   template <std::size_t LED_NUMBER>
-  void run_led_sweep(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &sequence_map,
+  void run_led_sweep(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyEventIndex, Step, LED_NUMBER> &sequence_map,
                      tlc5955::LedColour colour,
                      uint32_t delay_ms);
 
@@ -88,7 +88,7 @@ private:
 
 template <std::size_t LED_NUMBER>
 void LedManager::set_both_rows_with_step_sequence_mapping(
-    noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &sequence_map)
+    noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyEventIndex, Step, LED_NUMBER> &sequence_map)
 {
   // get the start, mid, end iterators for this input map
   auto start_pos = sequence_map.data.begin();
@@ -100,10 +100,10 @@ void LedManager::set_both_rows_with_step_sequence_mapping(
   // set the TLC5955 register data for the upper row keys
   std::for_each(mid_pos,
                 end_pos,
-                [this, &sequence_map](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair)
+                [this, &sequence_map](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyEventIndex, Step> &data_pair)
                 {
                   Step current_step = data_pair.second;
-                  if (current_step.m_key_state == KeyState::ON)
+                  if (current_step.m_state == StepState::ON)
                   {
                     // remap the logical array positions to the physical PCB wiring
                     m_tlc5955_driver.set_position_and_colour(current_step.m_tlc5955_pin_index, current_step.m_colour);
@@ -120,10 +120,10 @@ void LedManager::set_both_rows_with_step_sequence_mapping(
   // set the TLC5955 register data for the lower row keys
   std::for_each(start_pos,
                 mid_pos,
-                [this, &sequence_map](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step> &data_pair)
+                [this, &sequence_map](const std::pair<adp5587::Driver<STM32G0_ISR>::KeyEventIndex, Step> &data_pair)
                 {
                   Step current_step = data_pair.second;
-                  if (current_step.m_key_state == KeyState::ON)
+                  if (current_step.m_state == StepState::ON)
                   {
                     // remap the logical array positions to the physical PCB wiring
                     m_tlc5955_driver.set_position_and_colour(current_step.m_tlc5955_pin_index, current_step.m_colour);
@@ -141,7 +141,7 @@ void LedManager::set_both_rows_with_step_sequence_mapping(
 /// @param pwm_value
 /// @param delay_ms
 template <std::size_t LED_NUMBER>
-void LedManager::run_led_sweep(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, LED_NUMBER> &sequence_map
+void LedManager::run_led_sweep(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyEventIndex, Step, LED_NUMBER> &sequence_map
                                [[maybe_unused]],
                                tlc5955::LedColour colour,
                                uint32_t delay_ms)

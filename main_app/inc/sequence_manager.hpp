@@ -79,14 +79,10 @@ private:
   uint16_t m_last_encoder_value;
 
   // @brief  The 32-step sequence data
-  static std::array<std::pair<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step>, 32> m_sequence_data;
+  static std::array<std::pair<SequencerKeyEventIndex, Step>, 32> m_sequencer_step_data;
 
   /// @brief Map of key (ADP5587 HW button index) and values (Step object)
-  // clang-format off
-    noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, m_sequence_data.size()> m_sequence_map = 
-        noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, m_sequence_data.size()>{{m_sequence_data}};
-
-  // clang-format on
+  SequencerStepMap m_sequencer_step_map = SequencerStepMap{{m_sequencer_step_data}};
 
   // @brief The 25-key note data of the BassStation keyboard
   static std::array<std::pair<Note, NoteData>, 25> m_note_switch_data;
@@ -119,7 +115,7 @@ private:
   midi_stm32::Driver<STM32G0_ISR> m_midi_driver;
 
   /// @brief counter for sequencer position, incremented in increment_and_execute_sequence_step()
-  uint8_t m_pattern_cursor{0};
+  uint8_t m_sequence_position{0};
 
   /// @brief Save this value so we can return to TEMPO_MODE with the expected tempo
   uint16_t m_saved_tempo_setting{0};
@@ -140,12 +136,12 @@ private:
   /// @brief Update the display and tempo timer
   void update_display_and_tempo();
 
-  /// @brief Runs the note/step sequence
-  /// @param run_demo_only
-  void execute_next_sequence_step();
+  /// @brief Get the step at the current sequencer position. if StepState::ON update LED and activate new synth control switch,  if StepState::OFF
+  /// deactivate the previous synth cnotrol switch. Finally, update the LED driver with the current sequencer LED data
+  void increment_sequencer();
 
-  UserKeyStates m_midi_state{UserKeyStates::STOPPED};
-  UserKeyStates m_sequencer_state{UserKeyStates::STOPPED};
+  SequencerState m_midi_state{SequencerState::STOPPED};
+  SequencerState m_sequencer_state{SequencerState::STOPPED};
 
   /// @brief This determines the positional order in which the cursor sweeps the sequence
   // This begins on the upper row and ends on the lower row, sweeping left to right
@@ -187,7 +183,7 @@ private:
         : m_seq_man_ptr(*seq_man_ptr)
     {
       // register pointer to this handler class in stm32::isr::IsrManagerStm32g0
-      stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(STM32G0_ISR::exti10, this);
+      stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(STM32G0_ISR::exti15, this);
     }
 
     // @brief The callback used by IsrManagerStm32g0

@@ -57,16 +57,16 @@ KeypadManager::KeypadManager(I2C_TypeDef *i2c_handle, TIM_TypeDef *debounce_time
 #endif
 }
 
-UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, Step, 32U> &sequence_map)
+SequencerState KeypadManager::update_sequencer_map(SequencerStepMap &sequencer_map)
 {
-  UserKeyStates running_status{UserKeyStates::IDLE};
+  SequencerState running_status{SequencerState::IDLE};
 
   // get the key events FIFO list from the ADP5587 driver
-  std::array<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, 10U> key_events_list;
+  std::array<SequencerKeyEventIndex, 10U> key_events_list;
   get_key_events(key_events_list);
 
   // process each key event in turn (if any)
-  for (adp5587::Driver<STM32G0_ISR>::KeyPadMappings key_event : key_events_list)
+  for (SequencerKeyEventIndex key_event : key_events_list)
   {
 
     // strict debounce control on the pattern step button presses.
@@ -79,15 +79,15 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
       // update the running status of the overall sequencer if start/stop buttons pressed
       if (static_cast<int>(key_event) == StopButtonID)
       {
-        running_status = UserKeyStates::STOPPED;
+        running_status = SequencerState::STOPPED;
       }
       if (static_cast<int>(key_event) == StartButtonID)
       {
-        running_status = UserKeyStates::RUNNING;
+        running_status = SequencerState::RUNNING;
       }
 
       // find the key event that matches the sequence step
-      Step *step = sequence_map.find_key(key_event);
+      Step *step = sequencer_map.find_key(key_event);
       if (step == nullptr)
       { /* no match found in map */
       }
@@ -95,7 +95,7 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
       {
 #if not defined(X86_UNIT_TESTING_ONLY)
 
-        if (step->m_key_state == KeyState::ON)
+        if (step->m_state == StepState::ON)
         {
           if (step->m_colour == default_colour)
           {
@@ -105,22 +105,22 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
           else
           {
             // the key was ON and already highlighted, user selected it so lets switch it off completely
-            step->m_colour    = default_colour;
-            step->m_key_state = KeyState::OFF;
+            step->m_colour = default_colour;
+            step->m_state  = StepState::OFF;
           }
         }
         else
         {
           // the key was OFF, user selected it so lets highlight it and switch it on!
-          step->m_colour    = user_select_colour;
-          step->m_key_state = KeyState::ON;
+          step->m_colour = user_select_colour;
+          step->m_state  = StepState::ON;
         }
 
         // de-highlight the previously highlighted key...unless we just selected the same key again, then skip
         if (last_user_selected_key_idx != step->m_sequence_abs_pos_index)
         {
           /// @note don't use std::array.at(), this will force exception handling to bloat the linked .elf
-          sequence_map.data[last_user_selected_key_idx].second.m_colour = default_colour;
+          sequencer_map.data[last_user_selected_key_idx].second.m_colour = default_colour;
         }
 
 #endif
@@ -135,9 +135,6 @@ UserKeyStates KeypadManager::process_key_events(noarch::containers::StaticMap<ad
   return running_status;
 }
 
-void KeypadManager::get_key_events(std::array<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, 10> &key_events_list)
-{
-  m_keypad_driver.get_key_events(key_events_list);
-}
+void KeypadManager::get_key_events(std::array<SequencerKeyEventIndex, 10> &key_events_list) { m_keypad_driver.get_key_events(key_events_list); }
 
 } // namespace bass_station

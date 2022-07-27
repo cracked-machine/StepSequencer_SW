@@ -41,12 +41,17 @@
 namespace bass_station
 {
 
-enum class UserKeyStates
+enum class SequencerState
 {
   STOPPED,
   RUNNING,
   IDLE,
 };
+
+/// @brief The enumerated key event indices for a sequencer step button
+using SequencerKeyEventIndex = adp5587::Driver<STM32G0_ISR>::KeyEventIndex;
+/// @brief Map of all sequencer step buttons using the enumerated key event as a key (for convenience)
+using SequencerStepMap = noarch::containers::StaticMap<SequencerKeyEventIndex, Step, 32U>;
 
 /// @brief This is really just a wrapper for the ADP5587 driver at the moment
 /// @todo Some of the SequenceManager functionality should be moved into here at some point...
@@ -60,13 +65,12 @@ public:
 
   /// @brief Get the key events object
   /// @param key_events_list
-  void get_key_events(std::array<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, 10> &key_events_list);
+  void get_key_events(std::array<SequencerKeyEventIndex, 10> &key_events_list);
 
-  /// @brief Update step_sequence map param with latest Keypad events and return the latest UserKey press.
-  // @param step_sequence The map object containing current pattern data
-  // @return UserKeyStates Latest UserKey press
-  UserKeyStates
-  process_key_events(noarch::containers::StaticMap<adp5587::Driver<STM32G0_ISR>::KeyPadMappings, bass_station::Step, 32U> &step_sequence);
+  /// @brief Update sequencer map with latest Keypad events and return the latest UserKey press.
+  // @param sequencer_map The map object containing current pattern data
+  // @return SequencerState Latest UserKey press
+  SequencerState update_sequencer_map(SequencerStepMap &sequencer_map);
 
   // store the index of the last key selected by the user. We can use this index to lookup the position in the StaticMap later on.
   uint8_t last_user_selected_key_idx{0};
@@ -84,10 +88,18 @@ private:
   /// @brief Store the last timer count for debounce
   uint32_t m_last_pattern_debounce_count_ms{0};
 
-  static constexpr uint8_t StartButtonID =
-      static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C8 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
+  static constexpr uint8_t UserBtn1ID =
+      static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C4 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
+  static constexpr uint8_t UserBtn2ID =
+      static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C5 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
+  static constexpr uint8_t UserBtn3ID =
+      static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C6 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
   static constexpr uint8_t StopButtonID =
       static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C7 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
+  static constexpr uint8_t StartButtonID =
+      static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C8 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
+  static constexpr uint8_t UserBtn6ID =
+      static_cast<uint8_t>(adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::C9 | adp5587::Driver<STM32G0_ISR>::GPIKeyMappings::ON);
 };
 
 } // namespace bass_station
