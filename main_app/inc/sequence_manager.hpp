@@ -124,7 +124,6 @@ private:
   uint16_t m_saved_tempo_setting{0};
 
   /// @brief The timer for mode button debounce
-  // std::unique_ptr<TIM_TypeDef> m_debounce_timer;
   TIM_TypeDef *m_debounce_timer;
 
   /// @brief The allowable delay between pressing keys on the sequence keypad
@@ -156,7 +155,7 @@ private:
   struct TempoTimerIntHandler : public stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>
   {
     /// @brief the parent driver class
-    SequenceManager *m_seq_man_ptr;
+    SequenceManager *m_seq_man_ptr{nullptr};
 
     /// @brief initialise and register this handler instance with InterruptManagerStm32g0
     // @param parent_driver_ptr the instance to register
@@ -168,7 +167,13 @@ private:
     }
     // @brief Definition of InterruptManagerStm32Base::ISR. This is called by
     // stm32::isr::InterruptManagerStm32Base<sINTERRUPT_TYPE> specialization
-    virtual void ISR() { m_seq_man_ptr->tempo_timer_isr(); }
+    virtual void ISR()
+    {
+      if (m_seq_man_ptr != nullptr)
+      {
+        m_seq_man_ptr->tempo_timer_isr();
+      }
+    }
   };
   /// @brief TempoTimerIntHandler member
   TempoTimerIntHandler m_sequencer_tempo_timer_isr_handler;
