@@ -45,8 +45,7 @@ void LedManager::reinit_driver(tlc5955::Driver::DisplayFunction display,
 
 void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const tlc5955::LedColour &colour)
 {
-  // refresh buffers
-  m_tlc5955_driver.reset();
+  m_tlc5955_driver.clear_register();
 
   // send upper row first
   switch (colour)
@@ -113,8 +112,7 @@ void LedManager::set_all_leds_both_rows(uint16_t greyscale_pwm, const tlc5955::L
 void LedManager::set_one_led_at(
     uint16_t led_position, const SequencerRow &row, uint16_t greyscale_pwm, const tlc5955::LedColour &colour, const LatchOption &latch_option)
 {
-  // refresh buffers
-  m_tlc5955_driver.reset();
+  m_tlc5955_driver.clear_register();
 
   switch (row)
   {

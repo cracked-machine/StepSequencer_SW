@@ -95,8 +95,7 @@ void LedManager::set_both_rows_with_step_sequence_mapping(
   auto mid_pos   = sequence_map.data.begin() + sequence_map.data.size() / 2;
   auto end_pos   = sequence_map.data.end();
 
-  // refresh buffers
-  m_tlc5955_driver.reset();
+  m_tlc5955_driver.clear_register();
 
   // set the TLC5955 register data for the upper row keys
   std::for_each(mid_pos,
@@ -116,7 +115,7 @@ void LedManager::set_both_rows_with_step_sequence_mapping(
 
   // clear buffer so that the upper row data that was just sent, does not contaminatate the lower row data we are
   // about to send
-  m_tlc5955_driver.reset();
+  m_tlc5955_driver.clear_register();
 
   // set the TLC5955 register data for the lower row keys
   std::for_each(start_pos,
