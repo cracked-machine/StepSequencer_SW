@@ -33,7 +33,7 @@
 namespace bass_station
 {
 
-SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_timer_pair,
+SequenceManager::SequenceManager(TIM_TypeDef *tempo_timer,
                                  TIM_TypeDef *sequencer_encoder_timer,
                                  ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi_interface,
                                  I2C_TypeDef *ad5587_keypad_i2c,
@@ -42,7 +42,7 @@ SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_tim
                                  tlc5955::DriverSerialInterface &led_spi_interface,
                                  midi_stm32::DeviceInterface<STM32G0_ISR> &midi_usart_interface)
 
-    : m_tempo_timer_pair(tempo_timer_pair),
+    : m_tempo_timer(*tempo_timer),
       m_sequencer_encoder_timer(*sequencer_encoder_timer),
       m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface)),
       m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, debounce_timer)),
@@ -74,8 +74,8 @@ void SequenceManager::main_loop()
 #if SEQUENCER_AUTOSTART_ON_BOOT
 
   // enable the tempo timer with update interrupt
-  m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-  m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+  m_tempo_timer.DIER = m_tempo_timer.DIER | TIM_DIER_UIE;
+  m_tempo_timer.CR1  = m_tempo_timer.CR1 | TIM_CR1_CEN;
 
   m_midi_state      = UserKeyStates::RUNNING;
   m_sequencer_state = UserKeyStates::RUNNING;
@@ -114,8 +114,8 @@ void SequenceManager::main_loop()
           m_midi_driver.send_realtime_start_msg();
 
           // enable the timer with update interrupt
-          m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-          m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+          m_tempo_timer.DIER = m_tempo_timer.DIER | TIM_DIER_UIE;
+          m_tempo_timer.CR1  = m_tempo_timer.CR1 | TIM_CR1_CEN;
 
           m_midi_state      = UserKeyStates::RUNNING;
           m_sequencer_state = UserKeyStates::RUNNING;
@@ -129,8 +129,8 @@ void SequenceManager::main_loop()
           m_midi_driver.send_realtime_continue_msg();
 
           // enable the timer with update interrupt
-          m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER | TIM_DIER_UIE;
-          m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 | TIM_CR1_CEN;
+          m_tempo_timer.DIER = m_tempo_timer.DIER | TIM_DIER_UIE;
+          m_tempo_timer.CR1  = m_tempo_timer.CR1 | TIM_CR1_CEN;
 
           m_midi_state      = UserKeyStates::RUNNING;
           m_sequencer_state = UserKeyStates::RUNNING;
@@ -140,8 +140,8 @@ void SequenceManager::main_loop()
       case UserKeyStates::STOPPED:
 
         // disable the timer with update interrupt
-        m_tempo_timer_pair.first->DIER = m_tempo_timer_pair.first->DIER & ~TIM_DIER_UIE;
-        m_tempo_timer_pair.first->CR1  = m_tempo_timer_pair.first->CR1 & ~TIM_CR1_CEN;
+        m_tempo_timer.DIER = m_tempo_timer.DIER & ~TIM_DIER_UIE;
+        m_tempo_timer.CR1  = m_tempo_timer.CR1 & ~TIM_CR1_CEN;
 
         // Tell the MIDI slave device to pause
         m_midi_driver.send_realtime_stop_msg();
@@ -189,8 +189,8 @@ void SequenceManager::tempo_timer_isr()
 
 // reset the UIF bit to re-enable interrupts
 #if not defined(X86_UNIT_TESTING_ONLY)
-  m_tempo_timer_pair.first->SR = m_tempo_timer_pair.first->SR & ~TIM_SR_UIF;
-  // LL_TIM_ClearFlag_UPDATE(m_tempo_timer_pair.first);
+  m_tempo_timer.SR = m_tempo_timer.SR & ~TIM_SR_UIF;
+  // LL_TIM_ClearFlag_UPDATE(m_tempo_timer.first);
 #endif
 }
 
@@ -222,7 +222,7 @@ void SequenceManager::update_display_and_tempo()
   {
     // update the sequencer tempo (prescaler)
     // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
-    m_tempo_timer_pair.first->PSC = m_sequencer_encoder_timer.CNT;
+    m_tempo_timer.PSC = m_sequencer_encoder_timer.CNT;
 
     noarch::containers::StaticString<20> mode_string("TEMPO MODE         ");
 
@@ -295,11 +295,11 @@ void SequenceManager::update_display_and_tempo()
 
   noarch::containers::StaticString<20> encoder_pos;
   encoder_pos.concat(0, "Tempo:");
-  encoder_pos.concat_int(6, m_tempo_timer_pair.first->PSC);
+  encoder_pos.concat_int(6, m_tempo_timer.PSC);
 
   m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_TWO, encoder_pos);
 
-  // volatile uint8_t tempo_timer_hz = 64000000 / (m_tempo_timer_pair.first->PSC * m_tempo_timer_pair.first->ARR);
+  // volatile uint8_t tempo_timer_hz = 64000000 / (m_tempo_timer.first.PSC * m_tempo_timer.first.ARR);
   // volatile uint16_t tempo_timer_bpm = tempo_timer_hz * 60 / 10;
   // std::string tempo_string{""};
   // tempo_string += std::to_string(tempo_timer_bpm) + "   ";

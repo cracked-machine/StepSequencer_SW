@@ -31,7 +31,7 @@
 namespace bass_station
 {
 
-using tempo_timer_pair_t = std::pair<TIM_TypeDef *, STM32G0_ISR>;
+using tempo_timer_pair_t = std::pair<TIM_TypeDef &, STM32G0_ISR>;
 
 // This class takes user key input and controls key LEDs (via LEDManager) and output synth control (via adg2188)
 class SequenceManager
@@ -49,7 +49,7 @@ public:
     /// @param led_spi_interface The LedManager SPI interface
     /// @param midi_usart_interface The MIDI USART interface
     SequenceManager(
-        tempo_timer_pair_t tempo_timer_pair,
+        TIM_TypeDef *tempo_timer_pair,
         TIM_TypeDef *sequencer_encoder_timer,
         ssd1306::DriverSerialInterface<STM32G0_ISR> &display_spi, 
         I2C_TypeDef *ad5587_keypad_i2c,
@@ -96,7 +96,7 @@ private:
       noarch::containers::StaticMap<Note, NoteData, m_note_switch_data.size()>{{m_note_switch_data}};
 
   /// @brief The timer for tempo of the sequencer
-  tempo_timer_pair_t m_tempo_timer_pair;
+  TIM_TypeDef &m_tempo_timer;
   float m_tempo_timer_freq_hz{0};
 
   /// @brief reference to the hw timer register object (for memory safe access)
@@ -161,7 +161,7 @@ private:
         : m_seq_man_ptr(*seq_man_ptr)
     {
       // register pointer to this handler class in stm32::isr::InterruptManagerStm32g0
-      stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(m_seq_man_ptr.m_tempo_timer_pair.second, this);
+      stm32::isr::InterruptManagerStm32Base<STM32G0_ISR>::register_handler(STM32G0_ISR::tim3, this);
     }
 
     // @brief Definition of InterruptManagerStm32Base::ISR. This is called by

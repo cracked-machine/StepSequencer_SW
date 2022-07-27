@@ -95,7 +95,8 @@ extern "C"
     midi_stm32::DeviceInterface<STM32G0_ISR> midi_usart_interface(USART5, STM32G0_ISR::usart5);
 
     // initialise the sequencer
-    bass_station::SequenceManager sequencer(std::make_pair(TIM3, STM32G0_ISR::tim3), // Timer peripheral for sequencer manager tempo control
+    // auto timer_isr_pair = std::make_pair(*TIM3, STM32G0_ISR::tim3);
+    bass_station::SequenceManager sequencer(TIM3, // Timer peripheral for sequencer manager tempo control
                                             sequencer_encoder_timer,
                                             ssd1306_spi_interface,
                                             ad5587_keypad_i2c,
