@@ -43,27 +43,21 @@ SequenceManager::SequenceManager(std::pair<TIM_TypeDef *, STM32G0_ISR> tempo_tim
                                  midi_stm32::DeviceInterface<STM32G0_ISR> &midi_usart_interface)
 
     : m_tempo_timer_pair(tempo_timer_pair),
-      m_sequencer_encoder_timer(sequencer_encoder_timer),
+      m_sequencer_encoder_timer(*sequencer_encoder_timer),
       m_ssd1306_display_spi(bass_station::DisplayManager(display_spi_interface)),
       m_adp5587_keypad_i2c(bass_station::KeypadManager(ad5587_keypad_i2c, debounce_timer)),
       m_synth_control_switch(adg2188::Driver(adg2188_control_sw_i2c)),
       m_led_manager(bass_station::LedManager(led_spi_interface)),
       m_midi_driver(midi_usart_interface),
-      m_debounce_timer(debounce_timer)
+      m_debounce_timer(*debounce_timer)
 {
 
 #if not defined(X86_UNIT_TESTING_ONLY)
 
   // set the rotary encoder to a default value or "tempo"
-  m_sequencer_encoder_timer->CNT = 16;
+  m_sequencer_encoder_timer.CNT = 16;
   // enable the rotary encoder (timer)
-  m_sequencer_encoder_timer->CR1 = m_sequencer_encoder_timer->CR1 | TIM_CR1_CEN;
-  // setup rotary encoder switch callback (rotary_sw_exti_isr()) to allow mode change
-  // (bass_station::SequenceManager::Mode)
-  // m_rotary_sw_exti_handler.init_rotary_encoder_callback(this);
-
-  // setup tempo timer callback to allow pattern sequence update
-  // m_sequencer_tempo_timer_isr_handler.init_tempo_timer_callback(this);
+  m_sequencer_encoder_timer.CR1 = m_sequencer_encoder_timer.CR1 | TIM_CR1_CEN;
 
   // send the initial LED sequence to the TL5955 driver (this is normally called repeatedly in
   // execute_next_sequence_step())
@@ -202,20 +196,20 @@ void SequenceManager::tempo_timer_isr()
 
 void SequenceManager::rotary_sw_exti_isr()
 {
-  uint32_t timer_count_ms = m_debounce_timer->CNT;
+  uint32_t timer_count_ms = m_debounce_timer.CNT;
   if (timer_count_ms - m_last_mode_debounce_count_ms > m_mode_debounce_threshold_ms)
   {
     if (m_current_mode == bass_station::SequenceManager::Mode::NOTE_SELECT)
     {
       m_current_mode = bass_station::SequenceManager::Mode::TEMPO_ADJUST;
       // restore the saved tempo value now we return to TEMPO_ADJUST mode
-      m_sequencer_encoder_timer->CNT = m_saved_tempo_setting;
+      m_sequencer_encoder_timer.CNT = m_saved_tempo_setting;
     }
     else
     {
       m_current_mode = bass_station::SequenceManager::Mode::NOTE_SELECT;
       // save the current tempo value whilst we are in NOTE_SELECT mode
-      m_saved_tempo_setting = m_sequencer_encoder_timer->CNT;
+      m_saved_tempo_setting = m_sequencer_encoder_timer.CNT;
     }
   }
   m_last_mode_debounce_count_ms = timer_count_ms;
@@ -228,7 +222,7 @@ void SequenceManager::update_display_and_tempo()
   {
     // update the sequencer tempo (prescaler)
     // TODO rotary encoder is backwards: Should be CW = increase tempo, CCW = decrease tempo
-    m_tempo_timer_pair.first->PSC = m_sequencer_encoder_timer->CNT;
+    m_tempo_timer_pair.first->PSC = m_sequencer_encoder_timer.CNT;
 
     noarch::containers::StaticString<20> mode_string("TEMPO MODE         ");
 
@@ -248,10 +242,10 @@ void SequenceManager::update_display_and_tempo()
 
     // get the direction from the encoder and increment/decrement the note in the step of the last user selected key
 
-    if (m_last_encoder_value != m_sequencer_encoder_timer->CNT)
+    if (m_last_encoder_value != m_sequencer_encoder_timer.CNT)
     {
 #if not defined(X86_UNIT_TESTING_ONLY)
-      if (m_sequencer_encoder_timer->CR1 & TIM_CR1_DIR)
+      if (m_sequencer_encoder_timer.CR1 & TIM_CR1_DIR)
       // if (LL_TIM_GetDirection(m_sequencer_encoder_timer))
       {
         m_display_direction.concat(0, "up  ");
@@ -269,7 +263,7 @@ void SequenceManager::update_display_and_tempo()
 #endif
     }
     m_ssd1306_display_spi.set_display_line(DisplayManager::DisplayLine::LINE_FOUR, m_display_direction);
-    m_last_encoder_value = m_sequencer_encoder_timer->CNT;
+    m_last_encoder_value = m_sequencer_encoder_timer.CNT;
   }
 
   // now read back the updated note from the step to get the note string value

@@ -99,8 +99,8 @@ private:
   tempo_timer_pair_t m_tempo_timer_pair;
   float m_tempo_timer_freq_hz{0};
 
-  /// @brief The timer used for rotary encoder
-  TIM_TypeDef *m_sequencer_encoder_timer;
+  /// @brief reference to the hw timer register object (for memory safe access)
+  TIM_TypeDef &m_sequencer_encoder_timer;
 
   /// @brief Manages the SSD1306 OLED display
   bass_station::DisplayManager m_ssd1306_display_spi;
@@ -123,7 +123,7 @@ private:
   uint16_t m_saved_tempo_setting{0};
 
   /// @brief The timer for mode button debounce
-  TIM_TypeDef *m_debounce_timer;
+  TIM_TypeDef &m_debounce_timer;
 
   /// @brief The allowable delay between pressing keys on the sequence keypad
   /// Increasing this value will decrease bounce but also responsiveness
