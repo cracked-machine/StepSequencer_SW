@@ -8,7 +8,11 @@ docker run --rm -it stm32_dev
 
 Recommended to use VSCode with `Dev Containers` installed.
 
-#### X11 Server
+#### Github Docker registry
+
+See instructions [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images)
+
+#### X11 Server (experimental)
 
 Using JLink tools requires X11 Server installed on the host (it has pop-up window options)
 

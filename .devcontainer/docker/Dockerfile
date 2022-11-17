@@ -9,7 +9,8 @@ RUN apt update -y && \
     sudo \
     git \
     ninja-build \
-    pkg-config
+    pkg-config \
+    catch2
 
 RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 
@@ -27,7 +28,9 @@ RUN aunpack -vf /tmp/$ARM_INSTALLER -X /opt
 ##################### 
 # CMake
 ####################
-ARG CMAKE_INSTALLER=cmake-3.24.2-linux-x86_64.tar.gz
+ARG CMAKE_VERSION=cmake-3.24.2-linux-x86_64
+ARG CMAKE_INSTALLER=${CMAKE_VERSION}.tar.gz
+ARG CMAKE_INSTALL_PATH=/opt/${CMAKE_VERSION}/bin
 RUN wget --directory-prefix /tmp https://github.com/Kitware/CMake/releases/download/v3.24.2/$CMAKE_INSTALLER
 RUN aunpack -vf /tmp/$CMAKE_INSTALLER -X /opt
 
@@ -50,6 +53,14 @@ RUN apt update -y && \
     libxcursor1 \
     libfontconfig1
 
+######################
+# Catch2
+######################
+# RUN git clone https://github.com/catchorg/Catch2.git \
+#     && cd Catch2 \
+#     && ${CMAKE_INSTALL_PATH}/cmake -D"CMAKE_MAKE_PROGRAM:PATH=/usr/bin/ninja" -Bbuild -H. -DBUILD_TESTING=OFF \
+#     && ${CMAKE_INSTALL_PATH}/cmake -D"CMAKE_MAKE_PROGRAM:PATH=/usr/bin/ninja" --build build/ --target install
+
 ##################### 
 # VSCode
 #####################
@@ -61,7 +72,7 @@ RUN apt update -y && \
 # fetch STM32CubeIDE
 
 # Setup PATH to use the installed tools
-RUN echo export PATH=/opt/${ARM_INSTALLER%.tar.xz}/bin:/opt/${CMAKE_INSTALLER%.tar.gz}/bin:/opt/${JLINK_DIR}:$PATH >> /home/$USER/.bashrc
+RUN echo export PATH=/opt/${ARM_INSTALLER%.tar.xz}/bin:${CMAKE_INSTALL_PATH}:/opt/${JLINK_DIR}:$PATH >> /home/$USER/.bashrc
 
 USER $USER
 # RUN git clone https://github.com/cracked-machine/BassStationSequencerSW.git --recursive ~/project
