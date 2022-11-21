@@ -18,11 +18,27 @@ RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 # ARM Cross toolchain
 #####################
 
+# # get 11.3.rel1
+ARG ARM_URL=https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel
 ARG ARM_INSTALLER=arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi.tar.xz
-RUN wget --directory-prefix /tmp \
-    https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/$ARM_INSTALLER
+RUN wget --directory-prefix /tmp $ARM_URL/$ARM_INSTALLER \
+    && aunpack -vf /tmp/$ARM_INSTALLER -X /opt \
+    && rm /tmp/$ARM_INSTALLER
 
-RUN aunpack -vf /tmp/$ARM_INSTALLER -X /opt
+# configure cmake kits
+RUN mkdir -p -m 777 /home/$USER/.local/share/CMakeTools && \
+    echo '\
+    [\n\
+    {\n\
+    "name": "GCC 11.3 arm-none-eabi",\n\
+    "compilers": {\n\
+    "C": "/opt/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc",\n\
+    "CXX": "/opt/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++"\n\
+    }\n\
+    },\n\
+    ]\n\
+    ' > /home/$USER/.local/share/CMakeTools/cmake-tools-kits.json
+
 
 
 ##################### 
@@ -61,15 +77,15 @@ RUN apt update -y && \
 #     && ${CMAKE_INSTALL_PATH}/cmake -D"CMAKE_MAKE_PROGRAM:PATH=/usr/bin/ninja" -Bbuild -H. -DBUILD_TESTING=OFF \
 #     && ${CMAKE_INSTALL_PATH}/cmake -D"CMAKE_MAKE_PROGRAM:PATH=/usr/bin/ninja" --build build/ --target install
 
-##################### 
-# VSCode
-#####################
-# fetch vscode
+# ##################### 
+# # VSCode
+# #####################
+# # fetch vscode
 
-##################### 
-# STM32CubeIDE
-#####################
-# fetch STM32CubeIDE
+# ##################### 
+# # STM32CubeIDE
+# #####################
+# # fetch STM32CubeIDE
 
 # Setup PATH to use the installed tools
 RUN echo export PATH=/opt/${ARM_INSTALLER%.tar.xz}/bin:${CMAKE_INSTALL_PATH}:/opt/${JLINK_DIR}:$PATH >> /home/$USER/.bashrc
@@ -84,3 +100,4 @@ ENV CC=/opt/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g
     COV=/opt/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcov \
     GDB=/opt/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gdb \
     SIZE=/opt/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-size
+
