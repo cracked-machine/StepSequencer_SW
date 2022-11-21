@@ -1,5 +1,5 @@
 {
-    "image": "stm32_dev:latest",
+    "image": "ghcr.io/cracked-machine/stm32_dev:10.3-2021.10",
     "name": "stm32 dev",
     "extensions": [
         "ms-vscode.cpptools",
